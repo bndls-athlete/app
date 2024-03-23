@@ -54,6 +54,12 @@ const athleteSchema = z.object({
   engagementRate: z.number().optional(),
   athleteRating: z.number().optional(),
   athleteInformation: z.string().optional(),
+  stripeCustomerId: z.string().optional(),
+  stripeSubscriptionId: z.string().optional(),
+  subscriptionStatus: z
+    .enum(["active", "inactive", "canceled", "past_due", "unpaid"])
+    .optional(),
+  athleteTier: z.enum(["1", "2", "3"]).optional(),
 });
 
 export type Athlete = z.infer<typeof athleteSchema>;

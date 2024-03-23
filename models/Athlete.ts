@@ -37,20 +37,20 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     required: true,
   },
   // Individual specific fields
-  collegeUniversity: { type: String, required: false },
-  graduationDate: { type: Date, required: false },
-  sport: { type: String, required: false },
-  professionalSkills: { type: [String], required: false },
-  currentAcademicGPA: { type: Number, required: false },
-  professionalReferences: { type: [String], required: false },
-  athleticCareerHighlights: { type: String, required: false },
-  bio: { type: String, required: false },
-  reel: { type: String, required: false },
+  collegeUniversity: String,
+  graduationDate: Date,
+  sport: String,
+  professionalSkills: [String],
+  currentAcademicGPA: Number,
+  professionalReferences: [String],
+  athleticCareerHighlights: String,
+  bio: String,
+  reel: String,
   // Team specific fields
-  teamGender: { type: String, required: false },
-  teamGPA: { type: Number, required: false },
-  teamBio: { type: String, required: false },
-  teamHighlights: { type: String, required: false },
+  teamGender: String,
+  teamGPA: Number,
+  teamBio: String,
+  teamHighlights: String,
   // Common fields
   socialProfiles: {
     instagram: String,
@@ -62,6 +62,27 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   engagementRate: Number,
   athleteRating: Number,
   athleteInformation: String,
+  // Payments
+  // Stripe customer ID for managing subscriptions and payments
+  stripeCustomerId: String,
+  // Stripe subscription ID to track the subscription status
+  stripeSubscriptionId: String,
+  // Subscription status to manage the subscription lifecycle
+  subscriptionStatus: {
+    type: String,
+    enum: [
+      "active", // Subscription is active and payments are up-to-date. Allow access to premium features.
+      "inactive", // Subscription is inactive, possibly due to manual deactivation. Restrict access to premium features.
+      "canceled", // Subscription has been canceled and will not renew. Restrict access to premium features.
+      "past_due", // Payment for the subscription is past due. Consider sending reminders and restrict access if necessary.
+      "unpaid", // Subscription is unpaid and may be suspended. Restrict access to premium features.
+    ],
+  },
+  // Athlete tier to categorize athletes and determine subscription price
+  athleteTier: {
+    type: Number,
+    enum: [1, 2, 3],
+  },
 });
 
 const AthleteModel =

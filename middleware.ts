@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authMiddleware } from "@clerk/nextjs";
+import { EntityType } from "./types/entityTypes";
 
 export default authMiddleware({
   publicRoutes: ["/sign-in", "/sign-up", "/"],
@@ -23,17 +24,23 @@ export default authMiddleware({
       const userType = auth.sessionClaims?.userType;
 
       // Redirect athlete to athlete dashboard
-      if (userType === "athlete" && !currentPath.startsWith("/athlete")) {
+      if (
+        userType === EntityType.Athlete &&
+        !currentPath.startsWith("/athlete")
+      ) {
         return NextResponse.redirect(new URL("/athlete", req.url));
       }
 
       // Redirect athlete team to team dashboard
-      if (userType === "team" && !currentPath.startsWith("/team")) {
+      if (userType === EntityType.Team && !currentPath.startsWith("/team")) {
         return NextResponse.redirect(new URL("/team", req.url));
       }
 
       // Redirect company to company dashboard
-      if (userType === "company" && !currentPath.startsWith("/company")) {
+      if (
+        userType === EntityType.Company &&
+        !currentPath.startsWith("/company")
+      ) {
         return NextResponse.redirect(new URL("/company", req.url));
       }
     }

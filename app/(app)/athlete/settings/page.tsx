@@ -1,16 +1,17 @@
 "use client";
 
-import AccountSettings from "../components/settings/AccountSettings";
-import AthleteInformation from "../components/settings/AthleteInformation";
-import SocialMedia from "../components/settings/SocialMedia";
-import Security from "../components/settings/Security";
-import BusinessInformation from "../components/settings/BusinessInformation";
+import AccountSettings from "./components/AccountSettings";
+import AthleteInformation from "./components/AthleteInformation";
+import SocialMedia from "./components/SocialMedia";
+import Security from "./components/Security";
+import BusinessInformation from "./components/BusinessInformation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
 import Link from "next/link";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { EntityType } from "@/types/entityTypes";
 
 const Settings = () => {
   const pathname = usePathname();
@@ -39,12 +40,12 @@ const Settings = () => {
     {
       path: `/${type}/settings/?menu=athlete-information`,
       label: "Athlete Information",
-      condition: type !== "brand",
+      condition: type !== EntityType.Company,
     },
     {
       path: `/${type}/settings/?menu=business-information`,
       label: "Business Information",
-      condition: type === "brand",
+      condition: type === EntityType.Company,
     },
     {
       path: `/${type}/settings/?menu=social-media`,

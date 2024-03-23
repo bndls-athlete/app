@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,12 +38,12 @@ const UploadComponent: React.FC<{
       } cursor-pointer`}
     >
       <input {...getInputProps()} />
-      <FontAwesomeIcon icon={faCloudArrowUp} className="text-lg" />
+      <FontAwesomeIcon icon={faCloudArrowUp} className=" w-5 h-5" />
       <div className="mt-2">
         <span className="text-primary font-semibold">Click to Upload</span> or
         drag and drop
       </div>
-      <p className="text-sm mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+      <p className=" mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
     </div>
   );
 };

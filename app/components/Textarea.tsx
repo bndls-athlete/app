@@ -1,3 +1,5 @@
+"use client";
+
 import React, { forwardRef, TextareaHTMLAttributes, ReactNode } from "react";
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
@@ -9,7 +11,7 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ children, withLabel, desc, error, ...props }, ref) => {
-    const textareaClassName = `textarea textarea-bordered text-sm ${
+    const textareaClassName = `textarea textarea-bordered text-base ${
       props.className ?? ""
     }`;
 
@@ -23,8 +25,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea {...props} className={textareaClassName} ref={ref}>
           {children}
         </textarea>
-        {desc && <p className="text-xs text-neutral-400 mt-1">{desc}</p>}
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {desc && <p className=" text-neutral-400 mt-1">{desc}</p>}
+        {error && <p className=" text-red-500 mt-1">{error}</p>}
       </div>
     );
   }

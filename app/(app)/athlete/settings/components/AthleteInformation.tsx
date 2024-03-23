@@ -19,6 +19,7 @@ import { Athlete } from "@/schemas/athleteSchema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { EntityType } from "@/types/entityTypes";
 
 const athleteSchema = z.object({
   collegeOrUniversity: z.string().min(1, "Required"),
@@ -122,20 +123,20 @@ const AthleteInformation = ({ athlete }: Props) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Athlete Profile</h6>
-            <span className="text-sm text-subtitle">
+            <span className=" text-subtitle">
               Update your company photo and details here.
             </span>
           </div>
           {/* <div className="py-3 flex gap-2">
             <Button
               theme="light"
-              className="text-sm py-2"
+              className=" py-2"
               type="reset"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+            <Button className=" py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />
@@ -149,7 +150,7 @@ const AthleteInformation = ({ athlete }: Props) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">College or University</h6>
+            <h6 className=" font-semibold">College or University</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Input
@@ -160,7 +161,7 @@ const AthleteInformation = ({ athlete }: Props) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Graduation Date</h6>
+            <h6 className=" font-semibold">Graduation Date</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-3 gap-4">
             <Select
@@ -189,7 +190,7 @@ const AthleteInformation = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Sport</h6>
+            <h6 className=" font-semibold">Sport</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Select {...register("sport")} error={errors.sport?.message}>
@@ -198,14 +199,15 @@ const AthleteInformation = ({ athlete }: Props) => {
               </option>
               <option value="basketball">Basketball</option>
               <option value="football">Football</option>
+              <option value="baseball">Baseball</option>
               <option value="soccer">Soccer</option>
             </Select>
           </div>
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Professional Skills</h6>
-            <span className="text-sm text-subtitle">
+            <h6 className=" font-semibold">Professional Skills</h6>
+            <span className=" text-subtitle">
               Select all that are applicable to you
             </span>
           </div>
@@ -226,8 +228,8 @@ const AthleteInformation = ({ athlete }: Props) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">
-              {type === "team"
+            <h6 className=" font-semibold">
+              {type === EntityType.Team
                 ? "Current Team GPA Average"
                 : "Current Academic GPA"}
             </h6>
@@ -238,7 +240,7 @@ const AthleteInformation = ({ athlete }: Props) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">
+            <h6 className=" font-semibold">
               Professional References (2 required)
             </h6>
           </div>
@@ -251,41 +253,37 @@ const AthleteInformation = ({ athlete }: Props) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">
-              {type === "team"
+            <h6 className=" font-semibold">
+              {type === EntityType.Team
                 ? "Team Highlights"
                 : "Athletic Career Highlights"}
             </h6>
-            <span className="text-sm text-subtitle">
-              Write a short introduction.
-            </span>
+            <span className=" text-subtitle">Write a short introduction.</span>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Textarea
               {...register("highlights")}
               error={errors.highlights?.message}
             ></Textarea>
-            <span className="text-sm text-subtitle">400 characters left.</span>
+            <span className=" text-subtitle">400 characters left.</span>
           </div>
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Your Bio</h6>
-            <span className="text-sm text-subtitle">
-              Write a short introduction.
-            </span>
+            <h6 className=" font-semibold">Your Bio</h6>
+            <span className=" text-subtitle">Write a short introduction.</span>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Textarea
               {...register("bio")}
               error={errors.bio?.message}
             ></Textarea>
-            <span className="text-sm text-subtitle">400 characters left.</span>
+            <span className=" text-subtitle">400 characters left.</span>
           </div>
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Your Reel</h6>
+            <h6 className=" font-semibold">Your Reel</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <InputGroup
@@ -293,7 +291,7 @@ const AthleteInformation = ({ athlete }: Props) => {
               {...register("youtubeUrl")}
               error={errors.youtubeUrl?.message}
             />
-            <span className="text-sm text-subtitle">
+            <span className=" text-subtitle">
               Upload a 30-60 second Youtube video of your pitch. Make sure it's
               unlisted. You're giving a short glimpse to brands about you and
               why you both will be great partners.
@@ -304,13 +302,13 @@ const AthleteInformation = ({ athlete }: Props) => {
           <div className="py-3 flex gap-2">
             <Button
               theme="light"
-              className="text-sm py-2"
+              className=" py-2"
               type="reset"
               disabled={isLoading}
             >
               Cancel
             </Button>{" "}
-            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+            <Button className=" py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />

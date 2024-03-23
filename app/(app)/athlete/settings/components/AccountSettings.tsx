@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
+import { EntityType } from "@/types/entityTypes";
 
 // Define the Zod schema for form validation
 const accountSettingsSchema = z.object({
@@ -118,15 +119,15 @@ const AccountSettings = ({ athlete }: Props) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Profile</h6>
-            <span className="text-sm text-subtitle">
+            <span className=" text-subtitle">
               Update your profile picture and basic information here
             </span>
           </div>
           {/* <div className="py-3 flex gap-2">
-            <Button theme="light" className="text-sm py-2" disabled={isLoading}>
+            <Button theme="light" className=" py-2" disabled={isLoading}>
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+            <Button className=" py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />
@@ -141,10 +142,8 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Profile Picture</h6>
-            <span className="text-sm text-subtitle">
-              Update your profile picture.
-            </span>
+            <h6 className=" font-semibold">Profile Picture</h6>
+            <span className=" text-subtitle">Update your profile picture.</span>
           </div>
           <div className="lg:col-span-6 md:col-span-6 col-span-8 flex gap-4">
             <img
@@ -158,7 +157,7 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Your Full Name</h6>
+            <h6 className=" font-semibold">Your Full Name</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Input {...register("fullName")} error={errors.fullName?.message} />
@@ -167,13 +166,13 @@ const AccountSettings = ({ athlete }: Props) => {
 
         {/* <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">
-              Your {type === "brand" ? "Work Email" : "Email"}
+            <h6 className=" font-semibold">
+              Your {type === EntityType.Company ? "Work Email" : "Email"}
             </h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Input {...register("email")} error={errors.email?.message} />
-            <span className="text-subtitle text-sm">
+            <span className="text-subtitle ">
               This is the email address you use to sign in. It’s also where we
               send your booking confirmations.
             </span>
@@ -182,14 +181,17 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">
-              {type === "team" ? "Men's Team or Women's Team?" : "Gender"}
+            <h6 className=" font-semibold">
+              {type === EntityType.Team
+                ? "Men's Team or Women's Team?"
+                : "Gender"}
             </h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Select {...register("gender")} error={errors.gender?.message}>
               <option value="" disabled>
-                Please select your {type === "team" ? "Team" : "Gender"}
+                Please select your{" "}
+                {type === EntityType.Team ? "Team" : "Gender"}
               </option>
               <option value="men's">Men's</option>
               <option value="women's">Women's</option>
@@ -200,7 +202,7 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Address</h6>
+            <h6 className=" font-semibold">Address</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 space-y-3">
             <Select {...register("country")} error={errors.country?.message}>
@@ -229,7 +231,7 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Location</h6>
+            <h6 className=" font-semibold">Location</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <div className="grid grid-cols-9 gap-2">
@@ -261,7 +263,7 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="text-sm font-semibold">Date of Birth</h6>
+            <h6 className=" font-semibold">Date of Birth</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-3 gap-4">
             <Select
@@ -288,10 +290,10 @@ const AccountSettings = ({ athlete }: Props) => {
 
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            <Button theme="light" className="text-sm py-2">
+            <Button theme="light" className=" py-2">
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit">
+            <Button className=" py-2" type="submit">
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />

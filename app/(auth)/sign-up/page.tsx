@@ -12,6 +12,7 @@ import { z } from "zod";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import Button from "@/app/components/Button";
 import axios from "axios";
+import { EntityType } from "@/types/entityTypes";
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -29,7 +30,7 @@ export default function SignUpForm() {
       email: "",
       password: "",
       passwordConfirmation: "",
-      userType: "athlete",
+      userType: EntityType.Athlete,
     },
   });
 
@@ -45,9 +46,9 @@ export default function SignUpForm() {
     }
     setIsSubmitting(true);
     try {
-      const names = data.fullName.trim().split(/\s+/);
-      const firstName = names.shift();
-      const lastName = names.join(" ");
+      const names = data.fullName?.trim().split(/\s+/);
+      const firstName = names?.shift();
+      const lastName = names?.join(" ");
 
       await signUp.create({
         emailAddress: data.email,
@@ -107,14 +108,14 @@ export default function SignUpForm() {
             </p>
             <form onSubmit={handleVerificationSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block  font-medium mb-1">
                   Verification Code
                 </label>
                 <Input
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  className="border-2 border-gray-200 w-full p-2 rounded-md text-sm focus:border-primary focus:ring-primary/[0.2] focus:outline-none"
+                  className="border-2 border-gray-200 w-full p-2 rounded-md  focus:border-primary focus:ring-primary/[0.2] focus:outline-none"
                   required
                 />
               </div>
@@ -140,11 +141,11 @@ export default function SignUpForm() {
           className="space-y-6"
         >
           <h1 className="text-4xl font-bold mb-6">Sign Up</h1>
-          <span className="text-sm mb-6 block">
+          <span className=" mb-6 block">
             Already have an account?
             <Link
               href={"/sign-in"}
-              className="ml-2 text-sm text-primary font-medium hover:underline"
+              className="ml-2  text-primary font-medium hover:underline"
             >
               Log In
             </Link>
@@ -192,7 +193,7 @@ export default function SignUpForm() {
               />
               <label
                 htmlFor="default-checkbox"
-                className="ml-2 text-sm font-medium text-gray-900"
+                className="ml-2  font-medium text-gray-900"
               >
                 I want to receive platform & product updates.
               </label>
@@ -248,7 +249,7 @@ export default function SignUpForm() {
           </Button>
 
           <div className="mt-6 text-center">
-            <span className="text-sm">
+            <span className="">
               By signing up, I agree to the Privacy Policy and Terms of Service.
             </span>
           </div>

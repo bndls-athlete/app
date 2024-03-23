@@ -110,21 +110,21 @@ const SocialMedia = ({ athlete }: Props) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Social Profile</h6>
-            <span className="text-sm text-subtitle">
+            <span className=" text-subtitle">
               Upload your social media profiles.
             </span>
           </div>
           {/* <div className="py-3 flex gap-2">
             <Button
               theme="light"
-              className="text-sm py-2"
+              className=" py-2"
               type="reset"
               disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
-              className="text-sm py-2 flex justify-center items-center gap-2"
+              className=" py-2 flex justify-center items-center gap-2"
               type="submit"
               disabled={isLoading}
             >
@@ -142,10 +142,8 @@ const SocialMedia = ({ athlete }: Props) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8 mb-3">
-            <h6 className="text-sm font-semibold">Social Profiles</h6>
-            <span className="text-sm text-subtitle">
-              You must have at least one.
-            </span>
+            <h6 className=" font-semibold">Social Profiles</h6>
+            <span className=" text-subtitle">You must have at least one.</span>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
             <InputGroup
@@ -174,13 +172,13 @@ const SocialMedia = ({ athlete }: Props) => {
           <div className="py-3 flex gap-2">
             <Button
               theme="light"
-              className="text-sm py-2"
+              className=" py-2"
               type="reset"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+            <Button className=" py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />

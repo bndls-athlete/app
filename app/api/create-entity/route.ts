@@ -6,6 +6,7 @@ import { athleteSchema, Athlete } from "@/schemas/athleteSchema";
 import { brandSchema, Brand } from "@/schemas/brandSchema";
 import { clerkClient } from "@clerk/nextjs";
 import { UserTypeType } from "@/schemas/signUpSchema";
+import { EntityType } from "@/types/entityTypes";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -37,13 +38,14 @@ export async function POST(request: Request) {
 
     const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
-    if (userType === "athlete" || userType === "team") {
+    if (userType === EntityType.Athlete || userType === EntityType.Team) {
       const athleteData: Athlete = {
         userId: authUser.userId!,
         fullName: fullName,
         email: email,
         receiveUpdates: updates,
-        registrationType: userType === "athlete" ? "individual" : "team",
+        registrationType:
+          userType === EntityType.Athlete ? "individual" : "team",
       };
 
       const parsedResult = athleteSchema.safeParse(athleteData);
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
         }),
         { status: 201, headers: { "Content-Type": "application/json" } }
       );
-    } else if (userType === "company") {
+    } else if (userType === EntityType.Company) {
       const brandData: Brand = {
         userId: authUser.userId!,
         companyName: fullName,

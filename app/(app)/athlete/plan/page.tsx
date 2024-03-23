@@ -1,7 +1,7 @@
 import React from "react";
 
-function Page() {
+function Plan() {
   return <div>Page</div>;
 }
 
-export default Page;
+export default Plan;

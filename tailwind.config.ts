@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // fontSize: {
+      //   base: '0.875rem'
+      // },
       colors: {
         primary: "#C6B624",
         sidebar: "#F0F0F0",

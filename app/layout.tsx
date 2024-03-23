@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import ReactQueryProviderWrapper from "@/context/QueryProvider";
 import { ToastProvider } from "@/context/ToastProvider";
+import { AthleteCardVisibilityProvider } from "@/context/AthleteCardVisibilityProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,12 +21,13 @@ export default function RootLayout({
   return (
     <ReactQueryProviderWrapper>
       <ClerkProvider>
-        <html lang="en">
-          <body className={inter.className}>
-            {" "}
-            <ToastProvider> {children} </ToastProvider>
-          </body>
-        </html>
+        <AthleteCardVisibilityProvider>
+          <html lang="en">
+            <body className={inter.className}>
+              <ToastProvider> {children} </ToastProvider>
+            </body>
+          </html>
+        </AthleteCardVisibilityProvider>
       </ClerkProvider>
     </ReactQueryProviderWrapper>
   );

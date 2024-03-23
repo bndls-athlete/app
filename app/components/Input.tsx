@@ -1,3 +1,5 @@
+"use client";
+
 import React, { forwardRef } from "react";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
@@ -8,7 +10,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ withLabel, desc, error, className, type, ...rest }, ref) => {
-    const inputClass = `input input-bordered w-full text-sm ${className || ""}`;
+    const inputClass = `input input-bordered w-full ${className || ""}`;
 
     return (
       <div className="form-control">
@@ -18,8 +20,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
         <input {...rest} ref={ref} type={type} className={inputClass} />
-        {desc && <p className="text-xs text-gray-500 mt-1">{desc}</p>}
-        {error && <small className="text-xs text-red-500 mt-1">{error}</small>}
+        {desc && <p className=" text-gray-500 mt-1">{desc}</p>}
+        {error && <small className=" text-red-500 mt-1">{error}</small>}
       </div>
     );
   }

@@ -1,6 +1,11 @@
+import { EntityType } from "@/types/entityTypes";
 import { z } from "zod";
 
-export const UserType = z.enum(["athlete", "team", "company"]);
+export const UserType = z.enum([
+  EntityType.Athlete,
+  EntityType.Team,
+  EntityType.Company,
+]);
 
 export const signUpSchema = z
   .object({

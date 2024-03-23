@@ -94,11 +94,11 @@ export default function SignInForm() {
         </form>
 
         <div className="mt-3 text-center">
-          <span className="text-sm">
+          <span className="">
             Don't have an account?
             <Link
               href="/sign-up"
-              className="ml-2 text-sm text-primary font-medium hover:underline"
+              className="ml-2  text-primary font-medium hover:underline"
             >
               Sign Up Now
             </Link>
@@ -106,7 +106,7 @@ export default function SignInForm() {
         </div>
 
         <div className="mt-3 text-center">
-          <span className="text-sm">
+          <span className="">
             By signing up, I agree Privacy Policy and Terms of Service
           </span>
         </div>
