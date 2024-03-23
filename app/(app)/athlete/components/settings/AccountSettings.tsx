@@ -14,6 +14,10 @@ import { monthOptions } from "@/helpers/monthOptions";
 import { Athlete } from "@/schemas/athleteSchema";
 import axios from "axios";
 import { stateOptions } from "@/helpers/stateOptions";
+import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/context/ToastProvider";
 
 // Define the Zod schema for form validation
 const accountSettingsSchema = z.object({
@@ -33,27 +37,40 @@ const accountSettingsSchema = z.object({
 
 type AccountSettingsFormValues = z.infer<typeof accountSettingsSchema>;
 
-const AccountSettings = () => {
+type Props = {
+  athlete: Athlete;
+};
+
+const AccountSettings = ({ athlete }: Props) => {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const refetchAthlete = () => {
+    queryClient.invalidateQueries({ queryKey: ["athlete"] });
+  };
   const type = getTypeFromPathname(pathname);
 
-  const [profileImage, setProfileImage] = useState("/images/Avatar.webp");
+  const { addToast } = useToast();
 
+  const [profileImage, setProfileImage] = useState("/images/Avatar.webp");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const formattedDateOfBirth = athlete.dateOfBirth
+    ? new Date(athlete.dateOfBirth)
+    : new Date();
   const initialFormValues: AccountSettingsFormValues = {
-    fullName: "John Doe",
-    gender: "men's",
-    country: "USA",
-    address1: "123 Main St",
-    address2: "Apt 4",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
-    dateOfBirthMonth: "January",
-    dateOfBirthDay: "01",
-    dateOfBirthYear: "1990",
+    fullName: athlete.fullName || "",
+    gender: athlete.gender || "",
+    country: athlete.address?.countryRegion || "",
+    address1: athlete.address?.streetName || "",
+    address2: athlete.address?.houseApartmentNumber || "",
+    city: athlete.address?.city || "",
+    state: athlete.address?.state || "",
+    zipCode: athlete.address?.zipCode || "",
+    dateOfBirthMonth: format(formattedDateOfBirth, "MMMM"),
+    dateOfBirthDay: format(formattedDateOfBirth, "dd"),
+    dateOfBirthYear: format(formattedDateOfBirth, "yyyy"),
   };
 
-  // Initialize the useForm hook with Zod schema validation and default values
   const {
     register,
     handleSubmit,
@@ -65,6 +82,7 @@ const AccountSettings = () => {
 
   // Handle form submission
   const onSubmit = async (data: AccountSettingsFormValues) => {
+    setIsLoading(true);
     const athleteData: Athlete = {
       fullName: data.fullName,
       // email: data.email,
@@ -85,10 +103,12 @@ const AccountSettings = () => {
 
     try {
       const response = await axios.post("/api/athlete", athleteData);
-      console.log(response);
-      // console.log("Athlete updated successfully:", response.data);
+      addToast("success", "Updated Successfully!");
     } catch (error) {
       console.error("Error updating athlete:", error);
+    } finally {
+      setIsLoading(false);
+      refetchAthlete();
     }
   };
 
@@ -102,14 +122,21 @@ const AccountSettings = () => {
               Update your profile picture and basic information here
             </span>
           </div>
-          <div className="py-3 flex gap-2">
-            <Button theme="light" className="text-sm py-2">
+          {/* <div className="py-3 flex gap-2">
+            <Button theme="light" className="text-sm py-2" disabled={isLoading}>
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit">
-              Save
+            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
@@ -265,7 +292,14 @@ const AccountSettings = () => {
               Cancel
             </Button>
             <Button className="text-sm py-2" type="submit">
-              Save
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
           </div>
         </div>

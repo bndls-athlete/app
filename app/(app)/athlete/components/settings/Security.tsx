@@ -58,9 +58,9 @@ const Security = () => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Email</h6>
-            <span className="text-sm text-subtitle">
+            {/* <span className="text-sm text-subtitle">
               Must be school email (.edu).
-            </span>
+            </span> */}
           </div>
         </div>
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
+import { truncate } from "@/helpers/truncate";
+import { useClerk, useUser } from "@clerk/nextjs";
 import {
   faSearch,
   faGear,
@@ -14,6 +16,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Button from "./Button";
 
 const SidebarTab: React.FC<{
   path: string;
@@ -38,6 +41,8 @@ const SidebarTab: React.FC<{
 const Sidebar = () => {
   const pathname = usePathname();
   const type = getTypeFromPathname(pathname);
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
 
   const links = [
     {
@@ -116,18 +121,37 @@ const Sidebar = () => {
           />
         </ul>
         <hr className="my-2 border-gray-900" />
-        <div className="transition duration-150 ease-in-out cursor-pointer flex items-center p-2 gap-2 hover:bg-primary hover:text-white rounded-lg">
+        <div className="flex items-center p-2 gap-2">
+          {/* <div className="transition duration-150 ease-in-out cursor-pointer flex items-center p-2 gap-2 hover:bg-primary hover:text-white rounded-lg"> */}
           <img
             className="w-10 h-10 rounded-full"
             src="/images/Avatar.webp"
             alt="Rounded avatar"
           />
-          <div className="flex flex-col">
-            <h6 className="font-semibold text-sm">Olivia Rhye</h6>
-            <span className="text-xs">olivia@untitledui.com</span>
-          </div>
-          <FontAwesomeIcon icon={faSignOut} className="ml-auto" />
+          {user && (
+            <div className="flex items-center">
+              <div className="flex flex-col flex-grow truncate">
+                <h6 className="font-semibold text-sm truncate">
+                  {`${user.firstName || ""} ${user.lastName || ""}`.trim()}
+                </h6>
+                <span className="text-xs truncate">
+                  {user.emailAddresses[0].emailAddress}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
+        <Button
+          className="my-2 w-full"
+          onClick={() => {
+            if (window.confirm("Are you sure you want to logout?")) {
+              signOut();
+            }
+          }}
+        >
+          Logout{" "}
+          <FontAwesomeIcon icon={faSignOut} className="flex-shrink-0 ml-2" />
+        </Button>
       </div>
     </div>
   );

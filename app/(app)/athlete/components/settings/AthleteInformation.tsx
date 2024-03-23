@@ -10,11 +10,15 @@ import Textarea from "@/app/components/Textarea";
 import InputGroup from "@/app/components/InputGroup";
 import { usePathname } from "next/navigation";
 import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
-
+import { format } from "date-fns";
+import { useToast } from "@/context/ToastProvider";
 import { z } from "zod";
 import { monthOptions } from "@/helpers/monthOptions";
 import axios from "axios";
 import { Athlete } from "@/schemas/athleteSchema";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const athleteSchema = z.object({
   collegeOrUniversity: z.string().min(1, "Required"),
@@ -41,18 +45,51 @@ const athleteSchema = z.object({
 
 type AthleteFormValues = zod.infer<typeof athleteSchema>;
 
-const AthleteInformation = () => {
+type Props = {
+  athlete: Athlete;
+};
+
+const AthleteInformation = ({ athlete }: Props) => {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const refetchAthlete = () => {
+    queryClient.invalidateQueries({ queryKey: ["athlete"] });
+  };
+  const [isLoading, setIsLoading] = useState(false);
   const type = getTypeFromPathname(pathname);
+  const { addToast } = useToast();
+
+  const initialFormValues: AthleteFormValues = {
+    collegeOrUniversity: athlete.collegeUniversity || "",
+    graduationMonth: athlete.graduationDate
+      ? format(new Date(athlete.graduationDate), "MMMM")
+      : "",
+    graduationDay: athlete.graduationDate
+      ? format(new Date(athlete.graduationDate), "dd")
+      : "",
+    graduationYear: athlete.graduationDate
+      ? format(new Date(athlete.graduationDate), "yyyy")
+      : "",
+    sport: athlete.sport || "",
+    professionalSkills: athlete.professionalSkills?.join(", ") || "",
+    gpa: athlete.currentAcademicGPA?.toString() || "",
+    professionalReferences: athlete.professionalReferences?.join(", ") || "",
+    highlights: athlete.athleticCareerHighlights || "",
+    bio: athlete.bio || "",
+    youtubeUrl: athlete.reel?.split("/shorts/")[1] || "",
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<AthleteFormValues>({
     resolver: zodResolver(athleteSchema),
+    defaultValues: initialFormValues,
   });
 
   const onSubmit: SubmitHandler<AthleteFormValues> = async (data) => {
+    setIsLoading(true);
     const athleteData: Athlete = {
       collegeUniversity: data.collegeOrUniversity,
       graduationDate: new Date(
@@ -69,12 +106,16 @@ const AthleteInformation = () => {
 
     try {
       const response = await axios.post("/api/athlete", athleteData);
-      console.log(response);
       // console.log("Athlete updated successfully:", response.data);
+      addToast("success", "Updated Successfully!");
     } catch (error) {
       console.error("Error updating athlete:", error);
+    } finally {
+      setIsLoading(false);
+      refetchAthlete();
     }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-3">
@@ -85,14 +126,26 @@ const AthleteInformation = () => {
               Update your company photo and details here.
             </span>
           </div>
-          <div className="py-3 flex gap-2">
-            <Button theme="light" className="text-sm py-2" type="reset">
+          {/* <div className="py-3 flex gap-2">
+            <Button
+              theme="light"
+              className="text-sm py-2"
+              type="reset"
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button className="text-sm py-2" type="submit">
-              Save
+            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
-          </div>
+          </div> */}
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
@@ -249,11 +302,23 @@ const AthleteInformation = () => {
         </div>
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            <Button theme="light" className="text-sm py-2" type="reset">
+            <Button
+              theme="light"
+              className="text-sm py-2"
+              type="reset"
+              disabled={isLoading}
+            >
               Cancel
             </Button>{" "}
-            <Button className="text-sm py-2" type="submit">
-              Save
+            <Button className="text-sm py-2" type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
           </div>
         </div>

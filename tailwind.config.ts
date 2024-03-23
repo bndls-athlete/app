@@ -20,6 +20,7 @@ const config: Config = {
       },
     },
   },
+  safelist: [{ pattern: /alert-+/ }],
   plugins: [require("daisyui")],
   daisyui: {
     themes: [
