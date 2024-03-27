@@ -1,65 +1,71 @@
 import { z } from "zod";
 
 const athleteSchema = z.object({
-  userId: z.string().optional(),
-  fullName: z.string().optional(),
-  email: z.string().email("Invalid email format").optional(),
-  profilePicture: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  gender: z.string().optional(),
-  receiveUpdates: z.boolean().optional(),
-  address: z
-    .object({
-      countryRegion: z.string().optional(),
-      streetName: z.string().optional(),
-      houseApartmentNumber: z.string().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      zipCode: z.string().optional(),
-    })
-    .optional(),
+  userId: z.string(),
+  fullName: z.string(),
+  email: z.string().email("Invalid email format"),
+  profilePicture: z.string(),
+  phoneNumber: z.string(),
+  gender: z.string(),
+  receiveUpdates: z.boolean(),
+  address: z.object({
+    countryRegion: z.string(),
+    streetName: z.string(),
+    houseApartmentNumber: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+  }),
   dateOfBirth: z
     .string()
-    .optional()
     .transform((value) => (value ? new Date(value) : value)),
-  registrationType: z.enum(["individual", "team"]).optional(),
+  registrationType: z.enum(["individual", "team"]),
   // Individual specific fields
-  collegeUniversity: z.string().optional(),
+  collegeUniversity: z.string(),
   graduationDate: z
     .string()
-    .optional()
     .transform((value) => (value ? new Date(value) : value)),
-  sport: z.string().optional(),
-  professionalSkills: z.array(z.string()).optional(),
-  currentAcademicGPA: z.number().optional(),
-  professionalReferences: z.array(z.string()).optional(),
-  athleticCareerHighlights: z.string().optional(),
-  bio: z.string().optional(),
-  reel: z.string().optional(),
+  sport: z.string(),
+  professionalSkills: z.array(z.string()),
+  currentAcademicGPA: z.number(),
+  professionalReferences: z.array(z.string()),
+  athleticCareerHighlights: z.string().max(400, "Maximum 400 characters"),
+  bio: z.string().max(400, "Maximum 400 characters"),
+  reel: z.string(),
   // Team specific fields
-  teamGender: z.string().optional(),
-  teamGPA: z.number().optional(),
-  teamBio: z.string().optional(),
-  teamHighlights: z.string().optional(),
+  teamGender: z.string(),
+  teamGPA: z.number(),
+  teamBio: z.string(),
+  teamHighlights: z.string(),
   // Common fields
-  socialProfiles: z
-    .object({
-      instagram: z.string().optional(),
-      tiktok: z.string().optional(),
-      facebook: z.string().optional(),
-      twitter: z.string().optional(),
-    })
-    .optional(),
-  followers: z.number().optional(),
-  engagementRate: z.number().optional(),
-  athleteRating: z.number().optional(),
-  athleteInformation: z.string().optional(),
-  stripeCustomerId: z.string().optional(),
-  stripeSubscriptionId: z.string().optional(),
-  subscriptionStatus: z
-    .enum(["active", "inactive", "canceled", "past_due", "unpaid"])
-    .optional(),
-  athleteTier: z.enum(["1", "2", "3"]).optional(),
+  socialProfiles: z.object({
+    instagram: z.string(),
+    tiktok: z.string(),
+    facebook: z.string(),
+    twitter: z.string(),
+  }),
+  followers: z.number(),
+  engagementRate: z.number(),
+  athleteRating: z.number(),
+  athleteTier: z.enum(["1", "2", "3"]),
+  // Stripe
+  stripeCustomerId: z.string(),
+  stripeSubscriptionId: z.string(),
+  stripeSubscriptionItemId: z.string(),
+  priceId: z.string(),
+  subscriptionStartDate: z.date(),
+  subscriptionEndDate: z.date(),
+  cancelAtPeriodEnd: z.boolean(),
+  subscriptionStatus: z.enum([
+    "incomplete",
+    "incomplete_expired",
+    "trialing",
+    "active",
+    "past_due",
+    "canceled",
+    "unpaid",
+    "paused",
+  ]),
 });
 
 export type Athlete = z.infer<typeof athleteSchema>;

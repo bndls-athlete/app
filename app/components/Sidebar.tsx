@@ -26,9 +26,12 @@ const SidebarTab: React.FC<{
   label: string;
   icon: any;
   active: boolean;
-}> = ({ path, label, icon, active }) => {
+  type: string;
+}> = ({ path, label, icon, active, type }) => {
+  if (!type) return null;
+
   return (
-    <Link href={`${path}`}>
+    <Link href={path}>
       <li
         className={`my-2 transition-all duration-150 ease-in-out cursor-pointer hover:bg-primary hover:text-white p-2 rounded-lg flex items-center ${
           active ? "bg-primary text-white font-bold" : "text-gray-900"
@@ -43,8 +46,9 @@ const SidebarTab: React.FC<{
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const type = getTypeFromPathname(pathname);
+
   const { isSignedIn, user } = useUser();
+  const type = user?.publicMetadata.userType || "";
   const { signOut } = useClerk();
 
   const links = [
@@ -104,6 +108,7 @@ const Sidebar = () => {
           onClick={toggleSidebar}
         />
       </div>
+
       <div
         className={`fixed top-16 lg:top-0 left-0 h-[calc(100%-4rem)] lg:h-full bg-sidebar lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "translate-x-[-100%]"
@@ -121,6 +126,7 @@ const Sidebar = () => {
                     label={link.label}
                     icon={link.icon}
                     active={pathname === link.path}
+                    type={type as string}
                   />
                 );
               }
@@ -139,16 +145,18 @@ const Sidebar = () => {
         <div className="px-5 py-4">
           <ul>
             <SidebarTab
-              path="help-center"
+              path="/help-center"
               label="Help Center"
               icon={faCircleQuestion}
               active={false}
+              type={type as string}
             />
             <SidebarTab
               path={`/${type}/settings`}
               label="Settings"
               icon={faGear}
               active={`/${type}/settings` === pathname}
+              type={type as string}
             />
           </ul>
           <hr className="my-2 border-gray-900" />

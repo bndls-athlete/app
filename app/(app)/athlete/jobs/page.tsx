@@ -49,131 +49,42 @@ export type JobData = {
 
 const jobList: JobData[] = [
   {
-    title: "Mental Performance Advocate",
-    postedDaysAgo: 5,
-    location: "New York, US",
-    feeCompensation: 500,
-    aboutCompany: "A brief description about the company.",
-    opportunityDescription: "A brief description of the opportunity.",
+    title: "Brand Ambassador",
+    postedDaysAgo: 3,
+    location: "Miami, FL",
+    feeCompensation: 2000,
+    aboutCompany: "SportsGear is a leading sports apparel and equipment brand.",
+    opportunityDescription:
+      "We are seeking a professional athlete to represent our brand as an ambassador and promote our products through various channels.",
     deliverables: [
       {
-        title: "First Deliverable",
-        duration: "6 months after athlete accepts the agreement",
-        description: "Description of the first deliverable.",
+        title: "Social Media Promotion",
+        duration: "Throughout the contract period",
+        description:
+          "Regularly post about SportsGear products on social media platforms, highlighting their features and benefits.",
       },
       {
-        title: "Second Deliverable",
-        duration: "6 months after athlete accepts the agreement",
-        description: "Description of the second deliverable.",
+        title: "Event Appearances",
+        duration: "At least 2 events per month",
+        description:
+          "Attend sports events and promotional activities as a representative of SportsGear, engaging with fans and customers.",
+      },
+      {
+        title: "Product Feedback",
+        duration: "Monthly",
+        description:
+          "Provide feedback on SportsGear products based on personal use and athlete insights to help improve product quality and design.",
       },
     ],
-    nonExclusiveDealDetails: "Seeking 5 individuals",
-    totalCompensation: "$500 + Free product(s)",
-    skillsRequired: [
-      "Guest Appearances",
-      "Brand's Annual Event",
-      "Facebook Post",
-    ],
-    additionalPreferredSkills: [
-      "Purpose Driven",
-      "Seeking Knowledge",
-      "Looking for an Edge",
-    ],
-    numberOfAthletes: "Multiple Athletes",
-    jobType: JobType.FullTime,
+    nonExclusiveDealDetails:
+      "Exclusive contract for sports apparel, non-exclusive for other product categories",
+    totalCompensation: "$2000 + commission on sales generated",
+    skillsRequired: ["Social Media Savvy", "Public Speaking", "Networking"],
+    additionalPreferredSkills: ["Photography", "Content Creation"],
+    numberOfAthletes: "1",
+    jobType: JobType.Contract,
   },
 ];
-
-// const Opportunities = () => {
-//   const pathname = usePathname();
-//   const type = getTypeFromPathname(pathname);
-
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const totalPages = 10; // Assuming there are 10 pages in total
-
-//   const handlePageChange = (page: number) => {
-//     setCurrentPage(page);
-//     // Perform additional actions when the page changes, such as fetching new data
-//   };
-
-//   return (
-//     <>
-//       <div className="text-dark">
-//         <Breadcrumb icon={faLightbulb} menu={"Opportunities"} />
-//         <div className="my-6">
-//           <h1 className="text-3xl font-semibold mb-2">{"Opportunities"}</h1>
-//           <span className="text-subtitle">
-//             Find brand opportunities right for you.
-//           </span>
-//         </div>
-//         <div className="bg-primary p-4 rounded-lg mb-6">
-//           <div className="flex flex-wrap gap-2">
-//             <div className="flex items-center bg-white p-2 rounded-lg flex-grow min-w-[240px]">
-//               <FontAwesomeIcon
-//                 icon={faSearch}
-//                 className="text-primary mx-2 w-5 h-5"
-//               />
-//               <input
-//                 type="text"
-//                 className="flex-grow bg-transparent focus:outline-none"
-//                 placeholder="Job Title, Keywords"
-//               />
-//             </div>
-//             <div className="flex items-center bg-white p-2 rounded-lg flex-grow min-w-[240px]">
-//               <FontAwesomeIcon
-//                 icon={faLocationDot}
-//                 className="text-primary mx-2 w-5 h-5"
-//               />
-//               <input
-//                 type="text"
-//                 className="flex-grow bg-transparent focus:outline-none"
-//                 placeholder="Location"
-//               />
-//             </div>
-//             <div className="flex items-center bg-white p-2 rounded-lg flex-grow min-w-[240px]">
-//               <FontAwesomeIcon
-//                 icon={faBriefcase}
-//                 className="text-primary mx-2 w-5 h-5"
-//               />
-//               <input
-//                 type="text"
-//                 className="flex-grow bg-transparent focus:outline-none"
-//                 placeholder="Job Type"
-//               />
-//             </div>
-//             <div className="flex items-center bg-white p-2 rounded-lg flex-grow min-w-[240px]">
-//               <FontAwesomeIcon
-//                 icon={faDollar}
-//                 className="text-primary mx-2 w-5 h-5"
-//               />
-//               <input
-//                 type="text"
-//                 className="flex-grow bg-transparent focus:outline-none"
-//                 placeholder="Price"
-//               />
-//             </div>
-//             <Button className="lg:w-auto w-full bg-white text-primary border border-primary font-semibold">
-//               Search
-//             </Button>
-//           </div>
-//         </div>
-
-//         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-//           {Array.from({ length: 18 }).map((_, index) => (
-//             <JobCard key={index} />
-//           ))}
-//         </div>
-//         <div className="flex justify-center mt-8">
-//           <Pagination
-//             currentPage={currentPage}
-//             totalPages={totalPages}
-//             onPageChange={handlePageChange}
-//           />
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
 
 const Opportunities = () => {
   const pathname = usePathname();

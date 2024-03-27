@@ -17,8 +17,8 @@ export async function POST(request: Request) {
 
   try {
     const updates: Partial<Athlete> = await request.json();
-
-    const parsedResult = athleteSchema.safeParse(updates);
+    const deepPartialAthleteSchema = athleteSchema.deepPartial();
+    const parsedResult = deepPartialAthleteSchema.safeParse(updates);
 
     if (!parsedResult.success) {
       return new Response(
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const updatedAthlete = await AthleteModel.findOneAndUpdate(
-      { userId: authUser.userId },
+      { userId: authUser.userId! },
       updates,
       { new: true }
     );
@@ -77,7 +77,7 @@ export async function GET() {
   }
 
   try {
-    const athlete = await AthleteModel.findOne({ userId: authUser.userId });
+    const athlete = await AthleteModel.findOne({ userId: authUser.userId! });
 
     if (!athlete) {
       return new Response(

@@ -8,9 +8,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
+import { useAthleteCard } from "@/hooks/useAthleteCard";
+import { useAthleteData } from "@/hooks/useAthleteData";
 
-// Define the Zod schema for form validation
-const schema = z.object({
+const atheteSocialMediaSchema = z.object({
   instagram: z.string().optional(),
   tiktok: z.string().optional(),
   facebook: z.string().optional(),
@@ -30,8 +31,7 @@ const extractHandle = (url: string | undefined, platform: string): string => {
   return match ? match[1] : "";
 };
 
-// Infer the type of the form values from the schema
-type SocialMediaFormValues = z.infer<typeof schema>;
+type SocialMediaFormValues = z.infer<typeof atheteSocialMediaSchema>;
 
 type Props = {
   athlete: {
@@ -46,17 +46,21 @@ type Props = {
 
 const SocialMedia = ({ athlete }: Props) => {
   // Define initial form values based on the athlete prop
+  // Define initial form values based on the athlete prop
   const initialFormValues: SocialMediaFormValues = {
-    instagram: extractHandle(athlete.socialProfiles.instagram, "instagram"),
-    tiktok: extractHandle(athlete.socialProfiles.tiktok, "tiktok"),
-    facebook: extractHandle(athlete.socialProfiles.facebook, "facebook"),
-    twitter: extractHandle(athlete.socialProfiles.twitter, "twitter"),
+    instagram: extractHandle(
+      athlete.socialProfiles?.instagram ?? "",
+      "instagram"
+    ),
+    tiktok: extractHandle(athlete.socialProfiles?.tiktok ?? "", "tiktok"),
+    facebook: extractHandle(athlete.socialProfiles?.facebook ?? "", "facebook"),
+    twitter: extractHandle(athlete.socialProfiles?.twitter ?? "", "twitter"),
   };
+
   const { addToast } = useToast();
-  const queryClient = useQueryClient();
-  const refetchAthlete = () => {
-    queryClient.invalidateQueries({ queryKey: ["athlete"] });
-  };
+
+  const { invalidateAthleteCard } = useAthleteCard();
+  const { invalidateAthlete } = useAthleteData();
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize the useForm hook with Zod schema validation and default values
@@ -65,7 +69,7 @@ const SocialMedia = ({ athlete }: Props) => {
     handleSubmit,
     formState: { errors },
   } = useForm<SocialMediaFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(atheteSocialMediaSchema),
     defaultValues: initialFormValues,
   });
 
@@ -93,14 +97,15 @@ const SocialMedia = ({ athlete }: Props) => {
     };
 
     try {
-      const response = await axios.post("/api/athlete", socialMediaData);
+      await axios.post("/api/athlete", socialMediaData);
       // console.log("Social media profiles updated successfully:", response.data);
       addToast("success", "Updated Successfully!");
     } catch (error) {
       console.error("Error updating social media profiles:", error);
     } finally {
+      invalidateAthlete();
+      invalidateAthleteCard();
       setIsLoading(false);
-      refetchAthlete();
     }
   };
 
@@ -114,30 +119,6 @@ const SocialMedia = ({ athlete }: Props) => {
               Upload your social media profiles.
             </span>
           </div>
-          {/* <div className="py-3 flex gap-2">
-            <Button
-              theme="light"
-              className=" py-2"
-              type="reset"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              className=" py-2 flex justify-center items-center gap-2"
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </div> */}
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">

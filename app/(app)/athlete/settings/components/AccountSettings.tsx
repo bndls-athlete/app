@@ -19,6 +19,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
 import { EntityType } from "@/types/entityTypes";
+import { useAthleteCard } from "@/hooks/useAthleteCard";
+import { useAthleteData } from "@/hooks/useAthleteData";
+
+interface AccountSettingsProps {
+  athlete: Partial<Athlete>;
+}
 
 // Define the Zod schema for form validation
 const accountSettingsSchema = z.object({
@@ -38,16 +44,11 @@ const accountSettingsSchema = z.object({
 
 type AccountSettingsFormValues = z.infer<typeof accountSettingsSchema>;
 
-type Props = {
-  athlete: Athlete;
-};
-
-const AccountSettings = ({ athlete }: Props) => {
+const AccountSettings = ({ athlete }: AccountSettingsProps) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
-  const refetchAthlete = () => {
-    queryClient.invalidateQueries({ queryKey: ["athlete"] });
-  };
+  const { invalidateAthleteCard } = useAthleteCard();
+  const { invalidateAthlete } = useAthleteData();
   const type = getTypeFromPathname(pathname);
 
   const { addToast } = useToast();
@@ -84,7 +85,7 @@ const AccountSettings = ({ athlete }: Props) => {
   // Handle form submission
   const onSubmit = async (data: AccountSettingsFormValues) => {
     setIsLoading(true);
-    const athleteData: Athlete = {
+    const athleteData: Partial<Athlete> = {
       fullName: data.fullName,
       // email: data.email,
       gender: data.gender,
@@ -92,7 +93,7 @@ const AccountSettings = ({ athlete }: Props) => {
       address: {
         countryRegion: data.country,
         streetName: data.address1,
-        houseApartmentNumber: data.address2,
+        houseApartmentNumber: data.address2 || "",
         city: data.city,
         state: data.state,
         zipCode: data.zipCode,
@@ -108,8 +109,9 @@ const AccountSettings = ({ athlete }: Props) => {
     } catch (error) {
       console.error("Error updating athlete:", error);
     } finally {
+      invalidateAthlete();
+      invalidateAthleteCard();
       setIsLoading(false);
-      refetchAthlete();
     }
   };
 

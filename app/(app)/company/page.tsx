@@ -7,7 +7,7 @@ function Dashboard() {
   const { user } = useUser();
   const { signOut } = useClerk();
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div className="flex justify-center items-center">
       <div className="text-center">
         <p className="">Brand Dashboard</p>
         <p>{user?.emailAddresses[0].emailAddress}</p>

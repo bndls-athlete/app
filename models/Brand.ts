@@ -37,6 +37,27 @@ const BrandSchema: Schema<Brand> = new Schema({
     twitter: String,
   },
   companyInformation: String,
+  // Stripe
+  stripeCustomerId: String,
+  stripeSubscriptionId: String,
+  stripeSubscriptionItemId: String,
+  priceId: String,
+  subscriptionStartDate: Date,
+  subscriptionEndDate: Date,
+  cancelAtPeriodEnd: Boolean,
+  subscriptionStatus: {
+    type: String,
+    enum: [
+      "incomplete",
+      "incomplete_expired",
+      "trialing",
+      "active",
+      "past_due",
+      "canceled",
+      "unpaid",
+      "paused",
+    ],
+  },
 });
 
 const BrandModel =

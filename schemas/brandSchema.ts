@@ -28,6 +28,24 @@ const brandSchema = z.object({
     .optional(),
   brandRating: z.number().optional(),
   companyInformation: z.string().optional(),
+  // Stripe
+  stripeCustomerId: z.string(),
+  stripeSubscriptionId: z.string(),
+  stripeSubscriptionItemId: z.string(),
+  priceId: z.string(),
+  subscriptionStartDate: z.date(),
+  subscriptionEndDate: z.date(),
+  cancelAtPeriodEnd: z.boolean(),
+  subscriptionStatus: z.enum([
+    "incomplete",
+    "incomplete_expired",
+    "trialing",
+    "active",
+    "past_due",
+    "canceled",
+    "unpaid",
+    "paused",
+  ]),
 });
 
 export type Brand = z.infer<typeof brandSchema>;

@@ -15,16 +15,15 @@ export default function RootLayout({
   const { isAthleteCardVisible } = useAthleteCardVisibility();
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
+      {" "}
       <Sidebar />
       <div
-        className={`flex-1 lg:ml-[280px] transition-all duration-300 ease-in-out ${
+        className={`flex-1 overflow-y-auto lg:ml-[280px] transition-all duration-300 ease-in-out ${
           isAthleteCardVisible ? "lg:mr-[360px]" : ""
         }`}
       >
-        {/* Set a maximum width for large screens */}
-        <div className="p-4 lg:p-8 mt-16 lg:mt-0">{children}</div>
-
+        <div className="p-4 lg:p-8 mt-16 lg:mt-0 h-full">{children}</div>
         {(user?.publicMetadata.userType === EntityType.Athlete ||
           user?.publicMetadata.userType === EntityType.Team) && <AthelteCard />}
       </div>

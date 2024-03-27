@@ -20,8 +20,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { EntityType } from "@/types/entityTypes";
+import { useAthleteCard } from "@/hooks/useAthleteCard";
+import { useAthleteData } from "@/hooks/useAthleteData";
 
-const athleteSchema = z.object({
+type AthleteInformationProps = {
+  athlete: Partial<Athlete>;
+};
+
+const athleteInformationSchema = z.object({
   collegeOrUniversity: z.string().min(1, "Required"),
   graduationMonth: z.string().min(1, "Required"),
   graduationDay: z
@@ -39,23 +45,18 @@ const athleteSchema = z.object({
       "Invalid GPA (format: X.XX, range: 0.00-4.00)"
     ),
   professionalReferences: z.string().min(1, "Required"),
-  highlights: z.string().min(1, "Required"),
-  bio: z.string().min(1, "Required"),
+  highlights: z.string().min(1, "Required").max(400, "Maximum 400 characters"),
+  bio: z.string().min(1, "Required").max(400, "Maximum 400 characters"),
   youtubeUrl: z.string().regex(/^[^/]+$/, "Invalid YouTube URL"),
 });
 
-type AthleteFormValues = zod.infer<typeof athleteSchema>;
+type AthleteFormValues = zod.infer<typeof athleteInformationSchema>;
 
-type Props = {
-  athlete: Athlete;
-};
-
-const AthleteInformation = ({ athlete }: Props) => {
+const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
-  const refetchAthlete = () => {
-    queryClient.invalidateQueries({ queryKey: ["athlete"] });
-  };
+  const { invalidateAthleteCard } = useAthleteCard();
+  const { invalidateAthlete } = useAthleteData();
   const [isLoading, setIsLoading] = useState(false);
   const type = getTypeFromPathname(pathname);
   const { addToast } = useToast();
@@ -85,13 +86,13 @@ const AthleteInformation = ({ athlete }: Props) => {
     handleSubmit,
     formState: { errors },
   } = useForm<AthleteFormValues>({
-    resolver: zodResolver(athleteSchema),
+    resolver: zodResolver(athleteInformationSchema),
     defaultValues: initialFormValues,
   });
 
   const onSubmit: SubmitHandler<AthleteFormValues> = async (data) => {
     setIsLoading(true);
-    const athleteData: Athlete = {
+    const athleteData: Partial<Athlete> = {
       collegeUniversity: data.collegeOrUniversity,
       graduationDate: new Date(
         `${data.graduationYear}-${data.graduationMonth}-${data.graduationDay}`
@@ -112,8 +113,9 @@ const AthleteInformation = ({ athlete }: Props) => {
     } catch (error) {
       console.error("Error updating athlete:", error);
     } finally {
+      invalidateAthlete();
+      invalidateAthleteCard();
       setIsLoading(false);
-      refetchAthlete();
     }
   };
 
@@ -241,7 +243,8 @@ const AthleteInformation = ({ athlete }: Props) => {
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
             <h6 className=" font-semibold">
-              Professional References (2 required)
+              Professional References
+              {/* Professional References (2 required) */}
             </h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
@@ -263,9 +266,10 @@ const AthleteInformation = ({ athlete }: Props) => {
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Textarea
               {...register("highlights")}
+              rows={8}
               error={errors.highlights?.message}
             ></Textarea>
-            <span className=" text-subtitle">400 characters left.</span>
+            <span className=" text-subtitle">400 characters.</span>
           </div>
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
@@ -276,9 +280,10 @@ const AthleteInformation = ({ athlete }: Props) => {
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Textarea
               {...register("bio")}
+              rows={8}
               error={errors.bio?.message}
             ></Textarea>
-            <span className=" text-subtitle">400 characters left.</span>
+            <span className=" text-subtitle">400 characters.</span>
           </div>
         </div>
         <div className="grid grid-cols-8 py-3 border-b">

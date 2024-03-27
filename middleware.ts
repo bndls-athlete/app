@@ -4,44 +4,48 @@ import { EntityType } from "./types/entityTypes";
 
 export default authMiddleware({
   publicRoutes: ["/sign-in", "/sign-up", "/"],
-  apiRoutes: [],
+  ignoredRoutes: ["/api/stripe/webhook"],
   afterAuth(auth, req) {
-    // Handle users who aren't authenticated and trying to access a protected route
     if (!auth.userId && !auth.isPublicRoute) {
+      // Redirect unauthenticated users to the sign-in page
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
 
-    // Get the current path
     const currentPath = new URL(req.url).pathname;
 
-    // Skip redirects for API routes
-    if (currentPath.startsWith("/api")) {
+    // Define an array of paths that are exceptions to the usual redirect logic
+    const pathExceptions = ["/help-center", "/checkout", "/api"];
+
+    // Check if the current path starts with any of the exceptions
+    const isException = pathExceptions.some((path) =>
+      currentPath.startsWith(path)
+    );
+
+    // Skip redirects for exceptions
+    if (isException) {
       return NextResponse.next();
     }
 
-    // Redirect based on userType
     if (auth.userId) {
       const userType = auth.sessionClaims?.userType;
 
-      // Redirect athlete to athlete dashboard
-      if (
-        userType === EntityType.Athlete &&
-        !currentPath.startsWith("/athlete")
-      ) {
-        return NextResponse.redirect(new URL("/athlete", req.url));
-      }
-
-      // Redirect athlete team to team dashboard
-      if (userType === EntityType.Team && !currentPath.startsWith("/team")) {
-        return NextResponse.redirect(new URL("/team", req.url));
-      }
-
-      // Redirect company to company dashboard
-      if (
-        userType === EntityType.Company &&
-        !currentPath.startsWith("/company")
-      ) {
-        return NextResponse.redirect(new URL("/company", req.url));
+      // Redirect based on userType
+      switch (userType) {
+        case EntityType.Athlete:
+          if (!currentPath.startsWith("/athlete")) {
+            return NextResponse.redirect(new URL("/athlete/jobs", req.url));
+          }
+          break;
+        case EntityType.Team:
+          if (!currentPath.startsWith("/team")) {
+            return NextResponse.redirect(new URL("/team", req.url));
+          }
+          break;
+        case EntityType.Company:
+          if (!currentPath.startsWith("/company")) {
+            return NextResponse.redirect(new URL("/company", req.url));
+          }
+          break;
       }
     }
 

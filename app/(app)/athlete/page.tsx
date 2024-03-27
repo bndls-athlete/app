@@ -1,27 +1,16 @@
 "use client";
 
-import React from "react";
-import { useClerk, useUser } from "@clerk/nextjs";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-function Dashboard() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
-  return (
-    <div className="flex justify-center items-center">
-      <div className="text-center">
-        <p className="">Athlete Dashboard</p>
-        <p>{user?.emailAddresses[0].emailAddress}</p>
-        <button
-          className="btn btn-active btn-primary mt-4"
-          onClick={() => {
-            signOut();
-          }}
-        >
-          logout
-        </button>
-      </div>
-    </div>
-  );
+function Athlete() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/athlete/jobs");
+  }, [router]);
+
+  return <div>Redirecting to Athlete Jobs...</div>;
 }
 
-export default Dashboard;
+export default Athlete;

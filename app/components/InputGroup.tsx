@@ -11,16 +11,18 @@ type InputGroupProps = InputHTMLAttributes<HTMLInputElement> & {
 const InputGroup = forwardRef<HTMLInputElement, InputGroupProps>(
   ({ withLabel, desc, error, ...props }, ref) => {
     return (
-      <div>
-        <div className="join block">
-          <button className="btn join-item rounded-l-lg">{withLabel}</button>
-          <input
-            className="input input-bordered  join-item"
-            {...props}
-            ref={ref}
-          />
-        </div>
-        {error && <p className=" text-red-500 mt-1">{error}</p>}
+      <div className="flex items-center w-full">
+        {withLabel && (
+          <button className="btn rounded-l-lg rounded-r-none shrink-0 flex-none px-2 sm:px-4">
+            {withLabel}
+          </button>
+        )}
+        <input
+          className="input input-bordered rounded-l-none rounded-r-lg flex-1 min-w-0"
+          {...props}
+          ref={ref}
+        />
+        {error && <p className="text-red-500 mt-1">{error}</p>}
       </div>
     );
   }

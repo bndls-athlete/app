@@ -5,6 +5,7 @@ import { faClose, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import Button from "../../../../components/Button";
 import { useState } from "react";
 import { JobData } from "../page";
+import Card from "@/app/components/Card";
 
 interface JobModalProps {
   jobData: JobData | null;
@@ -59,29 +60,42 @@ const JobModal: React.FC<JobModalProps> = ({ jobData, onClose }) => {
               <hr className="my-6" />
 
               <div className="space-y-4">
-                <div>
-                  <div className="font-semibold">About the Company:</div>
-                  <p className="mt-2">{jobData.aboutCompany}</p>
-                </div>
+                <Card className="px-0 py-0 mb-4">
+                  <Card.Header className="border-b px-4 py-2 text-sm">
+                    About the Company
+                  </Card.Header>
+                  <Card.Body className="px-4 py-2 text-sm text-subtitle pt-0">
+                    {jobData.aboutCompany}
+                  </Card.Body>
+                </Card>
 
-                <div>
-                  <div className="font-semibold">Opportunity Description:</div>
-                  <p className="mt-2">{jobData.opportunityDescription}</p>
-                </div>
-
-                <div className="p-4 rounded-lg bg-gray-100">
-                  <div className="font-semibold mb-2">Deliverables:</div>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {jobData.deliverables.map((deliverable, index) => (
-                      <li key={index} className="">
-                        <span className="font-semibold">
-                          {deliverable.title}:
-                        </span>{" "}
-                        {deliverable.description} ({deliverable.duration})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <Card className="px-0 py-0 mb-4">
+                  <Card.Header className="border-b px-4 py-2 text-sm">
+                    Opportunity Description
+                  </Card.Header>
+                  <Card.Body className="px-4 py-2 text-sm text-subtitle pt-0">
+                    {jobData.opportunityDescription}
+                  </Card.Body>
+                </Card>
+                <Card className="px-0 py-0 mb-4">
+                  <Card.Header className="border-b px-4 py-2 text-sm">
+                    Deliverables
+                  </Card.Header>
+                  <Card.Body className="px-4 py-2 text-sm text-subtitle pt-0">
+                    <div className="space-y-2">
+                      {jobData.deliverables.map((deliverable, index) => (
+                        <div key={index} className="grid grid-cols-3 gap-2">
+                          <div className="col-span-1 font-semibold">
+                            {deliverable.title}:
+                          </div>
+                          <div className="col-span-2">
+                            {deliverable.description} ({deliverable.duration})
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card.Body>
+                </Card>
 
                 <div>
                   <div className="font-semibold">Skills Required:</div>
