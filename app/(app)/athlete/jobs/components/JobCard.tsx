@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "../../../../components/Button";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import { JobData } from "../page";
+import { JobData } from "@/schemas/jobSchema";
 
 interface JobCardProps {
   job: JobData;

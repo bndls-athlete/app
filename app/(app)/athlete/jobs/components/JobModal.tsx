@@ -2,9 +2,7 @@
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import Button from "../../../../components/Button";
-import { useState } from "react";
-import { JobData } from "../page";
+import { JobData } from "@/schemas/jobSchema";
 import Card from "@/app/components/Card";
 
 interface JobModalProps {
