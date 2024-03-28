@@ -287,8 +287,10 @@ function getAthleteSubscriptionButtonData({
   switch (athlete.subscriptionStatus) {
     case "past_due":
     case "unpaid":
-      text = "Renew";
-      action = handleManageBilling;
+      text = "Locked";
+      action = () => {}; // No operation if locked
+      // text = "Renew";
+      // action = handleManageBilling;
       break;
     case "active":
     case "trialing":
