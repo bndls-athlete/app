@@ -1,19 +1,18 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Card from "../../../../components/Card";
-import { faLocationArrow } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
 import axios from "axios";
+import { getMyPlanInfo } from "@/helpers/stripeAthleteManager";
+import { useRouter } from "next/navigation";
+import { useAthleteData } from "@/hooks/useAthleteData"; // Assuming you have a custom hook to fetch athlete data
+import useUserType from "@/hooks/useUserType";
 
 const MyPlan = () => {
-  const pathname = usePathname();
-  const type = getTypeFromPathname(pathname);
+  const { type } = useUserType();
+  const { athlete } = useAthleteData();
+  const router = useRouter();
 
   const handleManageBilling = async () => {
     try {
-      // Call your server endpoint that creates the Customer Portal session
-      const response = await axios.get("/api/stripe/manage-billing");
+      const response = await axios.get("/api/stripe/manage-billing/athlete");
       if (response.data.url) {
         window.location.href = response.data.url;
       } else {
@@ -28,6 +27,18 @@ const MyPlan = () => {
     }
   };
 
+  const handleGetStarted = () => {
+    router.push(`/${type}/plan/?menu=upgrade-options`);
+  };
+
+  const { planInfo, buttonText, action } = getMyPlanInfo({
+    athlete,
+    handleManageBilling,
+    handleRenew: handleManageBilling, // Use the same function for renewing and managing billing
+    handleReactivate: handleManageBilling, // Adjust this if you have a specific reactivation process
+    handleGetStarted,
+  });
+
   return (
     <>
       <div className="my-3">
@@ -37,45 +48,39 @@ const MyPlan = () => {
               <div>
                 <div className="flex gap-2 mb-2">
                   <h6 className="font-semibold my-auto">Current Plan</h6>
-                  {/* <div className="border-2 rounded-lg py-1 text-sm px-1 text-subtitle font-semibold">
-                    Monthly
-                  </div> */}
                 </div>
-                <span className="text-sm">
-                  {/* You're on a 3 day Free Trial. Add your billing details now to
-                  start your subscription. */}
-                  You currently do not have an active subscription. Please add
-                  your billing details to initiate your subscription.
-                </span>
+                <span className="text-sm">{planInfo}</span>
               </div>
-              <h1 className="my-auto text-4xl font-semibold">Free</h1>
+              <h1 className="my-auto text-4xl font-semibold">
+                {buttonText === "Get Started" ? "Free" : "Paid"}
+              </h1>{" "}
+              {/* Adjust this to display the correct price */}
             </div>
           </Card.Body>
           <Card.Footer className="px-6 py-3">
             <div className="flex justify-end">
-              <div className="flex gap-2 text-primary cursor-pointer hover:underline font-[600] my-auto">
-                <p onClick={handleManageBilling}>
-                  {/* <Link href={`/${type}/plan/?menu=upgrade-options`}> */}
-                  Manage Plan
-                </p>
-                <div className="mt-2">
-                  <svg
-                    width={10}
-                    height={10}
-                    viewBox="0 0 10 10"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M0.833252 9.16634L9.16659 0.833008M9.16659 0.833008H0.833252M9.16659 0.833008V9.16634"
-                      stroke="#C6B624"
-                      strokeWidth="1.66667"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+              {buttonText && (
+                <div className="flex gap-2 text-primary cursor-pointer hover:underline font-[600] my-auto">
+                  <p onClick={action || (() => {})}>{buttonText}</p>
+                  <div className="mt-2">
+                    <svg
+                      width={10}
+                      height={10}
+                      viewBox="0 0 10 10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M0.833252 9.16634L9.16659 0.833008M9.16659 0.833008H0.833252M9.16659 0.833008V9.16634"
+                        stroke="#C6B624"
+                        strokeWidth="1.66667"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </Card.Footer>
         </Card>

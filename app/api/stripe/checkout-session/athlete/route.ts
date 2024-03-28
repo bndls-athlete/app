@@ -2,6 +2,8 @@ import Stripe from "stripe";
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import AthleteModel from "@/models/Athlete";
+import { SubscriptionStatus } from "@/schemas/subscriptionStatusSchema";
+import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -36,6 +38,48 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const manager = AthleteTierManager.getInstance();
+    const hasAccess = manager.checkAthleteAccessByTier(
+      athlete.athleteTier,
+      body.priceId
+    );
+
+    if (!hasAccess) {
+      return Response.json(
+        {
+          error: {
+            code: "no-access",
+            message: "You do not have access to this tier.",
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // Check if the subscription status allows for a new checkout
+    const allowedStatuses: SubscriptionStatus[] = [
+      "incomplete",
+      "incomplete_expired",
+      "canceled",
+    ];
+    if (
+      athlete.subscriptionStatus &&
+      !allowedStatuses.includes(
+        athlete.subscriptionStatus as SubscriptionStatus
+      )
+    ) {
+      return Response.json(
+        {
+          error: {
+            code: "invalid-subscription-status",
+            message:
+              "A new checkout is not allowed for the current subscription status.",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: "2023-10-16",
     });
@@ -51,12 +95,6 @@ export async function POST(request: Request) {
       ],
       success_url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/checkout/cancelled`,
-      subscription_data: {
-        metadata: {
-          payingUserId: authUser.userId,
-          userType: authUser.sessionClaims.userType,
-        },
-      },
     });
 
     if (!checkoutSession.url) {

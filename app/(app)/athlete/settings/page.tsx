@@ -14,10 +14,10 @@ import { EntityType } from "@/types/entityTypes";
 import Select from "@/app/components/Select";
 import { useRouter } from "next/navigation";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import useUserType from "@/hooks/useUserType";
 
 const Settings = () => {
-  const pathname = usePathname();
-  const type = getTypeFromPathname(pathname);
+  const { type } = useUserType();
   const searchParams = useSearchParams();
   const menu = searchParams.get("menu") || "account-settings";
   const router = useRouter();

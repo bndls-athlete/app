@@ -5,7 +5,6 @@ import { auth } from "@clerk/nextjs";
 import { athleteSchema, Athlete } from "@/schemas/athleteSchema";
 import { brandSchema, Brand } from "@/schemas/brandSchema";
 import { clerkClient } from "@clerk/nextjs";
-import { UserTypeType } from "@/schemas/signUpSchema";
 import { EntityType } from "@/types/entityTypes";
 
 import Stripe from "stripe";
@@ -28,7 +27,7 @@ export async function POST(request: Request) {
       email,
       userType,
       updates,
-    }: { email: string; userType: UserTypeType; updates: boolean } =
+    }: { email: string; userType: EntityType; updates: boolean } =
       await request.json();
 
     const user = await clerkClient.users.getUser(authUser.userId!);
@@ -42,89 +41,26 @@ export async function POST(request: Request) {
 
       const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
-      if (userType === EntityType.Athlete || userType === EntityType.Team) {
-        const athleteData: Partial<Athlete> = {
-          userId: authUser.userId!,
-          fullName: fullName,
-          email: email,
-          receiveUpdates: updates,
-          registrationType:
-            userType === EntityType.Athlete ? "individual" : "team",
-        };
-
-        const deepPartialAthleteSchema = athleteSchema.deepPartial();
-        const parsedResult = deepPartialAthleteSchema.safeParse(athleteData);
-
-        if (!parsedResult.success) {
+      switch (userType) {
+        case EntityType.Athlete:
+        case EntityType.Team:
+          return await handleAthlete(
+            userType,
+            authUser.userId!,
+            fullName,
+            email,
+            updates
+          );
+        case EntityType.Company:
+          return await handleBrand(authUser.userId!, fullName, email);
+        default:
           return new Response(
             JSON.stringify({
               success: false,
-              message: "Validation failed",
-              errors: parsedResult.error.issues,
+              message: "Invalid user type",
             }),
             { status: 400, headers: { "Content-Type": "application/json" } }
           );
-        }
-
-        // Create a Stripe customer
-        const stripeCustomer = await stripe.customers.create({
-          email: email,
-          name: fullName,
-        });
-
-        // Add the Stripe customer ID to the athlete data
-        athleteData.stripeCustomerId = stripeCustomer.id;
-
-        const newAthlete = new AthleteModel(athleteData);
-        await newAthlete.save();
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: "Athlete created successfully",
-            athlete: newAthlete,
-          }),
-          { status: 201, headers: { "Content-Type": "application/json" } }
-        );
-      } else if (userType === EntityType.Company) {
-        const brandData: Partial<Brand> = {
-          userId: authUser.userId!,
-          companyName: fullName,
-          email: email,
-        };
-
-        const parsedResult = brandSchema.safeParse(brandData);
-
-        if (!parsedResult.success) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              message: "Validation failed",
-              errors: parsedResult.error.issues,
-            }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
-          );
-        }
-
-        const newBrand = new BrandModel(brandData);
-        await newBrand.save();
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: "Brand created successfully",
-            brand: newBrand,
-          }),
-          { status: 201, headers: { "Content-Type": "application/json" } }
-        );
-      } else {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: "Invalid user type",
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
       }
     } catch (operationError) {
       console.error(
@@ -149,4 +85,96 @@ export async function POST(request: Request) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
+}
+
+async function handleAthlete(
+  userType: EntityType,
+  userId: string,
+  fullName: string,
+  email: string,
+  updates: boolean
+): Promise<Response> {
+  const athleteData: Partial<Athlete> = {
+    userId: userId,
+    fullName: fullName,
+    email: email,
+    receiveUpdates: updates,
+    registrationType: userType === EntityType.Athlete ? "individual" : "team",
+  };
+
+  const deepPartialAthleteSchema = athleteSchema.deepPartial();
+  const parsedResult = deepPartialAthleteSchema.safeParse(athleteData);
+
+  if (!parsedResult.success) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: "Validation failed",
+        errors: parsedResult.error.issues,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Create a Stripe customer
+  const stripeCustomer = await stripe.customers.create({
+    email: email,
+    name: fullName,
+    metadata: {
+      payingUserId: userId,
+      userType: userType,
+    },
+  });
+
+  // Add the Stripe customer ID to the athlete data
+  athleteData.stripeCustomerId = stripeCustomer.id;
+
+  const newAthlete = new AthleteModel(athleteData);
+  await newAthlete.save();
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      message: "Athlete created successfully",
+      athlete: newAthlete,
+    }),
+    { status: 201, headers: { "Content-Type": "application/json" } }
+  );
+}
+
+async function handleBrand(
+  userId: string,
+  companyName: string,
+  email: string
+): Promise<Response> {
+  const brandData: Partial<Brand> = {
+    userId: userId,
+    companyName: companyName,
+    email: email,
+  };
+
+  const parsedResult = brandSchema.safeParse(brandData);
+
+  if (!parsedResult.success) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: "Validation failed",
+        errors: parsedResult.error.issues,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const newBrand = new BrandModel(brandData);
+  await newBrand.save();
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      message: "Brand created successfully",
+      brand: newBrand,
+    }),
+    { status: 201, headers: { "Content-Type": "application/json" } }
+  );
 }

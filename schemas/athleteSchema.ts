@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { subscriptionStatusSchema } from "./subscriptionStatusSchema";
 
 const athleteSchema = z.object({
   userId: z.string(),
@@ -56,16 +57,7 @@ const athleteSchema = z.object({
   subscriptionStartDate: z.date(),
   subscriptionEndDate: z.date(),
   cancelAtPeriodEnd: z.boolean(),
-  subscriptionStatus: z.enum([
-    "incomplete",
-    "incomplete_expired",
-    "trialing",
-    "active",
-    "past_due",
-    "canceled",
-    "unpaid",
-    "paused",
-  ]),
+  subscriptionStatus: subscriptionStatusSchema,
 });
 
 export type Athlete = z.infer<typeof athleteSchema>;

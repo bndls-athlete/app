@@ -13,39 +13,8 @@ import {
 import Button from "@/app/components/Button";
 import JobCard from "./components/JobCard";
 import Pagination from "@/app/components/Pagination";
-import { usePathname } from "next/navigation";
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
 import JobModal from "./components/JobModal";
-
-export enum JobType {
-  FullTime = "Full-time",
-  PartTime = "Part-time",
-  Contract = "Contract",
-  Internship = "Internship",
-  Temporary = "Temporary",
-}
-
-export type Deliverable = {
-  title: string;
-  duration: string;
-  description: string;
-};
-
-export type JobData = {
-  title: string;
-  postedDaysAgo: number;
-  location: string;
-  feeCompensation: number;
-  aboutCompany: string;
-  opportunityDescription: string;
-  deliverables: Deliverable[];
-  nonExclusiveDealDetails: string;
-  totalCompensation: string;
-  skillsRequired: string[];
-  additionalPreferredSkills: string[];
-  numberOfAthletes: string;
-  jobType: JobType;
-};
+import { JobData } from "@/schemas/jobSchema";
 
 const jobList: JobData[] = [
   {
@@ -82,14 +51,11 @@ const jobList: JobData[] = [
     skillsRequired: ["Social Media Savvy", "Public Speaking", "Networking"],
     additionalPreferredSkills: ["Photography", "Content Creation"],
     numberOfAthletes: "1",
-    jobType: JobType.Contract,
+    jobType: "Contract",
   },
 ];
 
 const Opportunities = () => {
-  const pathname = usePathname();
-  const type = getTypeFromPathname(pathname);
-
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 10; // Assuming there are 10 pages in total
 

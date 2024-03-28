@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Brand as BrandBase, brandSchema } from "@/schemas/brandSchema";
+import { Brand as BrandBase } from "@/schemas/brandSchema";
+import { subscriptionStatusValues } from "@/schemas/subscriptionStatusSchema";
 
 export type Brand = BrandBase & Document;
 
@@ -47,16 +48,7 @@ const BrandSchema: Schema<Brand> = new Schema({
   cancelAtPeriodEnd: Boolean,
   subscriptionStatus: {
     type: String,
-    enum: [
-      "incomplete",
-      "incomplete_expired",
-      "trialing",
-      "active",
-      "past_due",
-      "canceled",
-      "unpaid",
-      "paused",
-    ],
+    enum: Object.values(subscriptionStatusValues),
   },
 });
 

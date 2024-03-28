@@ -22,6 +22,7 @@ import { Loader2 } from "lucide-react";
 import { EntityType } from "@/types/entityTypes";
 import { useAthleteCard } from "@/hooks/useAthleteCard";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import useUserType from "@/hooks/useUserType";
 
 type AthleteInformationProps = {
   athlete: Partial<Athlete>;
@@ -53,12 +54,10 @@ const athleteInformationSchema = z.object({
 type AthleteFormValues = zod.infer<typeof athleteInformationSchema>;
 
 const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
-  const pathname = usePathname();
-  const queryClient = useQueryClient();
   const { invalidateAthleteCard } = useAthleteCard();
   const { invalidateAthlete } = useAthleteData();
   const [isLoading, setIsLoading] = useState(false);
-  const type = getTypeFromPathname(pathname);
+  const { type } = useUserType();
   const { addToast } = useToast();
 
   const initialFormValues: AthleteFormValues = {

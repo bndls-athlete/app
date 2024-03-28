@@ -6,7 +6,7 @@ import { useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
-import { athletePricingPlans } from "@/helpers/athletePricingPlans";
+import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
 import { useAthleteData } from "@/hooks/useAthleteData";
 
 const UpgradeOptions = () => {
@@ -15,6 +15,12 @@ const UpgradeOptions = () => {
   const searchParams = useSearchParams();
 
   const pricing = searchParams.get("pricing") || "monthly";
+
+  // Getting the singleton instance of AthleteTierManager
+  const manager = AthleteTierManager.getInstance();
+
+  // Accessing pricing plans from the AthleteTierManager instance
+  const athletePricingPlans = manager.athletePricingPlans;
 
   const createQueryString = useCallback(
     (name: string, value: string) => {

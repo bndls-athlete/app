@@ -21,6 +21,7 @@ import { useToast } from "@/context/ToastProvider";
 import { EntityType } from "@/types/entityTypes";
 import { useAthleteCard } from "@/hooks/useAthleteCard";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import useUserType from "@/hooks/useUserType";
 
 interface AccountSettingsProps {
   athlete: Partial<Athlete>;
@@ -45,11 +46,10 @@ const accountSettingsSchema = z.object({
 type AccountSettingsFormValues = z.infer<typeof accountSettingsSchema>;
 
 const AccountSettings = ({ athlete }: AccountSettingsProps) => {
-  const pathname = usePathname();
   const queryClient = useQueryClient();
   const { invalidateAthleteCard } = useAthleteCard();
   const { invalidateAthlete } = useAthleteData();
-  const type = getTypeFromPathname(pathname);
+  const { type } = useUserType();
 
   const { addToast } = useToast();
 

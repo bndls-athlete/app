@@ -1,12 +1,6 @@
 import { EntityType } from "@/types/entityTypes";
 import { z } from "zod";
 
-export const UserType = z.enum([
-  EntityType.Athlete,
-  EntityType.Team,
-  EntityType.Company,
-]);
-
 export const signUpSchema = z
   .object({
     fullName: z
@@ -23,12 +17,10 @@ export const signUpSchema = z
     passwordConfirmation: z
       .string()
       .min(1, "Password confirmation is required"),
-    userType: UserType,
+    userType: z.nativeEnum(EntityType),
     updates: z.boolean().optional(),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
     path: ["passwordConfirmation"],
   });
-
-export type UserTypeType = z.infer<typeof UserType>;

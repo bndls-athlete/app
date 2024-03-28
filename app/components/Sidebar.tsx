@@ -1,7 +1,7 @@
 "use client";
 
 import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useSession, useUser } from "@clerk/nextjs";
 import {
   faSearch,
   faGear,
@@ -19,17 +19,15 @@ import { usePathname } from "next/navigation";
 import Button from "./Button";
 import { EntityType } from "@/types/entityTypes";
 import { useAthleteCardVisibility } from "@/context/AthleteCardVisibilityProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useUserType from "@/hooks/useUserType";
 
 const SidebarTab: React.FC<{
   path: string;
   label: string;
   icon: any;
   active: boolean;
-  type: string;
-}> = ({ path, label, icon, active, type }) => {
-  if (!type) return null;
-
+}> = ({ path, label, icon, active }) => {
   return (
     <Link href={path}>
       <li
@@ -46,10 +44,10 @@ const SidebarTab: React.FC<{
 
 const Sidebar = () => {
   const pathname = usePathname();
-
-  const { isSignedIn, user } = useUser();
-  const type = user?.publicMetadata.userType || "";
+  const { user } = useUser();
   const { signOut } = useClerk();
+
+  const { type } = useUserType();
 
   const links = [
     {
@@ -126,7 +124,6 @@ const Sidebar = () => {
                     label={link.label}
                     icon={link.icon}
                     active={pathname === link.path}
-                    type={type as string}
                   />
                 );
               }
@@ -149,14 +146,12 @@ const Sidebar = () => {
               label="Help Center"
               icon={faCircleQuestion}
               active={false}
-              type={type as string}
             />
             <SidebarTab
               path={`/${type}/settings`}
               label="Settings"
               icon={faGear}
               active={`/${type}/settings` === pathname}
-              type={type as string}
             />
           </ul>
           <hr className="my-2 border-gray-900" />

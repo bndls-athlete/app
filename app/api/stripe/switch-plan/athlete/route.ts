@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import AthleteModel from "@/models/Athlete";
+import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -26,14 +27,13 @@ export async function POST(request: Request) {
     if (
       !athlete ||
       !athlete.stripeCustomerId ||
-      !athlete.stripeSubscriptionId ||
-      !athlete.priceId
+      !athlete.stripeSubscriptionId
     ) {
       return new Response(
         JSON.stringify({
           error: {
             code: "athlete-not-found",
-            message: "Athlete not found or missing Stripe data.",
+            message: "Athlete not found or missing Stripe subscription data.",
           },
         }),
         { status: 404 }
@@ -41,37 +41,45 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const manager = AthleteTierManager.getInstance();
+    const hasAccess = manager.checkAthleteAccessByTier(
+      athlete.athleteTier,
+      body.newPriceId
+    );
+
+    if (!hasAccess) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: "no-access",
+            message: "You do not have access to this tier.",
+          },
+        }),
+        { status: 403 }
+      );
+    }
+
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: "2023-10-16",
     });
 
-    // Set proration date to the current time
-    const proration_date = Math.floor(Date.now() / 1000);
-
-    // Retrieve the current subscription
-    const subscription = await stripe.subscriptions.retrieve(
-      athlete.stripeSubscriptionId
+    const updatedSubscription = await stripe.subscriptions.update(
+      athlete.stripeSubscriptionId,
+      {
+        payment_behavior: "pending_if_incomplete",
+        proration_behavior: "always_invoice",
+        items: [
+          {
+            id: athlete.stripeSubscriptionItemId,
+            price: body.newPriceId,
+          },
+        ],
+      }
     );
 
-    // Preview the proration
-    const invoice = await stripe.invoices.retrieveUpcoming({
-      customer: athlete.stripeCustomerId,
-      subscription: athlete.stripeSubscriptionId,
-      subscription_items: [
-        {
-          id: subscription.items.data[0].id,
-          price: body.newPriceId,
-        },
-      ],
-      subscription_proration_date: proration_date,
+    return new Response(JSON.stringify({ updatedSubscription }), {
+      status: 200,
     });
-
-    // Extract and convert the subtotal amount from the invoice
-    const prorationSubtotal = invoice.subtotal / 100;
-
-    console.log(prorationSubtotal);
-
-    return new Response(JSON.stringify({ prorationSubtotal }), { status: 200 });
   } catch (error) {
     console.error("Error processing request:", error);
     return new Response(

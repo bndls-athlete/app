@@ -7,13 +7,12 @@ import UpgradeOptions from "./components/UpgradeOptions";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import Select from "@/app/components/Select";
 import { faCreditCard } from "@fortawesome/free-regular-svg-icons";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import useUserType from "@/hooks/useUserType";
 
 const Plan = () => {
-  const pathname = usePathname();
-  const type = getTypeFromPathname(pathname);
+  const { type } = useUserType();
   const searchParams = useSearchParams();
   const menu = searchParams.get("menu") || "my-plan";
   const router = useRouter();

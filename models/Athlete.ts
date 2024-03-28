@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Athlete as AthleteBase } from "@/schemas/athleteSchema";
+import { subscriptionStatusValues } from "@/schemas/subscriptionStatusSchema";
 
 export type Athlete = AthleteBase & mongoose.Document;
 
@@ -64,6 +65,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   athleteTier: {
     type: String,
     enum: ["1", "2", "3"],
+    default: "3",
   },
   // Stripe
   stripeCustomerId: String,
@@ -75,16 +77,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   cancelAtPeriodEnd: Boolean,
   subscriptionStatus: {
     type: String,
-    enum: [
-      "incomplete",
-      "incomplete_expired",
-      "trialing",
-      "active",
-      "past_due",
-      "canceled",
-      "unpaid",
-      "paused",
-    ],
+    enum: Object.values(subscriptionStatusValues),
   },
 });
 
