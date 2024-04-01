@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { AthleteCard } from "@/schemas/athleteCardSchema";
+import useUserType from "./useUserType";
+import { EntityType } from "@/types/entityTypes";
 
 const fetchAthleteCard = async (): Promise<AthleteCard> => {
   const { data } = await axios.get("/api/athlete-card");
@@ -9,6 +11,8 @@ const fetchAthleteCard = async (): Promise<AthleteCard> => {
 
 export const useAthleteCard = () => {
   const queryClient = useQueryClient();
+  const { type } = useUserType();
+
   const {
     data: athleteCard,
     isLoading,
@@ -19,6 +23,7 @@ export const useAthleteCard = () => {
     queryFn: fetchAthleteCard,
     staleTime: Infinity,
     gcTime: Infinity,
+    enabled: type === EntityType.Athlete,
   });
 
   const invalidateAthleteCard = () => {

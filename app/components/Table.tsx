@@ -24,9 +24,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <>
       {" "}
-      <h6 className="text-lg font-semibold mb-3">
-        Showing I - I of I {textShowing}
-      </h6>
+      <h6 className="text-lg font-semibold mb-3"></h6>
       <div className="mb-2">
         <span>{subtitle}</span>
         <div className="my-3 border rounded-xl pb-3 overflow-x-auto">

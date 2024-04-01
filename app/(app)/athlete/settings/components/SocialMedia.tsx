@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
 import { useAthleteCard } from "@/hooks/useAthleteCard";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import { Athlete } from "@/schemas/athleteSchema";
 
 const atheteSocialMediaSchema = z.object({
   instagram: z.string().optional(),
@@ -33,18 +34,11 @@ const extractHandle = (url: string | undefined, platform: string): string => {
 
 type SocialMediaFormValues = z.infer<typeof atheteSocialMediaSchema>;
 
-type Props = {
-  athlete: {
-    socialProfiles: {
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      twitter?: string;
-    };
-  };
+type AthleteSocialMediaProps = {
+  athlete: Partial<Athlete>;
 };
 
-const SocialMedia = ({ athlete }: Props) => {
+const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
   // Define initial form values based on the athlete prop
   // Define initial form values based on the athlete prop
   const initialFormValues: SocialMediaFormValues = {
@@ -122,9 +116,9 @@ const SocialMedia = ({ athlete }: Props) => {
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
-          <div className="md:col-span-2 col-span-8 mb-3">
-            <h6 className=" font-semibold">Social Profiles</h6>
-            <span className=" text-subtitle">You must have at least one.</span>
+          <div className="md:col-span-2 col-span-8">
+            <h6 className="font-semibold">Social Profiles</h6>
+            <span className="text-subtitle">You must have at least one.</span>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
             <InputGroup
@@ -132,33 +126,47 @@ const SocialMedia = ({ athlete }: Props) => {
               {...register("instagram")}
               error={errors.instagram?.message}
             />
+            <span className="text-subtitle">
+              Enter your Instagram username (e.g., john_doe).
+            </span>
             <InputGroup
-              withLabel="Tiktok.com/"
+              withLabel="Tiktok.com/@"
               {...register("tiktok")}
               error={errors.tiktok?.message}
             />
+            <span className="text-subtitle">
+              Enter your TikTok username (e.g., john_doe).
+            </span>
             <InputGroup
               withLabel="Facebook.com/"
               {...register("facebook")}
               error={errors.facebook?.message}
             />
+            <span className="text-subtitle">
+              Enter your Facebook username or page ID (e.g., john.doe or
+              JohnDoePage).
+            </span>
             <InputGroup
               withLabel="Twitter.com/"
               {...register("twitter")}
               error={errors.twitter?.message}
             />
+            <span className="text-subtitle">
+              Enter your Twitter handle (e.g., @johndoe).
+            </span>
           </div>
         </div>
+
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            <Button
+            {/* <Button
               theme="light"
               className=" py-2"
               type="reset"
               disabled={isLoading}
             >
               Cancel
-            </Button>
+            </Button> */}
             <Button className=" py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>

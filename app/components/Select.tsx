@@ -1,5 +1,3 @@
-"use client";
-
 import React, { forwardRef, ReactNode, ChangeEvent } from "react";
 
 type SelectProps = {
@@ -11,10 +9,23 @@ type SelectProps = {
   className?: string;
   value?: string;
   onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
+  placeholder?: string;
 };
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ children, withLabel, desc, error, value, className, ...props }, ref) => {
+  (
+    {
+      children,
+      withLabel,
+      desc,
+      error,
+      value,
+      className,
+      placeholder,
+      ...props
+    },
+    ref
+  ) => {
     const selectClassName = `select select-bordered w-full text-base ${
       className || ""
     }`;
@@ -27,10 +38,15 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </label>
         )}
         <select {...props} value={value} className={selectClassName} ref={ref}>
+          {placeholder && (
+            <option value="" disabled selected={!value}>
+              {placeholder}
+            </option>
+          )}
           {children}
         </select>
-        {desc && <p className=" text-gray-500 mt-1">{desc}</p>}
-        {error && <p className=" text-red-500 mt-1">{error}</p>}
+        {desc && <p className="text-gray-500 mt-1">{desc}</p>}
+        {error && <p className="text-red-500 mt-1">{error}</p>}
       </div>
     );
   }

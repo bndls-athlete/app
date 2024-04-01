@@ -5,9 +5,7 @@ import AccountSettings from "./components/AccountSettings";
 import AthleteInformation from "./components/AthleteInformation";
 import SocialMedia from "./components/SocialMedia";
 import Security from "./components/Security";
-import BusinessInformation from "./components/BusinessInformation";
-import { usePathname, useSearchParams } from "next/navigation";
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { EntityType } from "@/types/entityTypes";
@@ -36,11 +34,6 @@ const Settings = () => {
       condition: type !== EntityType.Company,
     },
     {
-      path: `/${type}/settings/?menu=business-information`,
-      label: "Business Information",
-      condition: type === EntityType.Company,
-    },
-    {
       path: `/${type}/settings/?menu=social-media`,
       label: "Social Media",
       condition: true,
@@ -53,15 +46,16 @@ const Settings = () => {
   ];
 
   const componentActive = () => {
+    if (!athlete) {
+      return null;
+    }
     switch (menu) {
       case "account-settings":
-        return <AccountSettings athlete={athlete!} />;
+        return <AccountSettings athlete={athlete} />;
       case "athlete-information":
-        return <AthleteInformation athlete={athlete!} />;
-      case "business-information":
-        return <BusinessInformation />;
+        return <AthleteInformation athlete={athlete} />;
       case "social-media":
-        return <SocialMedia athlete={athlete!} />;
+        return <SocialMedia athlete={athlete} />;
       case "security":
         return <Security />;
       default:
@@ -83,7 +77,7 @@ const Settings = () => {
 
   return (
     <>
-      <div className="my-6 text-dark">
+      <div className="my-4 text-dark">
         <h1 className="text-3xl font-semibold">Settings Athlete</h1>
         <div className="mt-4">
           <div className="hidden sm:block">
@@ -121,7 +115,7 @@ const Settings = () => {
             </Select>
           </div>
         </div>
-        {componentActive()}
+        <div>{componentActive()}</div>
       </div>
     </>
   );

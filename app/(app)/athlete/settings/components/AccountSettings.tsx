@@ -4,67 +4,57 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/app/components/Button";
-import UploadComponent from "@/app/components/UploadComponent";
 import Input from "@/app/components/Input";
 import Select from "@/app/components/Select";
-import { usePathname } from "next/navigation";
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
 import { useState } from "react";
-import { monthOptions } from "@/helpers/monthOptions";
-import { Athlete } from "@/schemas/athleteSchema";
 import axios from "axios";
-import { stateOptions } from "@/helpers/stateOptions";
-import { format } from "date-fns";
-import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
-import { EntityType } from "@/types/entityTypes";
-import { useAthleteCard } from "@/hooks/useAthleteCard";
+import { Athlete } from "@/schemas/athleteSchema";
 import { useAthleteData } from "@/hooks/useAthleteData";
-import useUserType from "@/hooks/useUserType";
+import { stateOptions } from "@/helpers/stateOptions";
+import { format } from "date-fns";
+import { monthOptions } from "@/helpers/monthOptions";
+import UploadComponent from "@/app/components/UploadComponent";
 
-interface AccountSettingsProps {
+interface AthleteAccountSettingsProps {
   athlete: Partial<Athlete>;
 }
 
-// Define the Zod schema for form validation
-const accountSettingsSchema = z.object({
+const athleteAccountSettingsSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  // email: z.string().email("Invalid email address"),
   gender: z.string().min(1, "Gender is required"),
   country: z.string().min(1, "Country is required"),
-  address1: z.string().min(1, "Address is required"),
-  address2: z.string().optional(),
+  streetName: z.string().min(1, "Street name is required"),
+  houseApartmentNumber: z.string().optional(),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code"),
-  dateOfBirthMonth: z.string().min(1, "Required"),
+  dateOfBirthMonth: z.string().min(1, "Month is required"),
   dateOfBirthDay: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, "Invalid day"),
   dateOfBirthYear: z.string().regex(/^(19|20)\d{2}$/, "Invalid year"),
 });
 
-type AccountSettingsFormValues = z.infer<typeof accountSettingsSchema>;
+type AthleteAccountSettingsFormValues = z.infer<
+  typeof athleteAccountSettingsSchema
+>;
 
-const AccountSettings = ({ athlete }: AccountSettingsProps) => {
-  const queryClient = useQueryClient();
-  const { invalidateAthleteCard } = useAthleteCard();
+const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
   const { invalidateAthlete } = useAthleteData();
-  const { type } = useUserType();
-
   const { addToast } = useToast();
-
   const [profileImage, setProfileImage] = useState("/images/Avatar.webp");
   const [isLoading, setIsLoading] = useState(false);
 
   const formattedDateOfBirth = athlete.dateOfBirth
     ? new Date(athlete.dateOfBirth)
     : new Date();
-  const initialFormValues: AccountSettingsFormValues = {
+
+  const initialFormValues: AthleteAccountSettingsFormValues = {
     fullName: athlete.fullName || "",
     gender: athlete.gender || "",
     country: athlete.address?.countryRegion || "",
-    address1: athlete.address?.streetName || "",
-    address2: athlete.address?.houseApartmentNumber || "",
+    streetName: athlete.address?.streetName || "",
+    houseApartmentNumber: athlete.address?.houseApartmentNumber || "",
     city: athlete.address?.city || "",
     state: athlete.address?.state || "",
     zipCode: athlete.address?.zipCode || "",
@@ -77,23 +67,21 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AccountSettingsFormValues>({
-    resolver: zodResolver(accountSettingsSchema),
+  } = useForm<AthleteAccountSettingsFormValues>({
+    resolver: zodResolver(athleteAccountSettingsSchema),
     defaultValues: initialFormValues,
   });
 
   // Handle form submission
-  const onSubmit = async (data: AccountSettingsFormValues) => {
+  const onSubmit = async (data: AthleteAccountSettingsFormValues) => {
     setIsLoading(true);
     const athleteData: Partial<Athlete> = {
       fullName: data.fullName,
-      // email: data.email,
       gender: data.gender,
-      receiveUpdates: true,
       address: {
         countryRegion: data.country,
-        streetName: data.address1,
-        houseApartmentNumber: data.address2 || "",
+        streetName: data.streetName,
+        houseApartmentNumber: data.houseApartmentNumber || "",
         city: data.city,
         state: data.state,
         zipCode: data.zipCode,
@@ -110,7 +98,6 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
       console.error("Error updating athlete:", error);
     } finally {
       invalidateAthlete();
-      invalidateAthleteCard();
       setIsLoading(false);
     }
   };
@@ -121,25 +108,10 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Profile</h6>
-            <span className=" text-subtitle">
+            <span className="text-subtitle">
               Update your profile picture and basic information here
             </span>
           </div>
-          {/* <div className="py-3 flex gap-2">
-            <Button theme="light" className=" py-2" disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button className=" py-2" type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </div> */}
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
@@ -159,113 +131,83 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">Your Full Name</h6>
+            <h6 className="font-semibold">Full Name</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
-            <Input {...register("fullName")} error={errors.fullName?.message} />
+            <Input
+              {...register("fullName")}
+              error={errors.fullName?.message}
+              placeholder="Enter your full name"
+            />
           </div>
         </div>
 
-        {/* <div className="grid grid-cols-8 py-3 border-b">
-          <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">
-              Your {type === EntityType.Company ? "Work Email" : "Email"}
-            </h6>
-          </div>
-          <div className="lg:col-span-3 md:col-span-6 col-span-8">
-            <Input {...register("email")} error={errors.email?.message} />
-            <span className="text-subtitle ">
-              This is the email address you use to sign in. It’s also where we
-              send your booking confirmations.
-            </span>
-          </div>
-        </div> */}
-
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">
-              {type === EntityType.Team
-                ? "Men's Team or Women's Team?"
-                : "Gender"}
-            </h6>
+            <h6 className="font-semibold">Gender</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Select {...register("gender")} error={errors.gender?.message}>
               <option value="" disabled>
-                Please select your{" "}
-                {type === EntityType.Team ? "Team" : "Gender"}
+                Select your gender
               </option>
-              <option value="men's">Men's</option>
-              <option value="women's">Women's</option>
-              <option value="coed">Coed</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </Select>
           </div>
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">Address</h6>
+            <h6 className="font-semibold">Country/Region</h6>
           </div>
-          <div className="lg:col-span-3 md:col-span-6 col-span-8 space-y-3">
+          <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Select {...register("country")} error={errors.country?.message}>
               <option value="" disabled>
                 Select the country/region you live in
               </option>
               <option value="USA">United States</option>
-              <option value="Canada">Canada</option>
-              <option value="UK">United Kingdom</option>
-              <option value="India">India</option>
-              <option value="Australia">Australia</option>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-8 py-3 border-b">
+          <div className="md:col-span-2 col-span-8">
+            <h6 className="font-semibold">Address</h6>
+          </div>
+          <div className="lg:col-span-3 md:col-span-6 col-span-8 space-y-3">
+            <Input
+              {...register("streetName")}
+              error={errors.streetName?.message}
+              placeholder="Enter your street name"
+            />
+            <Input
+              {...register("houseApartmentNumber")}
+              placeholder="Enter your house/apartment number (optional)"
+            />
+            <Input
+              {...register("city")}
+              error={errors.city?.message}
+              placeholder="Enter your city"
+            />
+            <Select {...register("state")} error={errors.state?.message}>
+              <option value="" disabled>
+                Select State
+              </option>
+              {stateOptions()}
             </Select>
             <Input
-              {...register("address1")}
-              error={errors.address1?.message}
-              placeholder="Your street name"
-              className="mt-3"
-            />
-            <Input
-              {...register("address2")}
-              placeholder="House/apartment number"
-              className="mt-3"
+              {...register("zipCode")}
+              error={errors.zipCode?.message}
+              placeholder="Enter your ZIP code in the format XXXXX or XXXXX-XXXX"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">Location</h6>
-          </div>
-          <div className="lg:col-span-3 md:col-span-6 col-span-8">
-            <div className="grid grid-cols-9 gap-2">
-              <div className="col-span-3">
-                <Input
-                  {...register("city")}
-                  error={errors.city?.message}
-                  placeholder="City"
-                />
-              </div>
-              <div className="col-span-3">
-                <Select {...register("state")} error={errors.state?.message}>
-                  <option value="" disabled>
-                    Select State
-                  </option>
-                  {stateOptions()}
-                </Select>
-              </div>
-              <div className="col-span-3">
-                <Input
-                  {...register("zipCode")}
-                  error={errors.zipCode?.message}
-                  placeholder="Zip Code"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-8 py-3 border-b">
-          <div className="md:col-span-2 col-span-8">
-            <h6 className=" font-semibold">Date of Birth</h6>
+            <h6 className="font-semibold">Date of Birth</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-3 gap-4">
             <Select
@@ -292,10 +234,7 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
 
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            <Button theme="light" className=" py-2">
-              Cancel
-            </Button>
-            <Button className=" py-2" type="submit">
+            <Button className="py-2" type="submit">
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />
@@ -312,4 +251,4 @@ const AccountSettings = ({ athlete }: AccountSettingsProps) => {
   );
 };
 
-export default AccountSettings;
+export default AthleteAccountSettings;

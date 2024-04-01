@@ -19,20 +19,14 @@ import { useAthleteCardVisibility } from "@/context/AthleteCardVisibilityProvide
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { AthleteCard } from "@/schemas/athleteCardSchema";
 import Link from "next/link";
+import { useAthleteCard } from "@/hooks/useAthleteCard";
 
 const AthelteCard = () => {
   const { isAthleteCardVisible, toggleAthleteCardVisible } =
     useAthleteCardVisibility();
 
-  const { data: athleteCard, isLoading } = useQuery<AthleteCard>({
-    queryKey: ["athlete-card"],
-    queryFn: async () => {
-      const response = await axios.get("/api/athlete-card");
-      return response.data.athleteCard;
-    },
-  });
+  const { athleteCard, isLoading, error } = useAthleteCard();
 
   if (isLoading) {
     return (

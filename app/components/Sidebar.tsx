@@ -1,7 +1,5 @@
 "use client";
-
-import { getTypeFromPathname } from "@/helpers/getTypeFromPathname";
-import { useClerk, useSession, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import {
   faSearch,
   faGear,
@@ -11,6 +9,9 @@ import {
   faCreditCard,
   faBookmark,
   faCircleQuestion,
+  faPlus,
+  faList,
+  faPencilAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,6 +22,8 @@ import { EntityType } from "@/types/entityTypes";
 import { useAthleteCardVisibility } from "@/context/AthleteCardVisibilityProvider";
 import { useEffect, useState } from "react";
 import useUserType from "@/hooks/useUserType";
+import { useAthleteData } from "@/hooks/useAthleteData";
+import { useAthleteCard } from "@/hooks/useAthleteCard";
 
 const SidebarTab: React.FC<{
   path: string;
@@ -46,6 +49,8 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { invalidateAthlete } = useAthleteData();
+  const { invalidateAthleteCard } = useAthleteCard();
 
   const { type } = useUserType();
 
@@ -63,17 +68,23 @@ const Sidebar = () => {
       condition: type !== EntityType.Company,
     },
     {
+      path: `/${type}/create-job`,
+      label: "Create Job",
+      icon: faPencilAlt,
+      condition: type == EntityType.Company,
+    },
+    {
+      path: `/${type}/my-jobs`,
+      label: "My Jobs",
+      icon: faList,
+      condition: type == EntityType.Company,
+    },
+    {
       path: `/${type}/plan`,
       label: "Plans & Billing",
       icon: faCreditCard,
       condition: true,
     },
-    // {
-    //   path: `/${type}/athlete-card`,
-    //   label: "View your Athlete Card",
-    //   icon: faUser,
-    //   condition: type !== EntityType.Company,
-    // },
     {
       path: `/${type}/saved-athlete`,
       label: "Saved Athlete Cards",
@@ -182,9 +193,13 @@ const Sidebar = () => {
           </div>
           <Button
             className="my-2 w-full"
-            onClick={() => {
+            onClick={async () => {
               if (window.confirm("Are you sure you want to logout?")) {
-                signOut();
+                await signOut();
+                if (type === EntityType.Athlete) {
+                  invalidateAthlete();
+                  invalidateAthleteCard();
+                }
               }
             }}
           >

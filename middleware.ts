@@ -31,14 +31,9 @@ export default authMiddleware({
 
       // Redirect based on userType
       switch (userType) {
-        case EntityType.Athlete:
+        case EntityType.Athlete || EntityType.Team:
           if (!currentPath.startsWith("/athlete")) {
             return NextResponse.redirect(new URL("/athlete/jobs", req.url));
-          }
-          break;
-        case EntityType.Team:
-          if (!currentPath.startsWith("/team")) {
-            return NextResponse.redirect(new URL("/team", req.url));
           }
           break;
         case EntityType.Company:

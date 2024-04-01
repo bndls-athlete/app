@@ -18,7 +18,57 @@ type AthleteTierKey =
   | "ATHLETE_TIER_1_YEARLY"
   | "ATHLETE_TIER_2_YEARLY"
   | "ATHLETE_TIER_3_YEARLY";
-type AthleteTierName = "TIER_1" | "TIER_2" | "TIER_3";
+
+// Define athlete tier names as a tuple
+export const AthleteTierNames = ["TIER_1", "TIER_2", "TIER_3"] as const;
+
+// This type is now "TIER_1" | "TIER_2" | "TIER_3"
+export type AthleteTierName = (typeof AthleteTierNames)[number];
+
+type GetAthleteSubscriptionButtonDataParams = {
+  athlete: Athlete | undefined;
+  planPriceId: string;
+  handleSwitch: () => void;
+  handleManageBilling: () => void;
+  proceedWithCheckout: (priceId: string) => void;
+  checkAccess?: boolean;
+};
+
+export type OptionsCardButtonText =
+  | "Get Started"
+  | "Upgrade"
+  | "Downgrade"
+  | "Current Plan"
+  | "Renew"
+  | "Locked"
+  | "Switch to Monthly"
+  | "Switch to Yearly";
+
+export type MyPlanInfoButtonText =
+  | "Manage Plan"
+  | "Renew"
+  | "Reactivate"
+  | "Get Started"
+  | null;
+
+type ButtonData = {
+  text: OptionsCardButtonText;
+  action: () => void;
+};
+
+type GetMyPlanInfoParams = {
+  athlete: Athlete | undefined;
+  handleManageBilling: () => void;
+  handleRenew: () => void;
+  handleReactivate: () => void;
+  handleGetStarted: () => void;
+};
+
+type MyPlanInfoData = {
+  planInfo: string;
+  buttonText: MyPlanInfoButtonText;
+  action: (() => void) | null;
+};
 
 class AthleteTierManager {
   private static instance: AthleteTierManager;
@@ -44,10 +94,7 @@ class AthleteTierManager {
       yearlyPriceId: this.priceIds.ATHLETE_TIER_3_YEARLY,
       monthlyPrice: "$5",
       annualPrice: "$50", // 12 * $5 - 2 * $5
-      features: [
-        "Access to basic job postings",
-        "Apply to up to 5 jobs per month",
-      ],
+      features: ["Access to Tier 3 job postings", "Unlimited job applications"],
     },
     {
       tier: "Tier 2",
@@ -56,8 +103,8 @@ class AthleteTierManager {
       monthlyPrice: "$10",
       annualPrice: "$100", // 12 * $10 - 2 * $10
       features: [
-        "Access to premium job postings",
-        "Apply to up to 15 jobs per month",
+        "Access to Tier 2 and Tier 3 job postings",
+        "Unlimited job applications",
       ],
     },
     {
@@ -67,7 +114,7 @@ class AthleteTierManager {
       monthlyPrice: "$15",
       annualPrice: "$150", // 12 * $15 - 2 * $15
       features: [
-        "Access to all job postings, including exclusive listings",
+        "Access to all job postings, including Tier 1, Tier 2, and Tier 3",
         "Unlimited job applications",
       ],
     },
@@ -98,6 +145,13 @@ class AthleteTierManager {
     return userTierIndex <= requestedTierIndex;
   }
 
+  /**
+   * Checks if an athlete has access to a specific tier based on their current subscription.
+   *
+   * @param athlete The athlete object to check access for.
+   * @param tierName The name of the tier to check access against.
+   * @returns true if the athlete has access to the specified tier, false otherwise.
+   */
   checkAthleteAccess(
     athlete: Athlete | null,
     tierName: AthleteTierName
@@ -119,7 +173,14 @@ class AthleteTierManager {
     return this.hasAccess(athlete.priceId, tierName);
   }
 
-  checkAthleteAccessByTier(
+  /**
+   * Checks if an athlete has access to purchase a subscription tier based on their current tier.
+   *
+   * @param athleteTier The tier level of the athlete (e.g., "1").
+   * @param requestedPriceId The price ID of the tier the athlete wants to purchase.
+   * @returns true if the athlete has access to purchase the requested tier, false otherwise.
+   */
+  checkAthleteAccessToPurchase(
     athleteTier: string,
     requestedPriceId: string
   ): boolean {
@@ -135,27 +196,6 @@ class AthleteTierManager {
     return parseInt(athleteTier, 10) <= requestedTierLevel;
   }
 }
-
-type GetMyPlanInfoParams = {
-  athlete: Athlete | undefined;
-  handleManageBilling: () => void;
-  handleRenew: () => void;
-  handleReactivate: () => void;
-  handleGetStarted: () => void;
-};
-
-type MyPlanInfoButtonText =
-  | "Manage Plan"
-  | "Renew"
-  | "Reactivate"
-  | "Get Started"
-  | null;
-
-type MyPlanInfoData = {
-  planInfo: string;
-  buttonText: MyPlanInfoButtonText;
-  action: (() => void) | null;
-};
 
 function getMyPlanInfo({
   athlete,
@@ -229,30 +269,6 @@ function getMyPlanInfo({
   return { planInfo, buttonText, action };
 }
 
-type GetAthleteSubscriptionButtonDataParams = {
-  athlete: Athlete | undefined;
-  planPriceId: string;
-  handleSwitch: () => void;
-  handleManageBilling: () => void;
-  proceedWithCheckout: (priceId: string) => void;
-  checkAccess?: boolean;
-};
-
-type OptionsCardButtonText =
-  | "Get Started"
-  | "Upgrade"
-  | "Downgrade"
-  | "Current Plan"
-  | "Renew"
-  | "Locked"
-  | "Switch to Monthly"
-  | "Switch to Yearly";
-
-type ButtonData = {
-  text: OptionsCardButtonText;
-  action: () => void;
-};
-
 function getAthleteSubscriptionButtonData({
   athlete,
   planPriceId,
@@ -265,9 +281,8 @@ function getAthleteSubscriptionButtonData({
   let text: OptionsCardButtonText = "Get Started";
   let action = () => proceedWithCheckout(planPriceId);
 
-  // Check access first
   if (checkAccess && athlete && athlete.athleteTier) {
-    const hasAccess = manager.checkAthleteAccessByTier(
+    const hasAccess = manager.checkAthleteAccessToPurchase(
       athlete.athleteTier,
       planPriceId
     );
@@ -327,5 +342,11 @@ function getAthleteSubscriptionButtonData({
   return { text, action };
 }
 
+export function formatTier(tier: string) {
+  return tier
+    .toLowerCase()
+    .replace("_", " ")
+    .replace(/^\w/, (letter) => letter.toUpperCase());
+}
+
 export { AthleteTierManager, getAthleteSubscriptionButtonData, getMyPlanInfo };
-// export type { AthletePricingPlan, AthleteTierKey, AthleteTierName, OptionsCardButtonText };

@@ -12,7 +12,7 @@ const MyPlan = () => {
 
   const handleManageBilling = async () => {
     try {
-      const response = await axios.get("/api/stripe/manage-billing/athlete");
+      const response = await axios.get("/api/stripe/athlete/manage-billing");
       if (response.data.url) {
         window.location.href = response.data.url;
       } else {

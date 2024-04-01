@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import { faLightbulb } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,66 +16,47 @@ import Button from "@/app/components/Button";
 import JobCard from "./components/JobCard";
 import Pagination from "@/app/components/Pagination";
 import JobModal from "./components/JobModal";
-import { JobData } from "@/schemas/jobSchema";
+import { JobPostingWithCompanyInfo } from "@/schemas/jobPostingSchema";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
-const jobList: JobData[] = [
-  {
-    title: "Brand Ambassador",
-    postedDaysAgo: 3,
-    location: "Miami, FL",
-    feeCompensation: 2000,
-    aboutCompany: "SportsGear is a leading sports apparel and equipment brand.",
-    opportunityDescription:
-      "We are seeking a professional athlete to represent our brand as an ambassador and promote our products through various channels.",
-    deliverables: [
-      {
-        title: "Social Media Promotion",
-        duration: "Throughout the contract period",
-        description:
-          "Regularly post about SportsGear products on social media platforms, highlighting their features and benefits.",
-      },
-      {
-        title: "Event Appearances",
-        duration: "At least 2 events per month",
-        description:
-          "Attend sports events and promotional activities as a representative of SportsGear, engaging with fans and customers.",
-      },
-      {
-        title: "Product Feedback",
-        duration: "Monthly",
-        description:
-          "Provide feedback on SportsGear products based on personal use and athlete insights to help improve product quality and design.",
-      },
-    ],
-    nonExclusiveDealDetails:
-      "Exclusive contract for sports apparel, non-exclusive for other product categories",
-    totalCompensation: "$2000 + commission on sales generated",
-    skillsRequired: ["Social Media Savvy", "Public Speaking", "Networking"],
-    additionalPreferredSkills: ["Photography", "Content Creation"],
-    numberOfAthletes: "1",
-    jobType: "Contract",
-  },
-];
+const fetchJobPostings = async (page: number) => {
+  const { data } = await axios.get(`/api/job?limit=9&page=${page}`);
+  return data;
+};
 
 const Opportunities = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10; // Assuming there are 10 pages in total
+  const [selectedJob, setSelectedJob] =
+    useState<JobPostingWithCompanyInfo | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const [jobs, setJobs] = useState<JobData[]>([]);
-  const [selectedJob, setSelectedJob] = useState<JobData | null>(null);
-
-  useEffect(() => {
-    // Fetch jobs data and set the state
-    setJobs(jobList);
-  }, []);
+  const {
+    isLoading,
+    isError,
+    error,
+    data: jobData,
+    isFetching,
+  } = useQuery({
+    queryKey: ["jobPostings", currentPage],
+    queryFn: () => fetchJobPostings(currentPage),
+    staleTime: 240000,
+    gcTime: 240000,
+  });
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Perform additional actions when the page changes, such as fetching new data
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleJobSelect = (job: JobData) => {
+  const handleJobSelect = (job: JobPostingWithCompanyInfo) => {
     setSelectedJob(job);
+  };
+
+  const handleJobUpdate = (updatedJob: JobPostingWithCompanyInfo) => {
+    setSelectedJob(updatedJob);
   };
 
   return (
@@ -139,24 +122,36 @@ const Opportunities = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {jobs.map((job, index) => (
-            <JobCard
-              key={index}
-              job={job}
-              onSelectJob={() => handleJobSelect(job)}
-            />
-          ))}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : isError ? (
+            <div>Error: {error.message}</div>
+          ) : (
+            jobData.jobPostings.map(
+              (job: JobPostingWithCompanyInfo, index: number) => (
+                <JobCard
+                  key={index}
+                  job={job}
+                  onSelectJob={() => handleJobSelect(job)}
+                />
+              )
+            )
+          )}
         </div>
         <div className="flex justify-center mt-8">
           <Pagination
             currentPage={currentPage}
-            totalPages={totalPages}
+            totalPages={jobData?.totalPages || 1}
             onPageChange={handlePageChange}
           />
         </div>
       </div>
       {selectedJob && (
-        <JobModal jobData={selectedJob} onClose={() => setSelectedJob(null)} />
+        <JobModal
+          jobData={selectedJob}
+          onJobUpdate={handleJobUpdate}
+          onClose={() => setSelectedJob(null)}
+        />
       )}
     </>
   );

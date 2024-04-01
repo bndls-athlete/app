@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Athlete as AthleteBase } from "@/schemas/athleteSchema";
 import { subscriptionStatusValues } from "@/schemas/subscriptionStatusSchema";
+import { EntityType } from "@/types/entityTypes";
 
 export type Athlete = AthleteBase & mongoose.Document;
 
@@ -34,17 +35,34 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   dateOfBirth: Date,
   registrationType: {
     type: String,
-    enum: ["individual", "team"],
+    enum: [EntityType.Athlete, EntityType.Team],
     required: true,
   },
   // Individual specific fields
   collegeUniversity: String,
   graduationDate: Date,
   sport: String,
+  baseballStats: {
+    winsAboveReplacement: Number,
+    isolatedPower: Number,
+    weightedOnBaseAverage: Number,
+  },
+  basketballStats: {
+    points: Number,
+    assists: Number,
+    rebounds: Number,
+    blocks: Number,
+    steals: Number,
+  },
+  soccerStats: {
+    cleanSheets: Number,
+    goalsScored: Number,
+    assists: Number,
+  },
   professionalSkills: [String],
   currentAcademicGPA: Number,
   professionalReferences: [String],
-  athleticCareerHighlights: String,
+  statsSourceURL: String,
   bio: String,
   reel: String,
   // Team specific fields
@@ -68,7 +86,10 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     default: "3",
   },
   // Stripe
-  stripeCustomerId: String,
+  stripeCustomerId: {
+    type: String,
+    required: true,
+  },
   stripeSubscriptionId: String,
   stripeSubscriptionItemId: String,
   priceId: String,

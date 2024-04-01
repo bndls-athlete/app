@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Athlete } from "@/schemas/athleteSchema";
+import useUserType from "./useUserType";
+import { EntityType } from "@/types/entityTypes";
 
 const fetchAthlete = async (): Promise<Athlete> => {
   const { data } = await axios.get("/api/athlete");
@@ -9,6 +11,7 @@ const fetchAthlete = async (): Promise<Athlete> => {
 
 export const useAthleteData = () => {
   const queryClient = useQueryClient();
+  const { type } = useUserType();
   const {
     data: athlete,
     isLoading,
@@ -19,6 +22,7 @@ export const useAthleteData = () => {
     queryFn: fetchAthlete,
     staleTime: Infinity,
     gcTime: Infinity,
+    enabled: type === EntityType.Athlete,
   });
 
   const invalidateAthlete = () => {

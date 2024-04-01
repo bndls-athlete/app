@@ -14,6 +14,7 @@ const BrandSchema: Schema<Brand> = new Schema({
     type: String,
     required: true,
   },
+  receiveUpdates: Boolean,
   industry: String,
   bio: String,
   website: String,
@@ -25,8 +26,7 @@ const BrandSchema: Schema<Brand> = new Schema({
   phoneNumber: String,
   address: {
     countryRegion: String,
-    streetName: String,
-    houseApartmentNumber: String,
+    streetAddress: String,
     city: String,
     state: String,
     zipCode: String,
@@ -39,7 +39,10 @@ const BrandSchema: Schema<Brand> = new Schema({
   },
   companyInformation: String,
   // Stripe
-  stripeCustomerId: String,
+  stripeCustomerId: {
+    type: String,
+    required: true,
+  },
   stripeSubscriptionId: String,
   stripeSubscriptionItemId: String,
   priceId: String,

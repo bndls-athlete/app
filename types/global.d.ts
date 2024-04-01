@@ -11,6 +11,6 @@ declare global {
 
 const UserType = z.enum([
   EntityType.Athlete,
-  EntityType.Team,
+  // EntityType.Team,
   EntityType.Company,
 ]);

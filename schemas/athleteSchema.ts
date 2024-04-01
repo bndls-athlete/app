@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { subscriptionStatusSchema } from "./subscriptionStatusSchema";
+import { EntityType } from "@/types/entityTypes";
 
 const athleteSchema = z.object({
   userId: z.string(),
@@ -20,17 +21,34 @@ const athleteSchema = z.object({
   dateOfBirth: z
     .string()
     .transform((value) => (value ? new Date(value) : value)),
-  registrationType: z.enum(["individual", "team"]),
+  registrationType: z.enum([EntityType.Athlete, EntityType.Team]),
   // Individual specific fields
   collegeUniversity: z.string(),
   graduationDate: z
     .string()
     .transform((value) => (value ? new Date(value) : value)),
   sport: z.string(),
+  baseballStats: z.object({
+    winsAboveReplacement: z.number(),
+    isolatedPower: z.number(),
+    weightedOnBaseAverage: z.number(),
+  }),
+  basketballStats: z.object({
+    points: z.number(),
+    assists: z.number(),
+    rebounds: z.number(),
+    blocks: z.number(),
+    steals: z.number(),
+  }),
+  soccerStats: z.object({
+    cleanSheets: z.number(),
+    goalsScored: z.number(),
+    assists: z.number(),
+  }),
   professionalSkills: z.array(z.string()),
   currentAcademicGPA: z.number(),
   professionalReferences: z.array(z.string()),
-  athleticCareerHighlights: z.string().max(400, "Maximum 400 characters"),
+  statsSourceURL: z.string().url().or(z.literal("")),
   bio: z.string().max(400, "Maximum 400 characters"),
   reel: z.string(),
   // Team specific fields

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const manager = AthleteTierManager.getInstance();
-    const hasAccess = manager.checkAthleteAccessByTier(
+    const hasAccess = manager.checkAthleteAccessToPurchase(
       athlete.athleteTier,
       body.priceId
     );

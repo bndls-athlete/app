@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "../../../../components/Button";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import { JobData } from "@/schemas/jobSchema";
+import { JobPostingWithCompanyInfo } from "@/schemas/jobPostingSchema";
 
 interface JobCardProps {
-  job: JobData;
+  job: JobPostingWithCompanyInfo;
   onSelectJob: () => void;
 }
 
@@ -22,13 +22,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, onSelectJob }) => {
       <h6 className="font-semibold  mb-3">{job.title}</h6>
       <div className="flex gap-3 flex-wrap">
         <span className="bg-gray-300 px-3 rounded  py-1">{job.jobType}</span>
-        <span className="bg-gray-300 px-3 rounded  py-1">
+        {/* <span className="bg-gray-300 px-3 rounded  py-1">
           {job.postedDaysAgo} days ago
-        </span>
+        </span> */}
         {/* Add more job details as needed */}
       </div>
       <p className=" py-2 text-gray-500">
-        {truncateDescription(job.opportunityDescription, 100)}
+        {truncateDescription(job.opportunityDescription!, 100)}
       </p>
       <div className="flex justify-between my-2">
         <span className="text-gray-500  my-auto">
@@ -36,7 +36,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onSelectJob }) => {
             icon={faLocationDot}
             className="text-primary  w-5 h-5"
           />{" "}
-          {job.location}
+          {job.city}, {job.state}
         </span>
         <span className="font-semibold my-auto">${job.feeCompensation}</span>
       </div>

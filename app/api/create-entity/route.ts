@@ -29,61 +29,47 @@ export async function POST(request: Request) {
       updates,
     }: { email: string; userType: EntityType; updates: boolean } =
       await request.json();
-
     const user = await clerkClient.users.getUser(authUser.userId!);
 
-    try {
-      await clerkClient.users.updateUserMetadata(authUser.userId!, {
-        publicMetadata: {
-          userType: userType,
-        },
-      });
+    await clerkClient.users.updateUserMetadata(authUser.userId!, {
+      publicMetadata: { userType: userType },
+    });
 
-      const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
-      switch (userType) {
-        case EntityType.Athlete:
-        case EntityType.Team:
-          return await handleAthlete(
-            userType,
-            authUser.userId!,
-            fullName,
-            email,
-            updates
-          );
-        case EntityType.Company:
-          return await handleBrand(authUser.userId!, fullName, email);
-        default:
-          return new Response(
-            JSON.stringify({
-              success: false,
-              message: "Invalid user type",
-            }),
-            { status: 400, headers: { "Content-Type": "application/json" } }
-          );
-      }
-    } catch (operationError) {
-      console.error(
-        "Operation failed, attempting to clean up:",
-        operationError
-      );
-      // Delete Clerk user to clean up
-      await clerkClient.users.deleteUser(authUser.userId!);
-      // Return a response indicating failure and cleanup attempt
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: "Failed to process request, user cleanup attempted",
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+    switch (userType) {
+      case EntityType.Athlete:
+      case EntityType.Team:
+        return await handleAthlete(
+          userType,
+          authUser.userId!,
+          fullName,
+          email,
+          updates
+        );
+      case EntityType.Company:
+        return await handleBrand(authUser.userId!, fullName, email, updates);
+      default:
+        throw new Error("Invalid user type");
     }
   } catch (error) {
     console.error("Error processing request:", error);
+    await cleanupUser(authUser.userId!);
     return new Response(
-      JSON.stringify({ success: false, message: "Error processing request" }),
+      JSON.stringify({
+        success: false,
+        message: "Error processing request, user cleanup attempted",
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
+  }
+}
+
+async function cleanupUser(userId: string) {
+  try {
+    await clerkClient.users.deleteUser(userId);
+  } catch (error) {
+    console.error("Error during cleanup:", error);
   }
 }
 
@@ -99,20 +85,20 @@ async function handleAthlete(
     fullName: fullName,
     email: email,
     receiveUpdates: updates,
-    registrationType: userType === EntityType.Athlete ? "individual" : "team",
+    registrationType:
+      userType === EntityType.Athlete ? EntityType.Athlete : EntityType.Team,
   };
 
   const deepPartialAthleteSchema = athleteSchema.deepPartial();
   const parsedResult = deepPartialAthleteSchema.safeParse(athleteData);
 
   if (!parsedResult.success) {
-    return new Response(
+    throw new Error(
       JSON.stringify({
         success: false,
         message: "Validation failed",
         errors: parsedResult.error.issues,
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      })
     );
   }
 
@@ -145,26 +131,41 @@ async function handleAthlete(
 async function handleBrand(
   userId: string,
   companyName: string,
-  email: string
+  email: string,
+  updates: boolean
 ): Promise<Response> {
   const brandData: Partial<Brand> = {
     userId: userId,
     companyName: companyName,
     email: email,
+    receiveUpdates: updates,
   };
 
-  const parsedResult = brandSchema.safeParse(brandData);
+  const deepPartialBrandSchema = brandSchema.deepPartial();
+  const parsedResult = deepPartialBrandSchema.safeParse(brandData);
 
   if (!parsedResult.success) {
-    return new Response(
+    throw new Error(
       JSON.stringify({
         success: false,
         message: "Validation failed",
         errors: parsedResult.error.issues,
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      })
     );
   }
+
+  // Create a Stripe customer for the brand
+  const stripeCustomer = await stripe.customers.create({
+    email: email,
+    name: companyName,
+    metadata: {
+      payingUserId: userId,
+      userType: EntityType.Company,
+    },
+  });
+
+  // Add the Stripe customer ID to the brand data
+  brandData.stripeCustomerId = stripeCustomer.id;
 
   const newBrand = new BrandModel(brandData);
   await newBrand.save();

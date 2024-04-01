@@ -12,9 +12,19 @@ const useUserType = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      session?.reload();
       const metadata = user?.publicMetadata as UserPublicMetadata | undefined;
-      setType(metadata?.userType ?? null);
+      if (metadata?.userType) {
+        // Set the type if it's already available in the metadata
+        setType(metadata.userType);
+      } else {
+        // Reload the session to fetch the latest metadata if userType is not available
+        session?.reload().then(() => {
+          const updatedMetadata = user?.publicMetadata as
+            | UserPublicMetadata
+            | undefined;
+          setType(updatedMetadata?.userType ?? null);
+        });
+      }
     }
   }, [isSignedIn, session, user]);
 

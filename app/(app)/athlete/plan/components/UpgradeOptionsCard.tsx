@@ -47,7 +47,7 @@ const UpgradeOptionsCard = ({
   const handleSwitch = async () => {
     setIsLoading(true);
     try {
-      const { data } = await axios.post("/api/stripe/net-difference/athlete", {
+      const { data } = await axios.post("/api/stripe/athlete/net-difference", {
         newPriceId: priceId,
       });
       setNetPriceDifference(data.netPriceDifference);
@@ -65,7 +65,7 @@ const UpgradeOptionsCard = ({
     setIsLoading(true);
     setIsModalOpen(false); // Close the modal first
     try {
-      await axios.post("/api/stripe/switch-plan/athlete", {
+      await axios.post("/api/stripe/athlete/switch-plan", {
         newPriceId: priceId,
       });
       alert("Payment attempted. Your plan is being updated.");
@@ -80,7 +80,7 @@ const UpgradeOptionsCard = ({
   const handleManageBilling = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("/api/stripe/manage-billing/athlete");
+      const response = await axios.get("/api/stripe/athlete/manage-billing");
       if (response.data.url) {
         window.location.href = response.data.url;
       } else {
@@ -107,7 +107,7 @@ const UpgradeOptionsCard = ({
       }
 
       const { data: sessionData } = await axios.post(
-        "/api/stripe/checkout-session/athlete",
+        "/api/stripe/athlete/checkout-session",
         {
           priceId,
         }
