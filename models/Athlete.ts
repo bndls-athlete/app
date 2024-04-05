@@ -96,7 +96,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   athleteTier: {
     type: String,
     enum: athleteTierSchema.options,
-    default: athleteTierEnum[3],
+    default: athleteTierEnum["3"], // Default to Tier 3
   },
   // Stripe
   stripeCustomerId: {

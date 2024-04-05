@@ -1,7 +1,13 @@
 import dbConnect from "@/lib/dbConnect";
 import AthleteModel from "@/models/Athlete";
 import { auth } from "@clerk/nextjs";
-import { athleteSchema, Athlete } from "@/schemas/athleteSchema";
+import {
+  athleteSchema,
+  Athlete,
+  sportsEnum,
+  AthleteTier,
+  athleteTierEnum,
+} from "@/schemas/athleteSchema";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -41,9 +47,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate the athlete rating after updating the athlete document
-    const athleteRating = calculateAthleteRating(updatedAthlete);
-    updatedAthlete.athleteRating = athleteRating;
+    // Calculate the athlete rating and tier after updating the athlete document
+    const { rating, tier } = calculateAthleteRating(updatedAthlete);
+    updatedAthlete.athleteRating = rating;
+    updatedAthlete.athleteTier = tier;
     await updatedAthlete.save();
 
     return new Response(
@@ -105,7 +112,10 @@ export async function GET() {
   }
 }
 
-function calculateAthleteRating(athlete: Partial<Athlete>): number {
+function calculateAthleteRating(athlete: Athlete): {
+  rating: number;
+  tier: AthleteTier;
+} {
   let rating = 0;
 
   // Calculate rating based on followers
@@ -139,7 +149,7 @@ function calculateAthleteRating(athlete: Partial<Athlete>): number {
   }
 
   // Calculate rating based on sport-specific stats
-  if (athlete.sport === "baseball") {
+  if (athlete.sport === sportsEnum.baseball) {
     if (athlete.baseballStats?.winsAboveReplacement) {
       rating += athlete.baseballStats.winsAboveReplacement * 0.1;
     }
@@ -149,7 +159,7 @@ function calculateAthleteRating(athlete: Partial<Athlete>): number {
     if (athlete.baseballStats?.weightedOnBaseAverage) {
       rating += athlete.baseballStats.weightedOnBaseAverage * 0.1;
     }
-  } else if (athlete.sport === "basketball") {
+  } else if (athlete.sport === sportsEnum.basketball) {
     if (athlete.basketballStats?.points) {
       rating += athlete.basketballStats.points * 0.02;
     }
@@ -165,7 +175,7 @@ function calculateAthleteRating(athlete: Partial<Athlete>): number {
     if (athlete.basketballStats?.steals) {
       rating += athlete.basketballStats.steals * 0.02;
     }
-  } else if (athlete.sport === "soccer") {
+  } else if (athlete.sport === sportsEnum.soccer) {
     if (athlete.soccerStats?.cleanSheets) {
       rating += athlete.soccerStats.cleanSheets * 0.1;
     }
@@ -177,5 +187,14 @@ function calculateAthleteRating(athlete: Partial<Athlete>): number {
     }
   }
 
-  return Math.min(Math.round(rating * 2) / 2, 5);
+  // Update athlete tier based on rating
+  let athleteTier: AthleteTier = athleteTierEnum["3"]; // Default to Tier 3
+  if (rating >= 4.5) {
+    athleteTier = athleteTierEnum["1"]; // Tier 1
+  } else if (rating >= 3.5) {
+    athleteTier = athleteTierEnum["2"]; // Tier 2
+  }
+
+  const calculatedRating = Math.min(Math.round(rating * 2) / 2, 5);
+  return { rating: calculatedRating, tier: athleteTier };
 }
