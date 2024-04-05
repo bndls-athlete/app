@@ -66,7 +66,7 @@ const athleteSchema = z.object({
     AthleteRegistrationType.Team,
   ]),
   // Individual specific fields
-  collegeUniversity: z.string(),
+  schoolOrUniversity: z.string(),
   graduationDate: z
     .string()
     .transform((value) => (value ? new Date(value) : value)),

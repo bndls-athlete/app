@@ -49,7 +49,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     default: AthleteRegistrationType.Individual,
   },
   // Individual specific fields
-  collegeUniversity: String,
+  schoolOrUniversity: String,
   graduationDate: Date,
   sport: {
     type: String,

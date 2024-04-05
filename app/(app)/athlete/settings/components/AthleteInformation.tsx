@@ -31,7 +31,7 @@ type AthleteInformationProps = {
 };
 
 const athleteInformationSchema = z.object({
-  collegeOrUniversity: z.string().min(1, "Required"),
+  schoolOrUniversity: z.string().min(1, "Required"),
   graduationMonth: z.string().min(1, "Required"),
   graduationDay: z
     .string()
@@ -93,7 +93,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
   athlete.registrationType;
 
   const initialFormValues: AthleteFormValues = {
-    collegeOrUniversity: athlete.collegeUniversity || "",
+    schoolOrUniversity: athlete.schoolOrUniversity || "",
     graduationMonth: athlete.graduationDate
       ? format(new Date(athlete.graduationDate), "MMMM")
       : "",
@@ -185,7 +185,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
   const onSubmit: SubmitHandler<AthleteFormValues> = async (data) => {
     setIsLoading(true);
     const athleteData: DeepPartial<Athlete> = {
-      collegeUniversity: data.collegeOrUniversity,
+      schoolOrUniversity: data.schoolOrUniversity,
       graduationDate: new Date(
         `${data.graduationYear}-${data.graduationMonth}-${data.graduationDay}`
       ),
@@ -246,21 +246,22 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
         </div>
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="font-semibold">College or University</h6>
+            <h6 className="font-semibold">School or University</h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
             <Input
-              {...register("collegeOrUniversity")}
-              error={errors.collegeOrUniversity?.message}
-              placeholder="Enter your college or university"
+              {...register("schoolOrUniversity")}
+              error={errors.schoolOrUniversity?.message}
+              placeholder="Enter your school or university"
             />
             <span className="text-subtitle">
               {athlete.registrationType === AthleteRegistrationType.Team
-                ? "Mention the college or university your team represents."
-                : "Mention the college or university where you are currently studying or have graduated from."}
+                ? "Mention the school or university your team represents."
+                : "Mention the school or university where you are currently studying or have graduated from."}
             </span>
           </div>
         </div>
+
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
             <h6 className="font-semibold">

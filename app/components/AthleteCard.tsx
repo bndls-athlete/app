@@ -335,8 +335,8 @@ export const AthleteCard = () => {
               <div className="mb-6">
                 <h6 className="font-semibold text-lg mb-2">Education</h6>
                 <p className="mb-1">
-                  <strong>College/University:</strong>{" "}
-                  {athlete?.collegeUniversity || "N/A"}
+                  <strong>University/High School:</strong>{" "}
+                  {athlete?.schoolOrUniversity || "N/A"}
                 </p>
                 <p className="mb-1">
                   <strong>
