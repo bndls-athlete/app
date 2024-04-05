@@ -192,7 +192,7 @@ export default function SignUpForm() {
               <input
                 id="default-checkbox"
                 type="checkbox"
-                className="w-5 h-5 checkbox"
+                className="w-4 h-4 checkbox"
                 {...register("updates")}
               />
               <label
