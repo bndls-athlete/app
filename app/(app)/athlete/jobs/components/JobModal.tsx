@@ -1,7 +1,10 @@
+"use client";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheckCircle,
   faClose,
+  faExclamationCircle,
   faLocationDot,
   faLock,
 } from "@fortawesome/free-solid-svg-icons";
@@ -14,6 +17,10 @@ import { useSearchParams } from "next/navigation";
 import Button from "@/app/components/Button";
 import { useAthleteData } from "@/hooks/useAthleteData";
 import Link from "next/link";
+import { useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 interface JobModalProps {
   jobData: JobPostingWithCompanyInfo | null;
@@ -28,42 +35,45 @@ const JobModal: React.FC<JobModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  const postedDaysAgo = jobData
-    ? Math.floor(
-        (new Date().getTime() - new Date(jobData.createdAt).getTime()) /
-          (1000 * 3600 * 24)
-      )
-    : 0;
+  const postedTime = jobData ? dayjs().to(dayjs(jobData.createdAt)) : "";
 
   const { athlete } = useAthleteData();
+  const [showAlreadySubmitted, setShowAlreadySubmitted] = useState(false);
 
   const applyToJobMutation = useMutation({
     mutationFn: async () => {
-      const { data } = await axios.post("/api/applications", {
+      const { data } = await axios.post("/api/application", {
         jobPostingId: jobData?._id,
       });
       return data;
     },
-    onSuccess: () => {
-      queryClient.setQueryData(["jobPostings", currentPage], (oldData: any) => {
-        if (oldData && jobData) {
-          const updatedJobPostings = oldData.jobPostings.map(
-            (job: JobPostingWithCompanyInfo) =>
-              job._id.toString() === jobData._id.toString()
-                ? { ...job, isApplied: true }
-                : job
-          );
-          onJobUpdate({ ...jobData, isApplied: true });
-          return { ...oldData, jobPostings: updatedJobPostings };
+    onSettled: () => {
+      queryClient.setQueryData(
+        ["jobPostings", searchParams.toString()],
+        (oldData: any) => {
+          if (oldData && jobData) {
+            const updatedJobPostings = oldData.jobPostings.map(
+              (job: JobPostingWithCompanyInfo) =>
+                job._id === jobData._id ? { ...job, isApplied: true } : job
+            );
+            onJobUpdate({ ...jobData, isApplied: true });
+            return { ...oldData, jobPostings: updatedJobPostings };
+          }
+          return oldData;
         }
-        return oldData;
-      });
+      );
     },
   });
 
   const handleApplyToJob = () => {
     applyToJobMutation.mutate();
+  };
+
+  const handleAlreadySubmitted = () => {
+    setShowAlreadySubmitted(true);
+    setTimeout(() => {
+      setShowAlreadySubmitted(false);
+    }, 1000);
   };
 
   const athleteTierManager = AthleteTierManager.getInstance();
@@ -109,8 +119,11 @@ const JobModal: React.FC<JobModalProps> = ({
                 />
                 <div className="flex-1">
                   <h3 className="text-3xl font-semibold">{jobData.title}</h3>
+                  <p className="text-xl text-gray-500 mt-1">
+                    {jobData.brand?.companyName}
+                  </p>
                   <p className="text-gray-500 mt-1">
-                    Posted {postedDaysAgo} days ago | {jobData.jobType}
+                    Posted {postedTime} | {jobData.jobType}
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
@@ -157,18 +170,22 @@ const JobModal: React.FC<JobModalProps> = ({
                     Deliverables
                   </Card.Header>
                   <Card.Body className="px-4 py-2 text-sm text-subtitle pt-0">
-                    <div className="space-y-2">
-                      {jobData.deliverables?.map((deliverable, index) => (
-                        <div key={index} className="grid grid-cols-3 gap-2">
-                          <div className="col-span-1 font-semibold">
-                            {deliverable.title}:
+                    {jobData.deliverables && jobData.deliverables.length > 0 ? (
+                      <div className="space-y-2">
+                        {jobData.deliverables.map((deliverable, index) => (
+                          <div key={index} className="grid grid-cols-3 gap-2">
+                            <div className="col-span-1 font-semibold">
+                              {deliverable.title}:
+                            </div>
+                            <div className="col-span-2">
+                              {deliverable.description} ({deliverable.duration})
+                            </div>
                           </div>
-                          <div className="col-span-2">
-                            {deliverable.description} ({deliverable.duration})
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center">N/A</div>
+                    )}
                   </Card.Body>
                 </Card>
 
@@ -188,24 +205,29 @@ const JobModal: React.FC<JobModalProps> = ({
                     Additional Preferred Skills:
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {jobData.additionalPreferredSkills?.map((skill, index) => (
-                      <span key={index} className="badge badge-secondary p-4">
-                        {skill}
-                      </span>
-                    ))}
+                    {jobData.additionalPreferredSkills &&
+                    jobData.additionalPreferredSkills.length > 0 ? (
+                      jobData.additionalPreferredSkills.map((skill, index) => (
+                        <span key={index} className="badge badge-secondary p-4">
+                          {skill}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="badge badge-secondary p-4">N/A</span>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <div className="font-semibold">Number of Athletes:</div>
-                  <div>{jobData.numberOfAthletes}</div>
+                  <div>{jobData.numberOfAthletes || "N/A"}</div>
                 </div>
 
                 <div>
                   <div className="font-semibold">Athlete Tier Target:</div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {jobData.athleteTierTarget?.map((tier, index) => (
-                      <span key={index} className="badge badge-info p-4">
+                      <span key={index} className="badge badge-secondary p-4">
                         {formatTier(tier)}
                       </span>
                     ))}
@@ -237,11 +259,26 @@ const JobModal: React.FC<JobModalProps> = ({
                   )
                 ) : (
                   <Button
-                    className="btn text-white flex items-center justify-center"
-                    disabled
+                    className="btn text-white bg-green-600 hover:bg-green-600 opacity-75 border-none flex items-center justify-center"
+                    onClick={handleAlreadySubmitted}
                   >
-                    <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
-                    You Applied
+                    {showAlreadySubmitted ? (
+                      <>
+                        <FontAwesomeIcon
+                          icon={faExclamationCircle}
+                          className="mr-2"
+                        />
+                        Already Submitted
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon
+                          icon={faCheckCircle}
+                          className="mr-2"
+                        />
+                        Application Submitted
+                      </>
+                    )}
                   </Button>
                 )}
               </div>

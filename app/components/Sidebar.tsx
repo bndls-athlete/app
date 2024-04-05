@@ -19,11 +19,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Button from "./Button";
 import { EntityType } from "@/types/entityTypes";
-import { useAthleteCardVisibility } from "@/context/AthleteCardVisibilityProvider";
+import { useAthleteCard } from "@/context/AthleteCardProvider";
 import { useEffect, useState } from "react";
 import useUserType from "@/hooks/useUserType";
 import { useAthleteData } from "@/hooks/useAthleteData";
-import { useAthleteCard } from "@/hooks/useAthleteCard";
 
 const SidebarTab: React.FC<{
   path: string;
@@ -50,7 +49,6 @@ const Sidebar = () => {
   const { user } = useUser();
   const { signOut } = useClerk();
   const { invalidateAthlete } = useAthleteData();
-  const { invalidateAthleteCard } = useAthleteCard();
 
   const { type } = useUserType();
 
@@ -86,7 +84,7 @@ const Sidebar = () => {
       condition: true,
     },
     {
-      path: `/${type}/saved-athlete`,
+      path: `/${type}/saved-athletes`,
       label: "Saved Athlete Cards",
       icon: faBookmark,
       condition: type === EntityType.Company,
@@ -96,10 +94,9 @@ const Sidebar = () => {
   const title = () => {
     if (type === EntityType.Athlete) return "BNDLS Athlete";
     if (type === EntityType.Company) return "BNDLS Brand";
-    if (type === EntityType.Team) return "BNDLS Team";
   };
 
-  const { toggleAthleteCardVisible } = useAthleteCardVisibility();
+  const { toggleAthleteCardVisible } = useAthleteCard();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -198,7 +195,6 @@ const Sidebar = () => {
                 await signOut();
                 if (type === EntityType.Athlete) {
                   invalidateAthlete();
-                  invalidateAthleteCard();
                 }
               }
             }}

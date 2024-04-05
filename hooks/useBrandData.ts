@@ -22,7 +22,6 @@ export const useBrandData = () => {
     queryKey: ["brand"],
     queryFn: fetchBrand,
     staleTime: Infinity,
-    gcTime: Infinity,
     enabled: type === EntityType.Company,
   });
 

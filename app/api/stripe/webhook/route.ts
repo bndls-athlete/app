@@ -106,10 +106,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (
-      customer.metadata.userType === EntityType.Athlete ||
-      customer.metadata.userType === EntityType.Team
-    ) {
+    if (customer.metadata.userType === EntityType.Athlete) {
       await handleAthlete(event, customer);
     } else if (customer.metadata.userType === EntityType.Company) {
       await handleBrand(event, customer);

@@ -14,6 +14,7 @@ const BrandSchema: Schema<Brand> = new Schema({
     type: String,
     required: true,
   },
+  profilePicture: String,
   receiveUpdates: Boolean,
   industry: String,
   bio: String,

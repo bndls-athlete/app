@@ -1,3 +1,5 @@
+"use client";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +15,7 @@ import { Brand } from "@/schemas/brandSchema";
 const brandSocialMediaSchema = z.object({
   instagram: z.string().optional(),
   tiktok: z.string().optional(),
-  facebook: z.string().optional(),
+  youtube: z.string().optional(),
   twitter: z.string().optional(),
 });
 
@@ -23,7 +25,7 @@ const extractHandle = (url: string | undefined, platform: string): string => {
   const patterns: { [key: string]: RegExp } = {
     instagram: /(?:http[s]?:\/\/)?instagram\.com\/([^\/\?\s]+)/,
     tiktok: /(?:http[s]?:\/\/)?www\.tiktok\.com\/@([^\/\?\s]+)/,
-    facebook: /(?:http[s]?:\/\/)?www\.facebook\.com\/([^\/\?\s]+)/,
+    youtube: /(?:http[s]?:\/\/)?www\.youtube\.com\/@([^\/\?\s]+)/,
     twitter: /(?:http[s]?:\/\/)?twitter\.com\/([^\/\?\s]+)/,
   };
   const match = url.match(patterns[platform]);
@@ -43,7 +45,7 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
       "instagram"
     ),
     tiktok: extractHandle(brand.socialProfiles?.tiktok ?? "", "tiktok"),
-    facebook: extractHandle(brand.socialProfiles?.facebook ?? "", "facebook"),
+    youtube: extractHandle(brand.socialProfiles?.youtube ?? "", "youtube"),
     twitter: extractHandle(brand.socialProfiles?.twitter ?? "", "twitter"),
   };
 
@@ -70,9 +72,7 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
         ? `https://instagram.com/${data.instagram}`
         : null,
       tiktok: data.tiktok ? `https://www.tiktok.com/@${data.tiktok}` : null,
-      facebook: data.facebook
-        ? `https://www.facebook.com/${data.facebook}`
-        : null,
+      youtube: data.youtube ? `https://www.youtube.com/@${data.youtube}` : null,
       twitter: data.twitter ? `https://twitter.com/${data.twitter}` : null,
     };
 
@@ -87,7 +87,6 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
 
     try {
       await axios.post("/api/brand", socialMediaData);
-      // console.log("Social media profiles updated successfully:", response.data);
       addToast("success", "Updated Successfully!");
     } catch (error) {
       console.error("Error updating social media profiles:", error);
@@ -103,7 +102,7 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Social Profile</h6>
-            <span className=" text-subtitle">
+            <span className="text-subtitle">
               Upload your social media profiles.
             </span>
           </div>
@@ -132,13 +131,12 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
               Enter your TikTok username (e.g., john_doe).
             </span>
             <InputGroup
-              withLabel="Facebook.com/"
-              {...register("facebook")}
-              error={errors.facebook?.message}
+              withLabel="Youtube.com/@"
+              {...register("youtube")}
+              error={errors.youtube?.message}
             />
             <span className="text-subtitle">
-              Enter your Facebook username or page ID (e.g., john.doe or
-              JohnDoePage).
+              Enter your YouTube channel name (e.g., john_doe).
             </span>
             <InputGroup
               withLabel="Twitter.com/"
@@ -153,15 +151,7 @@ const BrandSocialMedia = ({ brand }: BrandSocialMediaProps) => {
 
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            {/* <Button
-              theme="light"
-              className=" py-2"
-              type="reset"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button> */}
-            <Button className=" py-2" type="submit" disabled={isLoading}>
+            <Button className="py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />

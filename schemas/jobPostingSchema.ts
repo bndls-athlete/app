@@ -15,7 +15,10 @@ export const jobTypeSchema = z.enum([
   "Contract",
   "Internship",
   "Temporary",
+  "",
 ]);
+
+export const jobTypeEnum = jobTypeSchema.enum;
 
 export const jobPostingSchema = z.object({
   brandId: z.object({
@@ -36,7 +39,10 @@ export const jobPostingSchema = z.object({
 
 export type Deliverable = z.infer<typeof deliverableSchema>;
 export type JobType = z.infer<typeof jobTypeSchema>;
-export type JobPosting = z.infer<typeof jobPostingSchema>;
+export type JobPosting = z.infer<typeof jobPostingSchema> & {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+};
 
 export type JobPostingWithCompanyInfo = Omit<JobPosting, "brandId"> & {
   brand: Pick<Brand, "bio" | "companyName">;

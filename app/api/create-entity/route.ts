@@ -39,7 +39,6 @@ export async function POST(request: Request) {
 
     switch (userType) {
       case EntityType.Athlete:
-      case EntityType.Team:
         return await handleAthlete(
           userType,
           authUser.userId!,
@@ -85,8 +84,6 @@ async function handleAthlete(
     fullName: fullName,
     email: email,
     receiveUpdates: updates,
-    registrationType:
-      userType === EntityType.Athlete ? EntityType.Athlete : EntityType.Team,
   };
 
   const deepPartialAthleteSchema = athleteSchema.deepPartial();

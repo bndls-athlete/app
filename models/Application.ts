@@ -29,6 +29,8 @@ const ApplicationSchema: Schema<Application> = new mongoose.Schema(
   }
 );
 
+ApplicationSchema.index({ appliedAt: -1 });
+
 const ApplicationModel =
   (mongoose.models.Application as mongoose.Model<Application>) ||
   mongoose.model<Application>("Application", ApplicationSchema);

@@ -1,5 +1,5 @@
 export enum EntityType {
   Company = "company",
-  Team = "team",
+  // Team = "team",
   Athlete = "athlete",
 }

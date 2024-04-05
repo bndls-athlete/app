@@ -5,6 +5,7 @@ const brandSchema = z.object({
   userId: z.string(),
   companyName: z.string(),
   receiveUpdates: z.boolean(),
+  profilePicture: z.string(),
   industry: z.string(),
   bio: z.string(),
   website: z.string().url().optional().or(z.literal("")),
@@ -20,7 +21,7 @@ const brandSchema = z.object({
   socialProfiles: z.object({
     instagram: z.string(),
     tiktok: z.string(),
-    facebook: z.string(),
+    youtube: z.string(),
     twitter: z.string(),
   }),
   brandRating: z.number(),

@@ -58,24 +58,22 @@ const Plan = () => {
       <div className="my-6 text-dark">
         <h1 className="text-3xl font-semibold">Plans & Billing</h1>
         <div className="mt-4">
-          <div className="hidden lg:block">
-            <div className="join join-horizontal">
-              {links.map((link) =>
-                link.condition ? (
-                  <Link
-                    key={link.label}
-                    className={`btn ${
-                      menu === link.label.toLowerCase().replace(/ /g, "-")
-                        ? "btn-active btn-primary"
-                        : "btn-white"
-                    } join-item`}
-                    href={link.path}
-                  >
-                    {link.label}
-                  </Link>
-                ) : null
-              )}
-            </div>
+          <div className="join join-horizontal hidden lg:block">
+            {links.map((link) =>
+              link.condition ? (
+                <Link
+                  key={link.label}
+                  className={`btn ${
+                    menu === link.label.toLowerCase().replace(/ /g, "-")
+                      ? "btn-active btn-primary"
+                      : "btn-white"
+                  } join-item`}
+                  href={link.path}
+                >
+                  {link.label}
+                </Link>
+              ) : null
+            )}
           </div>
           <div className="lg:hidden">
             <Select

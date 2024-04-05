@@ -86,6 +86,10 @@ export default function SignUpForm() {
           updates: form.getValues("updates"),
         };
         await axios.post("/api/create-entity", formData);
+
+        // Manually reload the session
+        await signUp.reload();
+
         router.replace(`/${form.getValues("userType")}`);
       } else {
         alert("Verification failed. Please try again.");
@@ -188,7 +192,7 @@ export default function SignUpForm() {
               <input
                 id="default-checkbox"
                 type="checkbox"
-                className="w-4 h-4 checkbox"
+                className="w-5 h-5 checkbox"
                 {...register("updates")}
               />
               <label
@@ -212,18 +216,18 @@ export default function SignUpForm() {
                   className="radio radio-primary"
                   required
                 />
-                <span className="label-text">Athlete</span>
+                <span className="label-text">Athlete/Team</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  {...register("userType")}
-                  value="team"
-                  className="radio radio-primary"
-                  required
-                />
-                <span className="label-text">Team</span>
-              </label>
+              {/* <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                {...register("userType")}
+                value="team"
+                className="radio radio-primary"
+                required
+              />
+              <span className="label-text">Team</span>
+            </label> */}
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"

@@ -1,7 +1,6 @@
 "use client";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
 interface TableProps {
@@ -17,14 +16,11 @@ const Table: React.FC<TableProps> = ({
   headers = [],
   textShowing = "",
   subtitle = "",
-  withPagination = true,
+  withPagination = false,
 }) => {
-  const [orderBy, setOrderBy] = useState<[number, "asc" | "desc"] | []>([]);
-
   return (
-    <>
-      {" "}
-      <h6 className="text-lg font-semibold mb-3"></h6>
+    <div className="my-4">
+      <h6 className="text-lg font-semibold mb-3 capitalize">{textShowing}</h6>
       <div className="mb-2">
         <span>{subtitle}</span>
         <div className="my-3 border rounded-xl pb-3 overflow-x-auto">
@@ -32,23 +28,8 @@ const Table: React.FC<TableProps> = ({
             <thead>
               <tr className="whitespace-nowrap">
                 {headers.map((row, index) => (
-                  <th
-                    key={index}
-                    onClick={() =>
-                      setOrderBy((current) => [
-                        index,
-                        current[1] === "asc" ? "desc" : "asc",
-                      ])
-                    }
-                    className="p-3 text-sm cursor-pointer"
-                  >
+                  <th key={index} className="p-3 text-sm">
                     {row}
-                    {orderBy[0] === index && orderBy.length !== 0 && (
-                      <FontAwesomeIcon
-                        icon={orderBy[1] === "asc" ? faArrowDown : faArrowUp}
-                        className="ml-1"
-                      />
-                    )}
                   </th>
                 ))}
               </tr>
@@ -66,7 +47,7 @@ const Table: React.FC<TableProps> = ({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

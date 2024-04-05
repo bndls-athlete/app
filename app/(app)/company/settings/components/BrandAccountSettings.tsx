@@ -52,7 +52,9 @@ type BrandAccountSettingsFormValues = z.infer<
 const BrandAccountSettings = ({ brand }: BrandAccountSettingsProps) => {
   const { invalidateBrand } = useBrandData();
   const { addToast } = useToast();
-  const [profileImage, setProfileImage] = useState("/images/Avatar.webp");
+  const [profileImage, setProfileImage] = useState(
+    brand.profilePicture || "/images/Avatar.webp"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const initialFormValues: BrandAccountSettingsFormValues = {

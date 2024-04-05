@@ -8,20 +8,71 @@ import Input from "@/app/components/Input";
 import Select from "@/app/components/Select";
 import {
   faBookmark,
-  faInfoCircle,
+  faSearch,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import Table from "@/app/components/Table";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import useUserType from "@/hooks/useUserType";
-import { useRouter } from "next/navigation";
+import { stateOptions } from "@/helpers/stateOptions";
+import {
+  Athlete,
+  Gender,
+  SocialMediaPlatform,
+  Sport,
+  genderEnum,
+  genderSchema,
+  socialMediaPlatformEnum,
+  sportSchema,
+  sportsEnum,
+} from "@/schemas/athleteSchema";
+import { z } from "zod";
+import { validateNumber } from "@/helpers/zodSchemaHelpers";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Pagination from "@/app/components/Pagination";
+import AthleteTable from "@/app/components/AthleteTable";
+import { useQuery } from "@tanstack/react-query";
+
+const discoverySchema = z.object({
+  state: z.string().optional(),
+  city: z.string().optional(),
+  followersMin: validateNumber,
+  followersMax: validateNumber,
+  gender: z.nativeEnum(genderEnum).optional(),
+  rating: validateNumber.default(1),
+  sport: z.nativeEnum(sportsEnum).default(sportsEnum[""]),
+  username: z.string().optional(),
+});
+
+type DiscoveryFormValues = z.infer<typeof discoverySchema>;
+
+const fetchAthletes = async (
+  params: DiscoveryFormValues & { menu: SocialMediaPlatform; page: number }
+) => {
+  const { data } = await axios.get<{
+    success: boolean;
+    message: string;
+    athletes: Athlete[];
+    usernameResult: Athlete | null;
+    currentPage: number;
+    totalPages: number;
+  }>("/api/discovery", { params });
+  return data;
+};
 
 const Discovery = () => {
-  const searchParams = useSearchParams();
-  const menu = searchParams.get("menu") || "instagram";
-  const { type } = useUserType();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const menu: SocialMediaPlatform = (searchParams.get("menu") ||
+    "instagram") as SocialMediaPlatform;
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const { type } = useUserType();
 
   const links = [
     {
@@ -50,14 +101,113 @@ const Discovery = () => {
     router.push(e.target.value);
   };
 
+  // Helper function to reconstruct URL from username/handle and platform
+  const buildUrl = (handle: string, platform: SocialMediaPlatform): string => {
+    const baseUrls: { [key in SocialMediaPlatform]: string } = {
+      instagram: "https://instagram.com/",
+      tiktok: "https://www.tiktok.com/@",
+      youtube: "https://www.youtube.com/@",
+      twitter: "https://twitter.com/",
+    };
+    return `${baseUrls[platform]}${handle}`;
+  };
+
+  const initialFormData: DiscoveryFormValues = {
+    state: searchParams.get("state") || "",
+    city: searchParams.get("city") || "",
+    followersMin: searchParams.has("followersMin")
+      ? parseInt(searchParams.get("followersMin")!, 10)
+      : undefined,
+    followersMax: searchParams.has("followersMax")
+      ? parseInt(searchParams.get("followersMax")!, 10)
+      : undefined,
+    gender: (searchParams.get("gender") as Gender) || "",
+    rating: parseInt(searchParams.get("rating") || "1", 10),
+    sport: (searchParams.get("sport") as Sport) || "",
+    username: searchParams.get("username") || "",
+  };
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<DiscoveryFormValues>({
+    resolver: zodResolver(discoverySchema),
+    defaultValues: initialFormData,
+  });
+
+  const formData = watch();
+
+  const username = watch("username");
+
+  const {
+    isLoading,
+    isError,
+    error,
+    data: athleteData,
+  } = useQuery({
+    queryKey: ["athletes", searchParams.toString()],
+    queryFn: () => {
+      const usernameUrl = username ? buildUrl(username, menu) : undefined;
+      return fetchAthletes({
+        ...formData,
+        menu,
+        page: currentPage,
+        username: usernameUrl,
+      });
+    },
+    staleTime: 4 * 60 * 1000, // 4 mins
+    placeholderData: (previousData, previousQuery) => previousData,
+    enabled: Object.entries(Object.fromEntries(searchParams.entries())).some(
+      ([key, value]) =>
+        value !== undefined && value !== "" && key !== "page" && key !== "menu"
+    ),
+  });
+
+  const onSubmit = async (data: DiscoveryFormValues) => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    if (data.username) {
+      params.set("username", data.username);
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== "" && key !== "username") {
+          params.set(key, value.toString());
+        }
+      });
+    }
+    router.push(`${pathname}?menu=${menu}&${params.toString()}`);
+  };
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const resetForm = () => {
+    reset();
+    // router.push(pathname);
+  };
+
+  const appliedFilters = Object.entries(
+    Object.fromEntries(searchParams.entries())
+  ).filter(
+    ([key, value]) =>
+      value !== undefined && value !== "" && key !== "page" && key !== "menu"
+  );
+
   return (
     <div className="text-dark">
       <Breadcrumb />
       <div className="my-6">
         <h1 className="text-3xl font-semibold mb-2">Discovery</h1>
+        <p className="text-lg text-subtitle mb-4">Search for athletes</p>
         <div className="mt-4">
-          <div className="hidden lg:block">
-            <div className="flex space-x-2">
+          <div className="hidden sm:block">
+            <div className="join join-horizontal">
               {links.map((link) =>
                 link.condition ? (
                   <Link
@@ -67,7 +217,7 @@ const Discovery = () => {
                       menu === link.label.toLowerCase()
                         ? "btn-active btn-primary"
                         : "btn-white"
-                    }`}
+                    } join-item`}
                   >
                     {link.label}
                   </Link>
@@ -92,273 +242,207 @@ const Discovery = () => {
           </div>
         </div>
 
-        <div className="my-4">
+        <div className="my-2">
           <Card>
-            <Card.Header>
+            <Card.Header className="py-2">
               Athlete Filters
-              <p className="text-sm text-subtitle font-medium">
+              <p className="text-xs text-subtitle font-medium">
                 Try starting with number of followers and audience filters
                 narrowing your search
               </p>
             </Card.Header>
-            <Card.Body>
-              <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3 mb-4">
-                <div className="mb-1">
-                  <label className="text-sm font-semibold">
-                    Athlete Location
-                  </label>
-                  <Select
-                    onChange={(e) => console.log(e.target.value)}
-                    value="tes"
-                  >
-                    <option value="tes" disabled>
-                      Where Are You Influencers?
-                    </option>
-                    <option value="oke">I Dont Know</option>
-                  </Select>
-                </div>
-                <div className="mb-1">
-                  <label className="text-sm font-semibold">
-                    {searchParams.get("menu") == "youtube"
-                      ? "Subscriber"
-                      : "Followers"}
-                  </label>
-                  <div className="flex gap-3">
+            <Card.Body className="py-3">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-2 mb-2">
+                  <div>
+                    <label className="text-xs font-semibold">State</label>
                     <Select
-                      onChange={(e) => console.log(e.target.value)}
-                      value="tes"
+                      {...register("state")}
+                      error={errors.state?.message}
                     >
-                      <option value="tes" disabled>
-                        From?
-                      </option>
-                      <option value="oke">I Dont Know</option>
-                    </Select>
-                    <Select
-                      onChange={(e) => console.log(e.target.value)}
-                      value="tes"
-                    >
-                      <option value="tes" disabled>
-                        To?
-                      </option>
-                      <option value="oke">I Dont Know</option>
+                      <option value="">Select State</option>
+                      {stateOptions()}
                     </Select>
                   </div>
-                </div>
-                <div className="mb-1">
-                  <label className="text-sm font-semibold">Gender</label>
-                  <Select
-                    onChange={(e) => console.log(e.target.value)}
-                    value="tes"
-                  >
-                    <option value="tes" disabled>
-                      Any
-                    </option>
-                    <option value="oke">I Dont Know</option>
-                  </Select>
-                </div>
-                <div className="mb-1">
-                  <label className="text-sm font-semibold">
-                    Athlete Rating
-                  </label>
-                  <Select
-                    onChange={(e) => console.log(e.target.value)}
-                    value="tes"
-                  >
-                    <option value="tes" disabled>
-                      Any
-                    </option>
-                    <option value="oke">I Dont Know</option>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-3 mb-4">
-                <div className="mb-1">
-                  <label className="text-sm font-semibold">Sport</label>
-                  <Select
-                    onChange={(e) => console.log(e.target.value)}
-                    value="tes"
-                  >
-                    <option value="tes" disabled>
-                      Any
-                    </option>
-                    <option value="oke">I Dont Know</option>
-                  </Select>
-                </div>
-                {/* <div className="mb-1">
-                  <label className="text-sm font-semibold">
-                    Engagement Rate
-                    <FontAwesomeIcon icon={faInfoCircle} className="ml-1" />
-                  </label>
-                  <Select
-                    onChange={(e) => console.log(e.target.value)}
-                    value="tes"
-                  >
-                    <option value="tes" disabled>
-                      Any
-                    </option>
-                    <option value="oke">I Dont Know</option>
-                  </Select>
-                </div> */}
-              </div>
-            </Card.Body>
-          </Card>
-        </div>
-        <div className="my-4">
-          <Card>
-            <Card.Header>
-              Search by Username
-              <p className="text-sm text-subtitle font-medium">
-                Successful users often use this to check specific accounts and
-                find similar athletes
-              </p>
-            </Card.Header>
-            <Card.Body>
-              <div className="flex gap-3 mb-4">
-                <label className="text-sm font-semibold whitespace-nowrap">
-                  Enter Username
-                </label>
-                <Input placeholder="@Username" />
-              </div>
-            </Card.Body>
-            <Card.Footer>
-              <div className="flex justify-end">
-                <div className="mb-2 flex gap-2">
-                  <Button
-                    theme="light"
-                    className={"text-sm font-medium whitespace-nowrap"}
-                  >
-                    Clear all filters
-                  </Button>
-                  <Button className={"text-sm font-medium"}>
-                    Find Athletes
-                  </Button>
-                </div>
-              </div>
-            </Card.Footer>
-          </Card>
-        </div>
-        <Table
-          headers={[
-            "Name Profile",
-            "Followers",
-            // "Engagement",
-            // "Engagement Rate",
-            "Athlete Rating",
-            "Bookmark",
-          ]}
-          textShowing="profiles found by username"
-          subtitle="Lorem ipsum dolor sit amet consectetur. Ipsum nec diam sed lectu."
-          withPagination={false}
-        >
-          <tr>
-            <td className="p-3 text-sm">
-              <div className="flex p-2 gap-2">
-                <img
-                  className="w-10 h-10 rounded-full my-auto"
-                  src="/images/Avatar.webp"
-                  alt="Rounded avatar"
-                />
-                <div className="flex flex-col my-auto">
-                  <h6 className="font-semibold leading-2">Olivia Rhye</h6>
-                  <span className="leading-none">olivia@untitledui.com</span>
-                </div>
-              </div>
-            </td>
-            <td className="p-3 text-sm">
-              <h6 className="text-lg font-semibold">1.6M</h6>
-              <span>Followers</span>
-            </td>
-            {/* <td className="p-3 text-sm">
-              <h6 className="text-lg font-semibold">202.8k</h6>
-              <span>Engagements</span>
-            </td>
-            <td className="p-3 text-sm">
-              <h6 className="text-lg font-semibold">202.8k</h6>
-              <span>Engagements Rate</span>
-            </td> */}
-            <td className="p-3 text-sm">
-              <div className="flex gap-2">
-                <FontAwesomeIcon
-                  icon={faStar}
-                  className="text-2xl text-[#FFE661]"
-                />
-                <h6 className="text-xl font-semibold">4.9</h6>
-              </div>
-            </td>
-            <td className="p-3 text-sm">
-              <Button theme="light" className="px-3 py-2 w-auto">
-                <FontAwesomeIcon
-                  icon={faBookmark}
-                  className="text-primary text-xl w-4 h-4"
-                />
-              </Button>
-            </td>
-          </tr>
-        </Table>
-        <Table
-          headers={[
-            "Name Profile",
-            "Followers",
-            // "Engagement",
-            // "Engagement Rate",
-            "Athlete Rating",
-            "Bookmark",
-          ]}
-          textShowing="looks a likes found"
-          subtitle="Lorem ipsum dolor sit amet consectetur. Ipsum nec diam sed lectu."
-        >
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((row, index) => {
-            return (
-              <tr key={index}>
-                <td className="p-3 text-sm">
-                  <div className="flex p-2 gap-2">
-                    <img
-                      className="w-10 h-10 rounded-full my-auto"
-                      src="/images/Avatar.webp"
-                      alt="Rounded avatar"
+                  <div>
+                    <label className="text-xs font-semibold">City</label>
+                    <Input
+                      {...register("city")}
+                      error={errors.city?.message}
+                      placeholder="Enter city"
                     />
-                    <div className="flex flex-col my-auto">
-                      <h6 className="font-semibold leading-2">Olivia Rhye</h6>
-                      <span className="leading-none">
-                        olivia@untitledui.com
-                      </span>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold capitalize">
+                      {menu} {menu === "youtube" ? "Subscribers" : "Followers"}
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        error={errors.followersMin?.message}
+                        {...register("followersMin")}
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        error={errors.followersMax?.message}
+                        {...register("followersMax")}
+                      />
                     </div>
                   </div>
-                </td>
-                <td className="p-3 text-sm">
-                  <h6 className="text-lg font-semibold">1.6M</h6>
-                  <span>Followers</span>
-                </td>
-                {/* <td className="p-3 text-sm">
-                  <h6 className="text-lg font-semibold">202.8k</h6>
-                  <span>Engagements</span>
-                </td>
-                <td className="p-3 text-sm">
-                  <h6 className="text-lg font-semibold">202.8k</h6>
-                  <span>Engagements Rate</span>
-                </td> */}
-                <td className="p-3 text-sm">
-                  <div className="flex gap-2">
-                    <FontAwesomeIcon
-                      icon={faStar}
-                      className="text-2xl text-[#FFE661]"
-                    />
-                    <h6 className="text-xl font-semibold">4.9</h6>
+                  <div>
+                    <label className="text-xs font-semibold">Gender</label>
+                    <Select
+                      {...register("gender")}
+                      error={errors.gender?.message}
+                    >
+                      <option value="">Any</option>
+                      {Object.values(genderSchema.options).map((gender) => (
+                        <option key={gender} value={gender}>
+                          {gender}
+                        </option>
+                      ))}
+                    </Select>
                   </div>
-                </td>
-                <td className="p-3 text-sm">
-                  <Button theme="light" className="px-3 py-2 w-auto">
-                    <FontAwesomeIcon
-                      icon={faBookmark}
-                      className="text-primary text-xl w-4 h-4"
-                    />
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </Table>
+                  <div>
+                    <label className="text-xs font-semibold">
+                      Athlete Rating
+                    </label>
+                    <Select
+                      {...register("rating")}
+                      error={errors.rating?.message}
+                    >
+                      <option value="1">≥ 1</option>
+                      {[2, 3, 4].map((rating) => (
+                        <option key={rating} value={rating}>
+                          ≥ {rating}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold">Sport</label>
+                    <Select
+                      {...register("sport")}
+                      error={errors.sport?.message}
+                    >
+                      <option value="">Any</option>
+                      {Object.values(sportSchema.options).map((sport) => (
+                        <option key={sport} value={sport}>
+                          {sport}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+                <div className="divider my-4">OR</div>
+                <div className="my-2">
+                  <Card.Header className="py-2">
+                    Search by Username
+                    <p className="text-xs text-subtitle font-medium">
+                      Use this to check specific accounts and find athletes
+                    </p>
+                  </Card.Header>
+                  <Card.Body className="py-3">
+                    <div className="flex gap-2 mb-2">
+                      <label className="text-xs font-semibold whitespace-nowrap capitalize">
+                        Enter {menu} Username
+                      </label>
+                      <Input
+                        error={errors.username?.message}
+                        placeholder={`@${menu}Username`}
+                        {...register("username")}
+                      />
+                    </div>
+                  </Card.Body>
+                </div>
+
+                <Card.Footer className="py-2">
+                  <div className="flex justify-end">
+                    <div className="mb-1 flex gap-2">
+                      <Button
+                        type="button"
+                        theme="light"
+                        className="text-xs font-medium whitespace-nowrap"
+                        onClick={resetForm}
+                      >
+                        Clear all filters
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="text-xs font-medium"
+                        disabled={isLoading}
+                      >
+                        {isLoading
+                          ? "Searching..."
+                          : username
+                          ? "Search Username"
+                          : "Find Athletes"}
+                      </Button>
+                    </div>
+                  </div>
+                </Card.Footer>
+              </form>
+            </Card.Body>
+          </Card>
+        </div>
+
+        {appliedFilters.length > 0 && (
+          <div className="my-4">
+            <h3 className="text-lg font-semibold mb-2">Current Filters</h3>
+            <div className="flex flex-wrap gap-2">
+              {appliedFilters.map(([key, value]) => (
+                <div
+                  key={key}
+                  className="bg-primary text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  {key === "username" ? `${menu} Username` : key}: {value}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {athleteData?.usernameResult && (
+          <AthleteTable
+            athletes={athleteData.usernameResult}
+            platform={menu}
+            tableTitle="Profile Match"
+            tableSubtitle="Here's the profile matching the username you searched for."
+          />
+        )}
+
+        {athleteData?.athletes && athleteData?.athletes.length > 0 && (
+          <>
+            <AthleteTable
+              athletes={athleteData.athletes}
+              platform={menu}
+              tableTitle="Search Results"
+              tableSubtitle="Explore the profiles of athletes that match your search criteria."
+            />
+            <div className="flex justify-center mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={athleteData?.totalPages || 1}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
       </div>
+      {!isLoading && athleteData?.athletes.length === 0 && (
+        <div className="text-center py-4">
+          <FontAwesomeIcon
+            icon={faSearch}
+            className="text-4xl text-primary mb-3"
+          />
+          <h3 className="text-xl font-semibold">No Results Found</h3>
+          <p>
+            Try adjusting your search filters or using a different username.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

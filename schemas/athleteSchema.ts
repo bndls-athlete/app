@@ -1,6 +1,46 @@
 import { z } from "zod";
 import { subscriptionStatusSchema } from "./subscriptionStatusSchema";
-import { EntityType } from "@/types/entityTypes";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
+import mongoose from "mongoose";
+
+export const sportSchema = z.enum(["basketball", "soccer", "baseball", ""]);
+export const genderSchema = z.enum(["Male", "Female", "Other", ""]);
+export type Sport = z.infer<typeof sportSchema>;
+export type Gender = z.infer<typeof genderSchema>;
+export const sportsEnum = sportSchema.enum;
+export const genderEnum = genderSchema.enum;
+
+export const athleteTierSchema = z.enum(["1", "2", "3"]);
+export type AthleteTier = z.infer<typeof athleteTierSchema>;
+export const athleteTierEnum = athleteTierSchema.enum;
+
+// Allowed stats source URLs
+export const allowedStatsSourceURLs = [
+  "https://www.perfectgame.org/",
+  "https://www.prepbaseballreport.com/",
+  "https://maxpreps.com/",
+  "https://247sports.com/",
+];
+
+// Custom validation for statsSourceURL
+export const validateStatsSourceURL = z
+  .string()
+  .min(1, "Stats source URL is required") // Check if the field is required
+  .url("Invalid URL format") // Check if it's a valid URL
+  .refine((url) => {
+    return allowedStatsSourceURLs.some((allowedUrl) =>
+      url.startsWith(allowedUrl)
+    );
+  }, "URL must be from an allowed source"); // Check if it's one of the allowed URLs
+
+export const socialMediaPlatformSchema = z.enum([
+  "instagram",
+  "twitter",
+  "tiktok",
+  "youtube",
+]);
+export type SocialMediaPlatform = z.infer<typeof socialMediaPlatformSchema>;
+export const socialMediaPlatformEnum = socialMediaPlatformSchema.enum;
 
 const athleteSchema = z.object({
   userId: z.string(),
@@ -21,13 +61,16 @@ const athleteSchema = z.object({
   dateOfBirth: z
     .string()
     .transform((value) => (value ? new Date(value) : value)),
-  registrationType: z.enum([EntityType.Athlete, EntityType.Team]),
+  registrationType: z.enum([
+    AthleteRegistrationType.Individual,
+    AthleteRegistrationType.Team,
+  ]),
   // Individual specific fields
   collegeUniversity: z.string(),
   graduationDate: z
     .string()
     .transform((value) => (value ? new Date(value) : value)),
-  sport: z.string(),
+  sport: sportSchema,
   baseballStats: z.object({
     winsAboveReplacement: z.number(),
     isolatedPower: z.number(),
@@ -48,23 +91,27 @@ const athleteSchema = z.object({
   professionalSkills: z.array(z.string()),
   currentAcademicGPA: z.number(),
   professionalReferences: z.array(z.string()),
-  statsSourceURL: z.string().url().or(z.literal("")),
+  statsSourceURL: validateStatsSourceURL,
   bio: z.string().max(400, "Maximum 400 characters"),
   reel: z.string(),
   // Team specific fields
-  teamGender: z.string(),
-  teamGPA: z.number(),
-  teamBio: z.string(),
-  teamHighlights: z.string(),
+  // teamGender: z.string(),
+  // teamGPA: z.number(),
+  // teamBio: z.string(),
   // Common fields
   socialProfiles: z.object({
     instagram: z.string(),
     tiktok: z.string(),
-    facebook: z.string(),
+    youtube: z.string(),
     twitter: z.string(),
   }),
-  followers: z.number(),
-  engagementRate: z.number(),
+  followers: z.object({
+    instagram: z.number(),
+    tiktok: z.number(),
+    youtube: z.number(),
+    twitter: z.number(),
+  }),
+  // engagementRate: z.number(),
   athleteRating: z.number(),
   athleteTier: z.enum(["1", "2", "3"]),
   // Stripe
@@ -78,6 +125,8 @@ const athleteSchema = z.object({
   subscriptionStatus: subscriptionStatusSchema,
 });
 
-export type Athlete = z.infer<typeof athleteSchema>;
+export type Athlete = z.infer<typeof athleteSchema> & {
+  _id: mongoose.Types.ObjectId;
+};
 
 export { athleteSchema };

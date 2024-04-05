@@ -16,6 +16,7 @@ import { stateOptions } from "@/helpers/stateOptions";
 import { format } from "date-fns";
 import { monthOptions } from "@/helpers/monthOptions";
 import UploadComponent from "@/app/components/UploadComponent";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 interface AthleteAccountSettingsProps {
   athlete: Partial<Athlete>;
@@ -30,9 +31,26 @@ const athleteAccountSettingsSchema = z.object({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code"),
-  dateOfBirthMonth: z.string().min(1, "Month is required"),
-  dateOfBirthDay: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, "Invalid day"),
-  dateOfBirthYear: z.string().regex(/^(19|20)\d{2}$/, "Invalid year"),
+  dateOfBirthMonth: z.string().min(1, "Month is required").optional(),
+  dateOfBirthDay: z
+    .string()
+    .optional()
+    .refine(
+      (val) => val === undefined || /^(0[1-9]|[12][0-9]|3[01])$/.test(val),
+      {
+        message: "Invalid day",
+      }
+    ),
+  dateOfBirthYear: z
+    .string()
+    .optional()
+    .refine((val) => val === undefined || /^(19|20)\d{2}$/.test(val), {
+      message: "Invalid year",
+    }),
+  registrationType: z.enum([
+    AthleteRegistrationType.Individual,
+    AthleteRegistrationType.Team,
+  ]),
 });
 
 type AthleteAccountSettingsFormValues = z.infer<
@@ -42,7 +60,9 @@ type AthleteAccountSettingsFormValues = z.infer<
 const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
   const { invalidateAthlete } = useAthleteData();
   const { addToast } = useToast();
-  const [profileImage, setProfileImage] = useState("/images/Avatar.webp");
+  const [profileImage, setProfileImage] = useState(
+    athlete.profilePicture || "/images/Avatar.webp"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const formattedDateOfBirth = athlete.dateOfBirth
@@ -50,6 +70,8 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     : new Date();
 
   const initialFormValues: AthleteAccountSettingsFormValues = {
+    registrationType:
+      athlete.registrationType || AthleteRegistrationType.Individual,
     fullName: athlete.fullName || "",
     gender: athlete.gender || "",
     country: athlete.address?.countryRegion || "",
@@ -66,6 +88,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<AthleteAccountSettingsFormValues>({
     resolver: zodResolver(athleteAccountSettingsSchema),
@@ -89,6 +112,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
       dateOfBirth: new Date(
         `${data.dateOfBirthYear}-${data.dateOfBirthMonth}-${data.dateOfBirthDay}`
       ),
+      registrationType: data.registrationType,
     };
 
     try {
@@ -102,6 +126,9 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     }
   };
 
+  const isIndividual =
+    watch("registrationType") === AthleteRegistrationType.Individual;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-3">
@@ -109,7 +136,9 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
           <div className="py-3">
             <h6 className="font-semibold">Profile</h6>
             <span className="text-subtitle">
-              Update your profile picture and basic information here
+              {isIndividual
+                ? "Update your profile picture and basic information here"
+                : "Update your team profile picture and basic information here"}
             </span>
           </div>
         </div>
@@ -131,20 +160,41 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="font-semibold">Full Name</h6>
+            <h6 className="font-semibold">
+              {isIndividual ? "Full Name" : "Team Name"}
+            </h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Input
               {...register("fullName")}
               error={errors.fullName?.message}
-              placeholder="Enter your full name"
+              placeholder={`Enter your ${isIndividual ? "full" : "team"} name`}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="font-semibold">Gender</h6>
+            <h6 className="font-semibold">Registration Type</h6>
+          </div>
+          <div className="lg:col-span-3 md:col-span-6 col-span-8">
+            <Select
+              {...register("registrationType")}
+              error={errors.registrationType?.message}
+            >
+              <option value={AthleteRegistrationType.Individual}>
+                Individual
+              </option>
+              <option value={AthleteRegistrationType.Team}>Team</option>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-8 py-3 border-b">
+          <div className="md:col-span-2 col-span-8">
+            <h6 className="font-semibold">
+              {isIndividual ? "Gender" : "Team Gender"}
+            </h6>
           </div>
           <div className="lg:col-span-3 md:col-span-6 col-span-8">
             <Select {...register("gender")} error={errors.gender?.message}>
@@ -204,33 +254,34 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
             />
           </div>
         </div>
-
-        <div className="grid grid-cols-8 py-3 border-b">
-          <div className="md:col-span-2 col-span-8">
-            <h6 className="font-semibold">Date of Birth</h6>
+        {isIndividual && (
+          <div className="grid grid-cols-8 py-3 border-b">
+            <div className="md:col-span-2 col-span-8">
+              <h6 className="font-semibold">Date of Birth</h6>
+            </div>
+            <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-3 gap-4">
+              <Select
+                {...register("dateOfBirthMonth")}
+                error={errors.dateOfBirthMonth?.message}
+              >
+                <option value="" disabled>
+                  Month
+                </option>
+                {monthOptions()}
+              </Select>
+              <Input
+                {...register("dateOfBirthDay")}
+                error={errors.dateOfBirthDay?.message}
+                placeholder="DD"
+              />
+              <Input
+                {...register("dateOfBirthYear")}
+                error={errors.dateOfBirthYear?.message}
+                placeholder="YYYY"
+              />
+            </div>
           </div>
-          <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-3 gap-4">
-            <Select
-              {...register("dateOfBirthMonth")}
-              error={errors.dateOfBirthMonth?.message}
-            >
-              <option value="" disabled>
-                Month
-              </option>
-              {monthOptions()}
-            </Select>
-            <Input
-              {...register("dateOfBirthDay")}
-              error={errors.dateOfBirthDay?.message}
-              placeholder="DD"
-            />
-            <Input
-              {...register("dateOfBirthYear")}
-              error={errors.dateOfBirthYear?.message}
-              placeholder="YYYY"
-            />
-          </div>
-        </div>
+        )}
 
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">

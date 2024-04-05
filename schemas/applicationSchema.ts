@@ -14,5 +14,6 @@ export type Application = z.infer<typeof applicationSchema>;
 
 export type ApplicationWithPopulatedFields = Application & {
   //   jobPosting: JobPosting;
+  _id: mongoose.Types.ObjectId;
   athlete: Athlete;
 };

@@ -1,40 +1,57 @@
 "use client";
 
-// import { useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faBars, faClose } from "@fortawesome/free-solid-svg-icons";
 import ReactPlayer from "react-player";
-import { formatNumber } from "@/helpers/formatNumber";
 import {
   faArrowLeft,
-  // faBookmark,
-  faCircleInfo,
-  // faCloudDownload,
-  // faHeart,
-  // faInfoCircle,
+  faCheckCircle,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark as faBookmarkSolid } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark as faBookmarkRegular } from "@fortawesome/free-regular-svg-icons";
 import Button from "./Button";
-import { useAthleteCardVisibility } from "@/context/AthleteCardVisibilityProvider";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useAthleteCard } from "@/context/AthleteCardProvider";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useAthleteCard } from "@/hooks/useAthleteCard";
+import { useAthleteData } from "@/hooks/useAthleteData";
+import { sportsEnum } from "@/schemas/athleteSchema";
+import {
+  faBasketballBall,
+  faFutbol,
+  faBaseballBall,
+} from "@fortawesome/free-solid-svg-icons";
+import sum from "lodash/sum";
+import { formatIntlNumber } from "@/helpers/formatIntlNumber";
+import useUserType from "@/hooks/useUserType";
+import { useToggleBookmark } from "@/hooks/useToggleBookmark";
+import { EntityType } from "@/types/entityTypes";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
-const AthelteCard = () => {
-  const { isAthleteCardVisible, toggleAthleteCardVisible } =
-    useAthleteCardVisibility();
+export const AthleteCard = () => {
+  const { isAthleteCardVisible, toggleAthleteCardVisible } = useAthleteCard();
+  const { athlete, isLoading, error } = useAthleteData();
+  const { type } = useUserType();
 
-  const { athleteCard, isLoading, error } = useAthleteCard();
+  const { isBookmarked, toggleBookmark, isBookmarkLoading } = useToggleBookmark(
+    type === EntityType.Company ? athlete?._id : undefined
+  );
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center">
-        <Loader2 className="animate-spin" size={16} />
-      </div>
-    );
-  }
+  const getSportIcon = (sport: string) => {
+    switch (sport) {
+      case sportsEnum.baseball:
+        return (
+          <FontAwesomeIcon icon={faBaseballBall} className="w-5 h-5 mr-2" />
+        );
+      case sportsEnum.basketball:
+        return (
+          <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
+        );
+      case sportsEnum.soccer:
+        return <FontAwesomeIcon icon={faFutbol} className="w-5 h-5 mr-2" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div
@@ -42,189 +59,424 @@ const AthelteCard = () => {
         isAthleteCardVisible ? "right-0" : "right-[-360px]"
       }`}
     >
-      <div className="inline-flex px-4 mb-4 py-2">
-        <Button
-          className="w-auto px-6  py-2"
-          onClick={toggleAthleteCardVisible}
-        >
+      <div className="px-4 py-2">
+        <Button className="w-auto px-6 py-2" onClick={toggleAthleteCardVisible}>
           <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Back
         </Button>
       </div>
-      <div className="flex px-4 justify-between">
-        {/* <span className=" text-subtitle my-auto">
-              Data From September 15, 2023
-            </span> */}
-        {/* <FontAwesomeIcon
-              icon={faCloudDownload}
-              className="text-primary bg-sidebar p-1 rounded"
-            /> */}
-      </div>
-      {athleteCard?.fullName && (
-        <div className="flex px-4 my-3 gap-2">
-          <img
-            className="w-12 h-12 shadow border-white rounded-full my-auto"
-            src="/images/Avatar.webp"
-            alt="Rounded avatar"
-          />
-          <div className="flex flex-col my-auto">
-            <h6 className="font-semibold leading-2 ">{athleteCard.fullName}</h6>
+      <div className="px-6 py-4">
+        <h5 className="font-bold text-xl mb-2">
+          {athlete?.registrationType === AthleteRegistrationType.Team
+            ? "Team Card"
+            : "Athlete Card"}
+        </h5>
+        <p className="text-sm mb-4">
+          Update your{" "}
+          {athlete?.registrationType === AthleteRegistrationType.Team
+            ? "team"
+            : "profile"}{" "}
+          in{" "}
+          <Link href="/athlete/settings" className="underline">
+            settings
+          </Link>{" "}
+          to enhance your{" "}
+          {athlete?.registrationType === AthleteRegistrationType.Team
+            ? "team"
+            : "athlete"}{" "}
+          card and unlock better job opportunities.
+        </p>
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <Loader2 className="animate-spin" size={16} />
           </div>
-        </div>
-      )}
-      {athleteCard?.tier && (
-        <div className="flex px-4 gap-2 mb-2">
-          <img src="/svg/verifiedtick.svg" alt="" className="w-5 h-5" />
-          <span className="text-subtitle font-semibold">
-            {athleteCard.tier} Athlete
-          </span>
-        </div>
-      )}
-
-      {athleteCard?.location && (
-        <div className="flex px-4 gap-2 mb-2">
-          <img src="/svg/ion_location.svg" alt="" className="w-5 h-5" />
-          <span className="text-subtitle font-semibold">
-            {athleteCard.location}
-          </span>
-        </div>
-      )}
-
-      <div className="flex px-4 gap-2 my-4">
-        {athleteCard?.email && (
-          <Link href={`mailto:${athleteCard.email}`}>
-            <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full px-2 py-2 text-white">
-              <img src="/svg/email.svg" alt="" className="w-5 h-5" />
+        ) : (
+          <>
+            <div className="flex items-center mb-6">
+              <img
+                className="w-20 h-20 shadow border-4 border-white rounded-full mr-4"
+                src={athlete?.profilePicture || "/images/Avatar.webp"}
+                alt={`${
+                  athlete?.registrationType === AthleteRegistrationType.Team
+                    ? "Team"
+                    : "Athlete"
+                } Profile`}
+              />
+              <div>
+                <h6 className="font-bold text-2xl">
+                  {athlete?.fullName || "N/A"}
+                </h6>
+                <div className="mt-2 space-y-2">
+                  {athlete?.athleteTier && (
+                    <div
+                      className={`flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm transition-all ${
+                        athlete.athleteTier === "1"
+                          ? "bg-yellow-400 text-white"
+                          : athlete.athleteTier === "2"
+                          ? "bg-gray-400 text-white"
+                          : "bg-orange-600 text-white"
+                      }`}
+                    >
+                      <span>Tier {athlete.athleteTier} Athlete</span>
+                      <FontAwesomeIcon icon={faCheckCircle} className="ml-2" />
+                    </div>
+                  )}
+                  <div
+                    className={`flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold shadow-sm transition-all ${
+                      athlete?.registrationType === AthleteRegistrationType.Team
+                        ? "bg-purple-500 text-white"
+                        : "bg-green-500 text-white"
+                    }`}
+                  >
+                    <span>
+                      {athlete?.registrationType ===
+                      AthleteRegistrationType.Team
+                        ? "Team"
+                        : "Individual"}{" "}
+                      Account
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </Link>
-        )}
 
-        {athleteCard?.socialProfiles?.instagram && (
-          <Link href={athleteCard.socialProfiles.instagram}>
-            <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full px-2 py-2 text-white">
-              <img src="/svg/instagram.svg" alt="" className="w-5 h-5" />
-            </div>
-          </Link>
-        )}
+            {type === EntityType.Company && athlete && (
+              <div className="flex items-center justify-start mb-4">
+                <button
+                  className={`flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold transition-all ${
+                    isBookmarked
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                  onClick={() => toggleBookmark(athlete._id)}
+                >
+                  <FontAwesomeIcon
+                    icon={isBookmarked ? faBookmarkSolid : faBookmarkRegular}
+                    className="mr-2"
+                  />
+                  {isBookmarkLoading ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : isBookmarked ? (
+                    "Saved"
+                  ) : athlete?.registrationType ===
+                    AthleteRegistrationType.Team ? (
+                    "Save Team"
+                  ) : (
+                    "Save Athlete"
+                  )}
+                </button>
+              </div>
+            )}
 
-        {athleteCard?.socialProfiles?.tiktok && (
-          <Link href={athleteCard.socialProfiles.tiktok}>
-            <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full px-2 py-2 text-white">
-              <img src="/svg/tiktok.svg" alt="" className="w-5 h-5" />
-            </div>
-          </Link>
-        )}
+            {athlete?.bio && (
+              <div className="mb-6">
+                <h6 className="font-bold text-xl mb-2">
+                  {athlete?.registrationType === AthleteRegistrationType.Team
+                    ? "Team Bio"
+                    : "Bio"}
+                </h6>
+                <p className="text-subtitle">{athlete.bio}</p>
+              </div>
+            )}
 
-        {athleteCard?.socialProfiles?.twitter && (
-          <Link href={athleteCard.socialProfiles.twitter}>
-            <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full px-2 py-2 text-white">
-              <img src="/svg/twitter.svg" alt="" className="w-5 h-5" />
-            </div>
-          </Link>
-        )}
-      </div>
-
-      {(athleteCard?.followers ||
-        athleteCard?.engagementRate ||
-        athleteCard?.athleteRating) && (
-        <div className="bg-primary px-4 py-3 text-white">
-          <div className="grid grid-cols-3">
-            {athleteCard?.followers && (
-              <div className="flex flex-col gap-2">
-                <span>
-                  Followers <FontAwesomeIcon icon={faCircleInfo} />
+            {athlete?.address && (
+              <div className="flex items-center mb-6">
+                <img
+                  src="/svg/ion_location.svg"
+                  alt=""
+                  className="w-5 h-5 mr-2"
+                />
+                <span className="text-subtitle font-semibold">
+                  {`${athlete.address.city || ""}, ${
+                    athlete.address.state || ""
+                  }, ${athlete.address.countryRegion || ""}`}
                 </span>
-                <h3 className="text-3xl">
-                  {formatNumber(athleteCard.followers)}
-                </h3>
               </div>
             )}
 
-            {athleteCard?.engagementRate && (
-              <div className="flex flex-col gap-2">
-                <span>ER%</span>
-                <h3 className="text-3xl">
-                  {formatNumber(athleteCard.engagementRate)}
-                </h3>
-              </div>
-            )}
+            <div className="flex justify-start space-x-6 mb-8">
+              {athlete?.email && (
+                <Link href={`mailto:${athlete.email}`} target="_blank">
+                  <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full p-3 text-white">
+                    <img src="/svg/email.svg" alt="" className="w-5 h-5" />
+                  </div>
+                </Link>
+              )}
 
-            {athleteCard?.athleteRating && (
-              <div className="flex flex-col gap-2">
-                <span>Athlete Rating</span>
-                <h3 className="text-3xl">
-                  <FontAwesomeIcon icon={faStar} className="text-yellow-200" />{" "}
-                  {athleteCard.athleteRating}
-                </h3>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+              {athlete?.socialProfiles?.instagram && (
+                <Link href={athlete.socialProfiles.instagram} target="_blank">
+                  <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full p-3 text-white">
+                    <img src="/svg/instagram.svg" alt="" className="w-5 h-5" />
+                  </div>
+                </Link>
+              )}
 
-      <div className="bg-sidebar px-4 py-4">
-        <h6 className="font-semibold mb-2">Athlete Information</h6>
-        {athleteCard?.reel && (
-          <div className="w-full">
-            <ReactPlayer
-              width={"330px"}
-              height="200px"
-              url={athleteCard.reel}
-            />
-          </div>
+              {athlete?.socialProfiles?.tiktok && (
+                <Link href={athlete.socialProfiles.tiktok} target="_blank">
+                  <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full p-3 text-white">
+                    <img src="/svg/tiktok.svg" alt="" className="w-5 h-5" />
+                  </div>
+                </Link>
+              )}
+
+              {athlete?.socialProfiles?.youtube && (
+                <Link href={athlete.socialProfiles.youtube} target="_blank">
+                  <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full p-3 text-white">
+                    <img src="/svg/youtube.svg" alt="" className="w-5 h-5" />
+                  </div>
+                </Link>
+              )}
+
+              {athlete?.socialProfiles?.twitter && (
+                <Link href={athlete.socialProfiles.twitter} target="_blank">
+                  <div className="bg-primary transition duration-150 hover:scale-110 cursor-pointer rounded-full p-3 text-white">
+                    <img src="/svg/twitter.svg" alt="" className="w-5 h-5" />
+                  </div>
+                </Link>
+              )}
+            </div>
+
+            <div className="bg-primary text-white rounded-lg p-4 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {athlete?.followers && (
+                  <div className="flex flex-col">
+                    <span className="flex items-center text-base font-semibold">
+                      Total Followers{" "}
+                    </span>
+                    <h3 className="text-lg font-bold">
+                      {formatIntlNumber(
+                        sum([
+                          athlete.followers.instagram || 0,
+                          athlete.followers.tiktok || 0,
+                          athlete.followers.youtube || 0,
+                          athlete.followers.twitter || 0,
+                        ])
+                      )}
+                    </h3>
+                  </div>
+                )}
+
+                {athlete?.athleteRating && (
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold">
+                      {athlete?.registrationType ===
+                      AthleteRegistrationType.Team
+                        ? "Team Rating"
+                        : "Athlete Rating"}
+                    </span>
+                    <h3 className="text-lg font-bold flex items-center">
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className="text-yellow-200 mr-1"
+                      />
+                      {athlete.athleteRating}
+                    </h3>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h6 className="font-bold text-xl mb-4">
+                {athlete?.registrationType === AthleteRegistrationType.Team
+                  ? "Team Information"
+                  : "Athlete Information"}
+              </h6>
+
+              {athlete?.sport && (
+                <div className="mb-6">
+                  <h6 className="font-semibold text-lg mb-2">Sport</h6>
+                  <div className="flex items-center">
+                    {getSportIcon(athlete.sport)}
+                    <span className="text-subtitle font-semibold text-lg">
+                      {athlete.sport}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {athlete?.reel && (
+                <div className="mb-6">
+                  <h6 className="font-semibold text-lg mb-2">
+                    {athlete?.registrationType === AthleteRegistrationType.Team
+                      ? "Team Reel"
+                      : "Athlete Reel"}
+                  </h6>
+                  <ReactPlayer width="100%" height="200px" url={athlete.reel} />
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h6 className="font-semibold text-lg mb-2">
+                  {athlete?.registrationType === AthleteRegistrationType.Team
+                    ? "Team Info"
+                    : "Personal Info"}
+                </h6>
+                {athlete?.registrationType !== AthleteRegistrationType.Team && (
+                  <>
+                    <p className="mb-1">
+                      <strong>Gender:</strong> {athlete?.gender || "N/A"}
+                    </p>
+                    <p className="mb-1">
+                      <strong>DOB:</strong>{" "}
+                      {athlete?.dateOfBirth
+                        ? new Date(athlete.dateOfBirth).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </>
+                )}
+                <p className="mb-1">
+                  <strong>Phone:</strong> {athlete?.phoneNumber || "N/A"}
+                </p>
+                <p>
+                  <strong>Email:</strong> {athlete?.email || "N/A"}
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h6 className="font-semibold text-lg mb-2">Education</h6>
+                <p className="mb-1">
+                  <strong>College/University:</strong>{" "}
+                  {athlete?.collegeUniversity || "N/A"}
+                </p>
+                <p className="mb-1">
+                  <strong>
+                    {athlete?.registrationType === AthleteRegistrationType.Team
+                      ? "Cumulative Graduation Date"
+                      : "Graduation Date"}
+                    :
+                  </strong>{" "}
+                  {athlete?.graduationDate
+                    ? new Date(athlete.graduationDate).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <p>
+                  <strong>
+                    {athlete?.registrationType === AthleteRegistrationType.Team
+                      ? "Average Team GPA"
+                      : "Current GPA"}
+                    :
+                  </strong>{" "}
+                  {athlete?.currentAcademicGPA || "N/A"}
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h6 className="font-semibold text-lg mb-2">
+                  Professional Skills
+                </h6>
+                {athlete?.professionalSkills &&
+                athlete.professionalSkills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {athlete.professionalSkills.map((skill, index) => (
+                      <span key={index} className="badge badge-secondary">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p>N/A</p>
+                )}
+              </div>
+
+              <div className="mb-6">
+                <h6 className="font-semibold text-lg mb-2">
+                  Professional References
+                </h6>
+                {athlete?.professionalReferences &&
+                athlete.professionalReferences.length > 0 ? (
+                  <div className="space-y-2">
+                    {athlete.professionalReferences.map((reference, index) => (
+                      <div key={index} className="card bg-secondary p-4">
+                        <p>{reference}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>N/A</p>
+                )}
+              </div>
+
+              {athlete?.statsSourceURL && (
+                <div className="mb-6">
+                  <h6 className="font-semibold text-lg mb-2">
+                    Stats Source URL
+                  </h6>
+                  <Link href={athlete.statsSourceURL} target="_blank">
+                    {athlete.statsSourceURL}
+                  </Link>
+                </div>
+              )}
+
+              {athlete?.sport && (
+                <div className="mb-6">
+                  <h6 className="font-semibold text-lg mb-2">
+                    {athlete?.registrationType === AthleteRegistrationType.Team
+                      ? "Average Team Stats"
+                      : "Sport Stats"}
+                  </h6>
+                  {athlete?.sport === sportsEnum.baseball && (
+                    <>
+                      <p className="mb-1">
+                        <strong>Wins Above Replacement:</strong>{" "}
+                        {athlete.baseballStats?.winsAboveReplacement || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Isolated Power:</strong>{" "}
+                        {athlete.baseballStats?.isolatedPower || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Weighted On-Base Average:</strong>{" "}
+                        {athlete.baseballStats?.weightedOnBaseAverage || "N/A"}
+                      </p>
+                    </>
+                  )}
+
+                  {athlete?.sport === sportsEnum.basketball && (
+                    <>
+                      <p className="mb-1">
+                        <strong>Points:</strong>{" "}
+                        {athlete.basketballStats?.points || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Assists:</strong>{" "}
+                        {athlete.basketballStats?.assists || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Rebounds:</strong>{" "}
+                        {athlete.basketballStats?.rebounds || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Blocks:</strong>{" "}
+                        {athlete.basketballStats?.blocks || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Steals:</strong>{" "}
+                        {athlete.basketballStats?.steals || "N/A"}
+                      </p>
+                    </>
+                  )}
+                  {athlete?.sport === sportsEnum.soccer && (
+                    <>
+                      <p className="mb-1">
+                        <strong>Clean Sheets:</strong>{" "}
+                        {athlete.soccerStats?.cleanSheets || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Goals Scored:</strong>{" "}
+                        {athlete.soccerStats?.goalsScored || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Assists:</strong>{" "}
+                        {athlete.soccerStats?.assists || "N/A"}
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
-
-      {/* <div className="px-4 my-4">
-            <div className="bg-primary/[0.4] rounded py-6 flex justify-center flex-col text-center mb-2">
-              <FontAwesomeIcon
-                icon={faHeart}
-                className="text-primary text-2xl"
-              />
-              <h3 className="font-semibold text-2xl">69.5K</h3>
-              <span className=" text-subtitle">
-                Career Stats <FontAwesomeIcon icon={faInfoCircle} />
-              </span>
-            </div>
-            <div className="bg-primary/[0.4] rounded py-6 flex justify-center flex-col text-center mb-2">
-              <FontAwesomeIcon
-                icon={faHeart}
-                className="text-primary text-2xl"
-              />
-              <h3 className="font-semibold text-2xl">69.5K</h3>
-              <span className=" text-subtitle">
-                Academic Performance <FontAwesomeIcon icon={faInfoCircle} />
-              </span>
-            </div>
-            <div className="bg-primary/[0.4] rounded py-6 flex justify-center flex-col text-center mb-2">
-              <FontAwesomeIcon
-                icon={faHeart}
-                className="text-primary text-2xl"
-              />
-              <h3 className="font-semibold text-2xl">69.5K</h3>
-              <span className=" text-subtitle">
-                Preseason Awards <FontAwesomeIcon icon={faInfoCircle} />
-              </span>
-            </div>
-            <div className="bg-primary/[0.4] rounded py-6 flex justify-center flex-col text-center mb-2">
-              <FontAwesomeIcon
-                icon={faHeart}
-                className="text-primary text-2xl"
-              />
-              <h3 className="font-semibold text-2xl">69.5K</h3>
-              <span className=" text-subtitle">
-                Personal Preferences <FontAwesomeIcon icon={faInfoCircle} />
-              </span>
-            </div>
-          </div> */}
-
-      {athleteCard?.bio && (
-        <div className="px-4 mt-4 mb-8">
-          <h6 className="font-semibold ">Bio</h6>
-          <p className="text-subtitle ">{athleteCard.bio}</p>
-        </div>
-      )}
     </div>
   );
 };
-
-export default AthelteCard;

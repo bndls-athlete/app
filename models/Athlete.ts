@@ -1,7 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Athlete as AthleteBase } from "@/schemas/athleteSchema";
+import {
+  Athlete as AthleteBase,
+  athleteTierEnum,
+  athleteTierSchema,
+  genderSchema,
+  sportSchema,
+} from "@/schemas/athleteSchema";
 import { subscriptionStatusValues } from "@/schemas/subscriptionStatusSchema";
-import { EntityType } from "@/types/entityTypes";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 export type Athlete = AthleteBase & mongoose.Document;
 
@@ -22,7 +28,10 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     unique: true,
   },
   phoneNumber: String,
-  gender: String,
+  gender: {
+    type: String,
+    enum: genderSchema.options,
+  },
   receiveUpdates: Boolean,
   address: {
     countryRegion: String,
@@ -35,13 +44,17 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   dateOfBirth: Date,
   registrationType: {
     type: String,
-    enum: [EntityType.Athlete, EntityType.Team],
+    enum: [AthleteRegistrationType.Individual, AthleteRegistrationType.Team],
     required: true,
+    default: AthleteRegistrationType.Individual,
   },
   // Individual specific fields
   collegeUniversity: String,
   graduationDate: Date,
-  sport: String,
+  sport: {
+    type: String,
+    enum: sportSchema.options,
+  },
   baseballStats: {
     winsAboveReplacement: Number,
     isolatedPower: Number,
@@ -65,25 +78,25 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   statsSourceURL: String,
   bio: String,
   reel: String,
-  // Team specific fields
-  teamGender: String,
-  teamGPA: Number,
-  teamBio: String,
-  teamHighlights: String,
   // Common fields
   socialProfiles: {
     instagram: String,
     tiktok: String,
-    facebook: String,
+    youtube: String,
     twitter: String,
   },
-  followers: Number,
-  engagementRate: Number,
+  followers: {
+    instagram: Number,
+    tiktok: Number,
+    youtube: Number,
+    twitter: Number,
+  },
+  // engagementRate: Number,
   athleteRating: Number,
   athleteTier: {
     type: String,
-    enum: ["1", "2", "3"],
-    default: "3",
+    enum: athleteTierSchema.options,
+    default: athleteTierEnum[3],
   },
   // Stripe
   stripeCustomerId: {

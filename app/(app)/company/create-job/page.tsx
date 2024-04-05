@@ -29,6 +29,8 @@ import {
 } from "@/helpers/zodSchemaHelpers";
 import { useBrandData } from "@/hooks/useBrandData";
 import { BrandTierManager } from "@/helpers/stripeBrandManager";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Deliverable = z.infer<typeof deliverableSchema>;
 
@@ -54,6 +56,7 @@ type CreateJobFormValues = z.infer<typeof createJobSchema>;
 
 const CreateJobPage = () => {
   const { addToast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentDeliverableIndex, setCurrentDeliverableIndex] = useState<
@@ -69,7 +72,7 @@ const CreateJobPage = () => {
   const { brand } = useBrandData();
   const brandTierManager = BrandTierManager.getInstance();
   const hasActiveSubscription = brandTierManager.hasActiveSubscription(brand);
-
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -99,6 +102,8 @@ const CreateJobPage = () => {
     try {
       await axios.post("/api/job", data);
       addToast("success", "Job created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["myJobPostings"] });
+      router.push("/company/my-jobs");
     } catch (error) {
       console.error("Error creating job:", error);
       addToast("error", "Failed to create job.");

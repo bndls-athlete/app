@@ -67,14 +67,6 @@ const Settings = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center">
-        <Loader2 className="animate-spin" size={16} />
-      </div>
-    );
-  }
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     router.push(e.target.value);
   };
@@ -119,7 +111,15 @@ const Settings = () => {
             </Select>
           </div>
         </div>
-        <div>{componentActive()}</div>
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <Loader2 className="animate-spin" size={16} />
+          </div>
+        ) : (
+          <>
+            <div>{componentActive()}</div>
+          </>
+        )}
       </div>
     </>
   );

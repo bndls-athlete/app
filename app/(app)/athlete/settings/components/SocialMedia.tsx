@@ -1,23 +1,59 @@
+"use client";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../../../../components/Button";
 import InputGroup from "@/app/components/InputGroup";
 import axios from "axios";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastProvider";
-import { useAthleteCard } from "@/hooks/useAthleteCard";
 import { useAthleteData } from "@/hooks/useAthleteData";
 import { Athlete } from "@/schemas/athleteSchema";
+import { validateNumber } from "@/helpers/zodSchemaHelpers";
 
-const atheteSocialMediaSchema = z.object({
-  instagram: z.string().optional(),
-  tiktok: z.string().optional(),
-  facebook: z.string().optional(),
-  twitter: z.string().optional(),
-});
+const athleteSocialMediaSchema = z
+  .object({
+    instagram: z.string().optional(),
+    instagramFollowers: validateNumber,
+    tiktok: z.string().optional(),
+    tiktokFollowers: validateNumber,
+    youtube: z.string().optional(),
+    youtubeFollowers: validateNumber,
+    twitter: z.string().optional(),
+    twitterFollowers: validateNumber,
+  })
+  .superRefine((data, ctx) => {
+    if (data.instagram && data.instagramFollowers === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Instagram followers are required",
+        path: ["instagramFollowers"],
+      });
+    }
+    if (data.tiktok && data.tiktokFollowers === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "TikTok followers are required",
+        path: ["tiktokFollowers"],
+      });
+    }
+    if (data.youtube && data.youtubeFollowers === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "YouTube subscribers are required",
+        path: ["youtubeFollowers"],
+      });
+    }
+    if (data.twitter && data.twitterFollowers === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Twitter followers are required",
+        path: ["twitterFollowers"],
+      });
+    }
+  });
 
 // Helper function to extract username/handle from URL
 const extractHandle = (url: string | undefined, platform: string): string => {
@@ -25,82 +61,103 @@ const extractHandle = (url: string | undefined, platform: string): string => {
   const patterns: { [key: string]: RegExp } = {
     instagram: /(?:http[s]?:\/\/)?instagram\.com\/([^\/\?\s]+)/,
     tiktok: /(?:http[s]?:\/\/)?www\.tiktok\.com\/@([^\/\?\s]+)/,
-    facebook: /(?:http[s]?:\/\/)?www\.facebook\.com\/([^\/\?\s]+)/,
+    youtube: /(?:http[s]?:\/\/)?www\.youtube\.com\/@([^\/\?\s]+)/,
     twitter: /(?:http[s]?:\/\/)?twitter\.com\/([^\/\?\s]+)/,
   };
   const match = url.match(patterns[platform]);
   return match ? match[1] : "";
 };
 
-type SocialMediaFormValues = z.infer<typeof atheteSocialMediaSchema>;
+type SocialMediaFormValues = z.infer<typeof athleteSocialMediaSchema>;
 
 type AthleteSocialMediaProps = {
   athlete: Partial<Athlete>;
 };
 
 const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
-  // Define initial form values based on the athlete prop
-  // Define initial form values based on the athlete prop
   const initialFormValues: SocialMediaFormValues = {
     instagram: extractHandle(
       athlete.socialProfiles?.instagram ?? "",
       "instagram"
     ),
+    instagramFollowers: athlete.followers?.instagram,
     tiktok: extractHandle(athlete.socialProfiles?.tiktok ?? "", "tiktok"),
-    facebook: extractHandle(athlete.socialProfiles?.facebook ?? "", "facebook"),
+    tiktokFollowers: athlete.followers?.tiktok,
+    youtube: extractHandle(athlete.socialProfiles?.youtube ?? "", "youtube"),
+    youtubeFollowers: athlete.followers?.youtube,
     twitter: extractHandle(athlete.socialProfiles?.twitter ?? "", "twitter"),
+    twitterFollowers: athlete.followers?.twitter,
   };
 
   const { addToast } = useToast();
-
-  const { invalidateAthleteCard } = useAthleteCard();
   const { invalidateAthlete } = useAthleteData();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize the useForm hook with Zod schema validation and default values
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<SocialMediaFormValues>({
-    resolver: zodResolver(atheteSocialMediaSchema),
+    resolver: zodResolver(athleteSocialMediaSchema),
     defaultValues: initialFormValues,
   });
 
-  // Handle form submission
   const onSubmit: SubmitHandler<SocialMediaFormValues> = async (data) => {
     setIsLoading(true);
+
     const socialMediaProfiles = {
       instagram: data.instagram
         ? `https://instagram.com/${data.instagram}`
         : null,
       tiktok: data.tiktok ? `https://www.tiktok.com/@${data.tiktok}` : null,
-      facebook: data.facebook
-        ? `https://www.facebook.com/${data.facebook}`
-        : null,
+      youtube: data.youtube ? `https://www.youtube.com/@${data.youtube}` : null,
       twitter: data.twitter ? `https://twitter.com/${data.twitter}` : null,
     };
 
-    // Filter out null values
     const filteredSocialMediaProfiles = Object.fromEntries(
       Object.entries(socialMediaProfiles).filter(([_, value]) => value !== null)
     );
 
+    const followers = {
+      instagram: data.instagramFollowers,
+      tiktok: data.tiktokFollowers,
+      youtube: data.youtubeFollowers,
+      twitter: data.twitterFollowers,
+    };
+
+    const filteredFollowers = Object.fromEntries(
+      Object.entries(followers).filter(
+        ([key, value]) =>
+          value !== undefined && filteredSocialMediaProfiles[key]
+      )
+    );
+
     const socialMediaData = {
       socialProfiles: filteredSocialMediaProfiles,
+      followers: filteredFollowers,
     };
 
     try {
       await axios.post("/api/athlete", socialMediaData);
-      // console.log("Social media profiles updated successfully:", response.data);
       addToast("success", "Updated Successfully!");
     } catch (error) {
       console.error("Error updating social media profiles:", error);
     } finally {
       invalidateAthlete();
-      invalidateAthleteCard();
       setIsLoading(false);
     }
+  };
+
+  console.log(errors);
+
+  const instagramHandle = watch("instagram");
+  const tiktokHandle = watch("tiktok");
+  const youtubeHandle = watch("youtube");
+  const twitterHandle = watch("twitter");
+
+  const formatFollowerCount = (count: number | undefined) => {
+    return count ? new Intl.NumberFormat("en-US").format(count) : "";
   };
 
   return (
@@ -109,7 +166,7 @@ const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
         <div className="flex justify-between border-b">
           <div className="py-3">
             <h6 className="font-semibold">Social Profile</h6>
-            <span className=" text-subtitle">
+            <span className="text-subtitle">
               Upload your social media profiles.
             </span>
           </div>
@@ -129,6 +186,20 @@ const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
             <span className="text-subtitle">
               Enter your Instagram username (e.g., john_doe).
             </span>
+            {instagramHandle && (
+              <>
+                <InputGroup
+                  withLabel="Instagram Followers"
+                  type="number"
+                  {...register("instagramFollowers")}
+                  error={errors.instagramFollowers?.message}
+                />
+                <span className="text-subtitle">
+                  Your follower count:{" "}
+                  {formatFollowerCount(watch("instagramFollowers"))}
+                </span>
+              </>
+            )}
             <InputGroup
               withLabel="Tiktok.com/@"
               {...register("tiktok")}
@@ -137,37 +208,70 @@ const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
             <span className="text-subtitle">
               Enter your TikTok username (e.g., john_doe).
             </span>
+            {tiktokHandle && (
+              <>
+                <InputGroup
+                  withLabel="TikTok Followers"
+                  type="number"
+                  {...register("tiktokFollowers")}
+                  error={errors.tiktokFollowers?.message}
+                />
+                <span className="text-subtitle">
+                  Your follower count:{" "}
+                  {formatFollowerCount(watch("tiktokFollowers"))}
+                </span>
+              </>
+            )}
             <InputGroup
-              withLabel="Facebook.com/"
-              {...register("facebook")}
-              error={errors.facebook?.message}
+              withLabel="Youtube.com/@"
+              {...register("youtube")}
+              error={errors.youtube?.message}
             />
             <span className="text-subtitle">
-              Enter your Facebook username or page ID (e.g., john.doe or
-              JohnDoePage).
+              Enter your YouTube channel Name (e.g., john_doe).
             </span>
+            {youtubeHandle && (
+              <>
+                <InputGroup
+                  withLabel="YouTube Subscribers"
+                  type="number"
+                  {...register("youtubeFollowers")}
+                  error={errors.youtubeFollowers?.message}
+                />
+                <span className="text-subtitle">
+                  Your subscriber count:{" "}
+                  {formatFollowerCount(watch("youtubeFollowers"))}
+                </span>
+              </>
+            )}
             <InputGroup
               withLabel="Twitter.com/"
               {...register("twitter")}
               error={errors.twitter?.message}
             />
             <span className="text-subtitle">
-              Enter your Twitter handle (e.g., @johndoe).
+              Enter your Twitter handle (e.g., johndoe).
             </span>
+            {twitterHandle && (
+              <>
+                <InputGroup
+                  withLabel="Twitter Followers"
+                  type="number"
+                  {...register("twitterFollowers")}
+                  error={errors.twitterFollowers?.message}
+                />
+                <span className="text-subtitle">
+                  Your follower count:{" "}
+                  {formatFollowerCount(watch("twitterFollowers"))}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="flex justify-end">
           <div className="py-3 flex gap-2">
-            {/* <Button
-              theme="light"
-              className=" py-2"
-              type="reset"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button> */}
-            <Button className=" py-2" type="submit" disabled={isLoading}>
+            <Button className="py-2" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={16} />
@@ -180,6 +284,9 @@ const SocialMedia = ({ athlete }: AthleteSocialMediaProps) => {
           </div>
         </div>
       </div>
+      {errors.root && (
+        <div className="text-red-500 text-sm py-2">{errors.root.message}</div>
+      )}
     </form>
   );
 };

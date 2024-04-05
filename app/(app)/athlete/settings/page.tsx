@@ -63,61 +63,59 @@ const Settings = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center">
-        <Loader2 className="animate-spin" size={16} />
-      </div>
-    );
-  }
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     router.push(e.target.value);
   };
 
   return (
-    <>
-      <div className="my-4 text-dark">
-        <h1 className="text-3xl font-semibold">Settings Athlete</h1>
-        <div className="mt-4">
-          <div className="hidden sm:block">
-            <div className="join join-horizontal">
-              {links.map((link) =>
-                link.condition ? (
-                  <Link
-                    key={link.label}
-                    className={`btn ${
-                      menu === link.label.toLowerCase().replace(/ /g, "-")
-                        ? "btn-active btn-primary"
-                        : "btn-white"
-                    } join-item`}
-                    href={link.path}
-                  >
-                    {link.label}
-                  </Link>
-                ) : null
-              )}
-            </div>
-          </div>
-          <div className="sm:hidden">
-            <Select
-              onChange={handleSelectChange}
-              value={`/${type}/settings/?menu=${menu}`}
-            >
-              {links.map(
-                (link) =>
-                  link.condition && (
-                    <option key={link.label} value={link.path}>
-                      {link.label}
-                    </option>
-                  )
-              )}
-            </Select>
+    <div className="my-4 text-dark">
+      <h1 className="text-3xl font-semibold">Settings Athlete</h1>
+      <div className="mt-4">
+        <div className="hidden sm:block">
+          <div className="join join-horizontal">
+            {links.map((link) =>
+              link.condition ? (
+                <Link
+                  key={link.label}
+                  className={`btn ${
+                    menu === link.label.toLowerCase().replace(/ /g, "-")
+                      ? "btn-active btn-primary"
+                      : "btn-white"
+                  } join-item`}
+                  href={link.path}
+                >
+                  {link.label}
+                </Link>
+              ) : null
+            )}
           </div>
         </div>
-        <div>{componentActive()}</div>
+        <div className="sm:hidden">
+          <Select
+            onChange={handleSelectChange}
+            value={`/${type}/settings/?menu=${menu}`}
+          >
+            {links.map(
+              (link) =>
+                link.condition && (
+                  <option key={link.label} value={link.path}>
+                    {link.label}
+                  </option>
+                )
+            )}
+          </Select>
+        </div>
       </div>
-    </>
+      {isLoading ? (
+        <div className="flex justify-center items-center">
+          <Loader2 className="animate-spin" size={16} />
+        </div>
+      ) : (
+        <>
+          <div>{componentActive()}</div>
+        </>
+      )}
+    </div>
   );
 };
 
