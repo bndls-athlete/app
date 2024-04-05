@@ -192,10 +192,10 @@ const Sidebar = () => {
             className="my-2 w-full"
             onClick={async () => {
               if (window.confirm("Are you sure you want to logout?")) {
-                await signOut();
                 if (type === EntityType.Athlete) {
                   invalidateAthlete();
                 }
+                await signOut();
               }
             }}
           >

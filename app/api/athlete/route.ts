@@ -187,7 +187,6 @@ function calculateAthleteRating(athlete: Athlete): {
     }
   }
 
-  // Update athlete tier based on rating
   let athleteTier: AthleteTier = athleteTierEnum["3"]; // Default to Tier 3
   if (rating >= 4.5) {
     athleteTier = athleteTierEnum["1"]; // Tier 1

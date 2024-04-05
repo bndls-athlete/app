@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         [`socialProfiles.${menu}`]: username,
       });
     } else {
-      const pipeline = [];
+      const pipeline: any[] = [];
 
       if (state || city) {
         pipeline.push({
@@ -81,27 +81,21 @@ export async function GET(request: Request) {
         };
       }
 
-      if (gender !== undefined) {
-        if (gender === "") {
-          delete query.gender;
-        } else {
-          query.gender = gender;
-        }
+      if (gender) {
+        query.gender = gender;
       }
 
       if (rating > 0) {
         query.athleteRating = { $gte: rating };
       }
 
-      if (sport !== undefined) {
-        if (sport === "") {
-          delete query.sport;
-        } else {
-          query.sport = sport;
-        }
+      if (sport) {
+        query.sport = sport;
       }
 
-      pipeline.push({ $match: query });
+      if (Object.keys(query).length > 0) {
+        pipeline.push({ $match: query });
+      }
 
       const countResult = await AthleteModel.aggregate([
         ...pipeline,
