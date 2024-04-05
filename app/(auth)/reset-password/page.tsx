@@ -29,10 +29,8 @@ const ForgotPasswordPage: NextPage = () => {
   const [successfulCreation, setSuccessfulCreation] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  const router = useRouter();
-  const { isSignedIn } = useAuth();
   const { isLoaded, signIn, setActive } = useSignIn();
+  const [resetCodeSent, setResetCodeSent] = useState(false);
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -46,10 +44,6 @@ const ForgotPasswordPage: NextPage = () => {
     return null;
   }
 
-  if (isSignedIn) {
-    router.push("/");
-  }
-
   const onSubmitEmail = async (data: EmailFormData) => {
     await signIn
       ?.create({
@@ -58,6 +52,7 @@ const ForgotPasswordPage: NextPage = () => {
       })
       .then(() => {
         setSuccessfulCreation(true);
+        setResetCodeSent(true);
         setError("");
       })
       .catch((err) => {
@@ -78,7 +73,6 @@ const ForgotPasswordPage: NextPage = () => {
           setActive({ session: result.createdSessionId });
           setError("");
           resetPasswordForm.reset();
-          router.push("/");
         } else {
           console.log(result);
         }
@@ -135,6 +129,13 @@ const ForgotPasswordPage: NextPage = () => {
             {...resetPasswordForm.register("code")}
             error={resetPasswordForm.formState.errors.code?.message}
           />
+          {resetCodeSent && (
+            <div className="mb-4 text-sm text-green-600">
+              We have sent a reset code to your email. Please enter it along
+              with your new password.
+            </div>
+          )}
+
           <Button type="submit" className="w-full text-white p-2 rounded-md">
             Reset Password
           </Button>
