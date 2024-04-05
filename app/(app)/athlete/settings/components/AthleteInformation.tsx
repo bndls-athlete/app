@@ -32,12 +32,14 @@ type AthleteInformationProps = {
 
 const athleteInformationSchema = z.object({
   schoolOrUniversity: z.string().min(1, "Required"),
-  graduationMonth: z.string().min(1, "Required"),
+  graduationMonth: z.string().optional(),
   graduationDay: z
     .string()
+    .min(1, "Required")
     .regex(/^(0[1-9]|[12][0-9]|3[01])$/, "Invalid day (format: DD)"),
   graduationYear: z
     .string()
+    .min(1, "Required")
     .regex(/^(19|20)\d{2}$/, "Invalid year (format: YYYY)"),
   sport: sportSchema,
   professionalSkills: z.array(z.string()).optional(),
@@ -186,9 +188,12 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
     setIsLoading(true);
     const athleteData: DeepPartial<Athlete> = {
       schoolOrUniversity: data.schoolOrUniversity,
-      graduationDate: new Date(
-        `${data.graduationYear}-${data.graduationMonth}-${data.graduationDay}`
-      ),
+      graduationDate:
+        data.graduationMonth && data.graduationDay && data.graduationYear
+          ? new Date(
+              `${data.graduationYear}-${data.graduationMonth}-${data.graduationDay}`
+            )
+          : undefined,
       sport: data.sport,
       professionalSkills: data.professionalSkills,
       currentAcademicGPA: data.gpa ? parseFloat(data.gpa) : undefined,

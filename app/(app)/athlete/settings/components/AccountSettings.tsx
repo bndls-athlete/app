@@ -31,22 +31,26 @@ const athleteAccountSettingsSchema = z.object({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code"),
-  dateOfBirthMonth: z.string().min(1, "Month is required").optional(),
+  dateOfBirthMonth: z.string().optional(),
   dateOfBirthDay: z
     .string()
     .optional()
     .refine(
-      (val) => val === undefined || /^(0[1-9]|[12][0-9]|3[01])$/.test(val),
-      {
-        message: "Invalid day",
-      }
+      (val) =>
+        val === undefined ||
+        val === "" ||
+        /^(0[1-9]|[12][0-9]|3[01])$/.test(val),
+      { message: "Invalid day" }
     ),
   dateOfBirthYear: z
     .string()
     .optional()
-    .refine((val) => val === undefined || /^(19|20)\d{2}$/.test(val), {
-      message: "Invalid year",
-    }),
+    .refine(
+      (val) => val === undefined || val === "" || /^(19|20)\d{2}$/.test(val),
+      {
+        message: "Invalid year",
+      }
+    ),
   registrationType: z.enum([
     AthleteRegistrationType.Individual,
     AthleteRegistrationType.Team,
@@ -80,9 +84,15 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     city: athlete.address?.city || "",
     state: athlete.address?.state || "",
     zipCode: athlete.address?.zipCode || "",
-    dateOfBirthMonth: format(formattedDateOfBirth, "MMMM"),
-    dateOfBirthDay: format(formattedDateOfBirth, "dd"),
-    dateOfBirthYear: format(formattedDateOfBirth, "yyyy"),
+    dateOfBirthMonth: athlete.dateOfBirth
+      ? format(formattedDateOfBirth, "MMMM")
+      : "",
+    dateOfBirthDay: athlete.dateOfBirth
+      ? format(formattedDateOfBirth, "dd")
+      : "",
+    dateOfBirthYear: athlete.dateOfBirth
+      ? format(formattedDateOfBirth, "yyyy")
+      : "",
   };
 
   const {
@@ -109,9 +119,13 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
         state: data.state,
         zipCode: data.zipCode,
       },
-      dateOfBirth: new Date(
-        `${data.dateOfBirthYear}-${data.dateOfBirthMonth}-${data.dateOfBirthDay}`
-      ),
+      dateOfBirth:
+        data.dateOfBirthDay && data.dateOfBirthMonth && data.dateOfBirthYear
+          ? new Date(
+              `${data.dateOfBirthYear}-${data.dateOfBirthMonth}-${data.dateOfBirthDay}`
+            )
+          : undefined,
+
       registrationType: data.registrationType,
     };
 

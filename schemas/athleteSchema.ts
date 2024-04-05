@@ -60,7 +60,15 @@ const athleteSchema = z.object({
   }),
   dateOfBirth: z
     .string()
-    .transform((value) => (value ? new Date(value) : value)),
+    .optional()
+    .transform((value) => (value ? new Date(value) : undefined))
+    .refine(
+      (date) =>
+        date === undefined || (date instanceof Date && !isNaN(date.getTime())),
+      {
+        message: "Invalid date",
+      }
+    ),
   registrationType: z.enum([
     AthleteRegistrationType.Individual,
     AthleteRegistrationType.Team,
@@ -69,7 +77,15 @@ const athleteSchema = z.object({
   schoolOrUniversity: z.string(),
   graduationDate: z
     .string()
-    .transform((value) => (value ? new Date(value) : value)),
+    .optional()
+    .transform((value) => (value ? new Date(value) : undefined))
+    .refine(
+      (date) =>
+        date === undefined || (date instanceof Date && !isNaN(date.getTime())),
+      {
+        message: "Invalid date",
+      }
+    ),
   sport: sportSchema,
   baseballStats: z.object({
     winsAboveReplacement: z.number(),

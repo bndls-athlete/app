@@ -71,6 +71,7 @@ const Discovery = () => {
   const menu: SocialMediaPlatform = (searchParams.get("menu") ||
     "instagram") as SocialMediaPlatform;
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { type } = useUserType();
 
@@ -167,6 +168,7 @@ const Discovery = () => {
   });
 
   const onSubmit = async (data: DiscoveryFormValues) => {
+    setIsSubmitting(true);
     const params = new URLSearchParams();
     params.set("page", "1");
     if (data.username) {
@@ -178,7 +180,8 @@ const Discovery = () => {
         }
       });
     }
-    router.push(`${pathname}?menu=${menu}&${params.toString()}`);
+    await router.push(`${pathname}?menu=${menu}&${params.toString()}`);
+    setIsSubmitting(false);
   };
 
   const handlePageChange = (page: number) => {
@@ -372,9 +375,9 @@ const Discovery = () => {
                       <Button
                         type="submit"
                         className="text-xs font-medium"
-                        disabled={isLoading}
+                        disabled={isSubmitting || isLoading}
                       >
-                        {isLoading
+                        {isSubmitting || isLoading
                           ? "Searching..."
                           : username
                           ? "Search Username"

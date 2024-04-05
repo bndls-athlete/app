@@ -304,32 +304,35 @@ export const AthleteCard = () => {
                   <ReactPlayer width="100%" height="200px" url={athlete.reel} />
                 </div>
               )}
-
               <div className="mb-6">
                 <h6 className="font-semibold text-lg mb-2">
                   {athlete?.registrationType === AthleteRegistrationType.Team
                     ? "Team Info"
                     : "Personal Info"}
                 </h6>
-                {athlete?.registrationType !== AthleteRegistrationType.Team && (
-                  <>
-                    <p className="mb-1">
-                      <strong>Gender:</strong> {athlete?.gender || "N/A"}
-                    </p>
-                    <p className="mb-1">
-                      <strong>DOB:</strong>{" "}
-                      {athlete?.dateOfBirth
-                        ? new Date(athlete.dateOfBirth).toLocaleDateString()
-                        : "N/A"}
-                    </p>
-                  </>
-                )}
-                {/* <p className="mb-1">
-                  <strong>Phone:</strong> {athlete?.phoneNumber || "N/A"}
-                </p> */}
-                <p>
-                  <strong>Email:</strong> {athlete?.email || "N/A"}
-                </p>
+                <>
+                  <p className="mb-1">
+                    <strong>
+                      {athlete?.registrationType ===
+                      AthleteRegistrationType.Team
+                        ? "Team Gender"
+                        : "Gender"}
+                      :
+                    </strong>{" "}
+                    {athlete?.gender || "N/A"}
+                  </p>
+                  {athlete?.registrationType !==
+                    AthleteRegistrationType.Team && (
+                    <>
+                      <p className="mb-1">
+                        <strong>DOB:</strong>{" "}
+                        {athlete?.dateOfBirth
+                          ? new Date(athlete.dateOfBirth).toLocaleDateString()
+                          : "N/A"}
+                      </p>
+                    </>
+                  )}
+                </>
               </div>
 
               <div className="mb-6">
