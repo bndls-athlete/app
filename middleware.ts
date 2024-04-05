@@ -3,7 +3,14 @@ import { authMiddleware } from "@clerk/nextjs";
 import { EntityType } from "./types/entityTypes";
 
 export default authMiddleware({
-  publicRoutes: ["/sign-in", "/sign-up", "/"],
+  publicRoutes: [
+    "/sign-in",
+    "/sign-up",
+    "/",
+    "/reset-password",
+    "/privacy-policy",
+    "/terms-of-service",
+  ],
   ignoredRoutes: ["/api/stripe/webhook"],
   afterAuth(auth, req) {
     if (!auth.userId && !auth.isPublicRoute) {

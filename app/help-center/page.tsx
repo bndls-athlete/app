@@ -2,12 +2,15 @@
 
 import React from "react";
 import Card from "@/app/components/Card";
+import Branding from "@/app//components/Branding";
 
 function HelpCenter() {
   return (
     <div className="max-w-4xl mx-auto my-8">
+      <Branding /> {/* Use the Branding component */}
       <h1 className="text-3xl font-semibold text-center mb-6">Help Center</h1>
-      <Card className="mb-4">
+      <p className="text-center">To be updated...</p>
+      {/* <Card className="mb-4">
         <Card.Header className="text-xl font-semibold">Contact Us</Card.Header>
         <Card.Body>
           <div className="space-y-2">
@@ -43,7 +46,7 @@ function HelpCenter() {
             </p>
           </div>
         </Card.Body>
-      </Card>
+      </Card> */}
     </div>
   );
 }

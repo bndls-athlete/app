@@ -13,6 +13,8 @@ import { signUpSchema } from "@/schemas/signUpSchema";
 import Button from "@/app/components/Button";
 import axios from "axios";
 import { EntityType } from "@/types/entityTypes";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -21,6 +23,7 @@ export default function SignUpForm() {
   const [verifying, setVerifying] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const { signUp, setActive } = useSignUp();
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -145,43 +148,48 @@ export default function SignUpForm() {
           className="space-y-6"
         >
           <h1 className="text-4xl font-bold mb-6">Sign Up</h1>
-          <span className=" mb-6 block">
-            Already have an account?
-            <Link
-              href={"/sign-in"}
-              className="ml-2  text-primary font-medium hover:underline"
-            >
-              Log In
-            </Link>
-          </span>
-          <div className="mb-6">
+          <div className="mb-6 flex flex-col space-y-4">
             <Input
-              withLabel="Full Name*"
+              // withLabel="Full Name*"
               placeholder="Enter your name"
               {...register("fullName")}
               error={errors.fullName?.message}
               required
             />
             <Input
-              withLabel="Email Address*"
+              // withLabel="Email Address*"
               placeholder="Enter your email"
               type="email"
               {...register("email")}
               error={errors.email?.message}
               required
             />
-            <Input
-              withLabel="Password*"
+            {/* <Input
+              // withLabel="Password*"
               placeholder="Create a password"
               type="password"
               {...register("password")}
               error={errors.password?.message}
               required
-            />
+            /> */}
+            <div className="relative">
+              <Input
+                // withLabel="Password"
+                placeholder="Enter your password"
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                error={errors.password?.message}
+              />
+              <FontAwesomeIcon
+                icon={showPassword ? faEye : faEyeSlash}
+                className="absolute inset-y-0 right-3 my-auto h-full flex items-center w-5 h-5 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              />
+            </div>
             <Input
-              withLabel="Confirm Password*"
+              // withLabel="Confirm Password*"
               placeholder="Confirm your password"
-              type="password"
+              type="text"
               {...register("passwordConfirmation")}
               error={errors.passwordConfirmation?.message}
               required
@@ -251,12 +259,26 @@ export default function SignUpForm() {
               "Get Started"
             )}
           </Button>
-
-          <div className="mt-6 text-center">
-            <span className="">
-              By signing up, I agree to the Privacy Policy and Terms of Service.
-            </span>
-          </div>
+          <p className=" mb-6">
+            Already have an account?
+            <Link
+              href={"/sign-in"}
+              className="ml-2  text-primary font-medium hover:underline"
+            >
+              Log In
+            </Link>
+          </p>
+          <p>
+            By signing up, you agree to our{" "}
+            <Link href="/privacy-policy" className="underline">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms-of-service" className="underline">
+              Terms
+            </Link>{" "}
+            of Service.
+          </p>
         </form>
       </div>
       <div

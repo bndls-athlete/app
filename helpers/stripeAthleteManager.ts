@@ -89,30 +89,30 @@ class AthleteTierManager {
 
   public athletePricingPlans: AthletePricingPlan[] = [
     {
-      tier: "Tier 3",
+      tier: "Tier 3 Plan (Available to all athletes)",
       monthlyPriceId: this.priceIds.ATHLETE_TIER_3_MONTHLY,
       yearlyPriceId: this.priceIds.ATHLETE_TIER_3_YEARLY,
-      monthlyPrice: "$5",
-      annualPrice: "$50", // 12 * $5 - 2 * $5
+      monthlyPrice: "$49.99",
+      annualPrice: "$599.88",
       features: ["Access to Tier 3 job postings", "Unlimited job applications"],
     },
     {
-      tier: "Tier 2",
+      tier: "Tier 2 Plan (For Tier 1 and Tier 2 athletes)",
       monthlyPriceId: this.priceIds.ATHLETE_TIER_2_MONTHLY,
       yearlyPriceId: this.priceIds.ATHLETE_TIER_2_YEARLY,
-      monthlyPrice: "$10",
-      annualPrice: "$100", // 12 * $10 - 2 * $10
+      monthlyPrice: "$29.99",
+      annualPrice: "$359.88",
       features: [
         "Access to Tier 2 and Tier 3 job postings",
         "Unlimited job applications",
       ],
     },
     {
-      tier: "Tier 1",
+      tier: "Tier 1 Plan (Exclusive for Tier 1 athletes)",
       monthlyPriceId: this.priceIds.ATHLETE_TIER_1_MONTHLY,
       yearlyPriceId: this.priceIds.ATHLETE_TIER_1_YEARLY,
-      monthlyPrice: "$15",
-      annualPrice: "$150", // 12 * $15 - 2 * $15
+      monthlyPrice: "$19.99",
+      annualPrice: "$239.88",
       features: [
         "Access to all job postings, including Tier 1, Tier 2, and Tier 3",
         "Unlimited job applications",

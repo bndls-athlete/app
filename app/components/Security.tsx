@@ -81,8 +81,8 @@ const Security = () => {
                   {...register("currentPassword")}
                 />
                 <FontAwesomeIcon
-                  icon={showCurrentPassword ? faEyeSlash : faEye}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                  icon={showCurrentPassword ? faEye : faEyeSlash}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 />
               </div>
@@ -102,8 +102,8 @@ const Security = () => {
                   {...register("newPassword")}
                 />
                 <FontAwesomeIcon
-                  icon={showNewPassword ? faEyeSlash : faEye}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                  icon={showNewPassword ? faEye : faEyeSlash}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                 />
               </div>
@@ -126,8 +126,8 @@ const Security = () => {
                   {...register("confirmPassword")}
                 />
                 <FontAwesomeIcon
-                  icon={showConfirmPassword ? faEyeSlash : faEye}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
+                  icon={showConfirmPassword ? faEye : faEyeSlash}
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
               </div>

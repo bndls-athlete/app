@@ -11,11 +11,14 @@ import Input from "@/app/components/Input";
 import Button from "@/app/components/Button";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function SignInForm() {
   const router = useRouter();
   const { signIn, isLoaded, setActive } = useSignIn();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -67,23 +70,37 @@ export default function SignInForm() {
             <h1 className="text-4xl font-bold mb-6">Log In</h1>{" "}
             <span>Welcome Back! Please enter your details</span>
           </div>
-          <div className="mb-2">
+          <div className="mb-2 flex flex-col space-y-4">
             <Input
-              withLabel="Email"
+              // withLabel="Email"
               placeholder="Enter your email"
               type="email"
               {...register("email")}
               error={errors.email?.message}
             />
-            <Input
-              withLabel="Password"
-              placeholder="Enter your password"
-              type="password"
-              {...register("password")}
-              error={errors.password?.message}
-            />
+            <div className="relative">
+              <Input
+                // withLabel="Password"
+                placeholder="Enter your password"
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                error={errors.password?.message}
+              />
+              <FontAwesomeIcon
+                icon={showPassword ? faEye : faEyeSlash}
+                className="absolute inset-y-0 right-3 my-auto h-full flex items-center w-5 h-5 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              />
+            </div>
           </div>
-
+          <div className="flex justify-end">
+            <Link
+              href="/reset-password"
+              className="text-primary font-medium hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
           <Button
             type="submit"
             className="w-full text-white p-2 rounded-md flex justify-center items-center"
@@ -92,24 +109,22 @@ export default function SignInForm() {
             {isSubmitting ? <Loader2 className="animate-spin" /> : "Sign In"}
           </Button>
         </form>
-
         <div className="mt-3 text-center">
           <span className="">
             Don't have an account?
             <Link
               href="/sign-up"
-              className="ml-2  text-primary font-medium hover:underline"
+              className="ml-2 text-primary font-medium hover:underline"
             >
               Sign Up Now
             </Link>
           </span>
         </div>
-
-        <div className="mt-3 text-center">
+        {/* <div className="mt-3 text-center">
           <span className="">
             By signing up, I agree Privacy Policy and Terms of Service
           </span>
-        </div>
+        </div> */}
       </div>
       <div
         className="hidden md:block md:w-1/2"
