@@ -324,9 +324,9 @@ export const AthleteCard = () => {
                     </p>
                   </>
                 )}
-                <p className="mb-1">
+                {/* <p className="mb-1">
                   <strong>Phone:</strong> {athlete?.phoneNumber || "N/A"}
-                </p>
+                </p> */}
                 <p>
                   <strong>Email:</strong> {athlete?.email || "N/A"}
                 </p>
