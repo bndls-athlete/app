@@ -92,8 +92,8 @@ class AthleteTierManager {
       tier: "Tier 3 Plan (Available to all athletes)",
       monthlyPriceId: this.priceIds.ATHLETE_TIER_3_MONTHLY,
       yearlyPriceId: this.priceIds.ATHLETE_TIER_3_YEARLY,
-      monthlyPrice: "$49.99",
-      annualPrice: "$599.88",
+      monthlyPrice: "$19.99",
+      annualPrice: "$239.88",
       features: ["Access to Tier 3 job postings", "Unlimited job applications"],
     },
     {
@@ -111,8 +111,8 @@ class AthleteTierManager {
       tier: "Tier 1 Plan (Exclusive for Tier 1 athletes)",
       monthlyPriceId: this.priceIds.ATHLETE_TIER_1_MONTHLY,
       yearlyPriceId: this.priceIds.ATHLETE_TIER_1_YEARLY,
-      monthlyPrice: "$19.99",
-      annualPrice: "$239.88",
+      monthlyPrice: "$49.99",
+      annualPrice: "$599.88",
       features: [
         "Access to all job postings, including Tier 1, Tier 2, and Tier 3",
         "Unlimited job applications",
