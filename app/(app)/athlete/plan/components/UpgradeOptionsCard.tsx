@@ -184,7 +184,7 @@ const UpgradeOptionsCard = ({
                 isLoading ? "opacity-50 cursor-not-allowed" : ""
               } ${
                 isCurrentPlan
-                  ? "bg-white text-primary border border-primary"
+                  ? "bg-white text-primary border border-primary hover:text-white"
                   : ""
               }`}
               onClick={isLocked ? undefined : buttonAction}

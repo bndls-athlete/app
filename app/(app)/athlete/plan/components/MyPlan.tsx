@@ -72,7 +72,7 @@ const MyPlan = () => {
                     >
                       <path
                         d="M0.833252 9.16634L9.16659 0.833008M9.16659 0.833008H0.833252M9.16659 0.833008V9.16634"
-                        stroke="#C6B624"
+                        stroke="#000053"
                         strokeWidth="1.66667"
                         strokeLinecap="round"
                         strokeLinejoin="round"

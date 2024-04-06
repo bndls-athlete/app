@@ -12,7 +12,7 @@ const config: Config = {
       //   base: '0.875rem'
       // },
       colors: {
-        primary: "#C6B624",
+        primary: "#000053",
         sidebar: "#F0F0F0",
         subtitle: "#475467",
         dark: "#101828",
@@ -29,7 +29,7 @@ const config: Config = {
     themes: [
       {
         mytheme: {
-          primary: "#C6B624",
+          primary: "#000053",
           "primary-content": "#ffffff",
           secondary: "#F0F0F0",
           "secondary-content": "#101828",
