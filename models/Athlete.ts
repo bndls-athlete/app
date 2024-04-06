@@ -12,26 +12,12 @@ import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 export type Athlete = AthleteBase & mongoose.Document;
 
 const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  userId: { type: String, required: true, unique: true },
   profilePicture: String,
-  fullName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  fullName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   phoneNumber: String,
-  gender: {
-    type: String,
-    enum: genderSchema.options,
-  },
+  gender: { type: String, enum: genderSchema.options },
   receiveUpdates: Boolean,
   address: {
     countryRegion: String,
@@ -51,10 +37,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   // Individual specific fields
   schoolOrUniversity: String,
   graduationDate: Date,
-  sport: {
-    type: String,
-    enum: sportSchema.options,
-  },
+  sports: [{ type: String, enum: sportSchema.enum }],
   baseballStats: {
     era: Number,
     wins: Number,
@@ -106,10 +89,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     default: athleteTierEnum["3"], // Default to Tier 3
   },
   // Stripe
-  stripeCustomerId: {
-    type: String,
-    required: true,
-  },
+  stripeCustomerId: { type: String, required: true },
   stripeSubscriptionId: String,
   stripeSubscriptionItemId: String,
   priceId: String,

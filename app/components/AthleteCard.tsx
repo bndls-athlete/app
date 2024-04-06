@@ -254,6 +254,7 @@ export const AthleteCard = () => {
                     </h3>
                   </div>
                 )}
+
                 {athlete?.athleteRating && athlete.athleteRating > 0 && (
                   <div className="flex flex-col">
                     <span className="text-base font-semibold">
@@ -281,112 +282,131 @@ export const AthleteCard = () => {
                   : "Athlete Information"}
               </h6>
 
-              {athlete?.sport && (
+              {athlete?.sports && athlete.sports.length > 0 && (
                 <div className="mb-6">
-                  <h6 className="font-semibold text-lg mb-2">Sport</h6>
-                  <div className="flex items-center">
-                    {getSportIcon(athlete.sport)}
-                    <span className="text-subtitle font-semibold text-lg">
-                      {athlete.sport}
-                    </span>
+                  <h6 className="font-semibold text-lg mb-2">Sports</h6>
+                  <div className="flex flex-wrap gap-2">
+                    {athlete.sports.map((sport) => (
+                      <span key={sport} className="badge badge-primary">
+                        {sport}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {athlete?.sport && (
+              {athlete?.registrationType === AthleteRegistrationType.Team && (
                 <div className="mb-6">
-                  <h6 className="font-semibold text-lg mb-2">
-                    {athlete?.registrationType === AthleteRegistrationType.Team
-                      ? "Team Stats"
-                      : "Sport Stats"}
-                  </h6>
-                  {athlete?.registrationType ===
-                    AthleteRegistrationType.Team && (
-                    <>
+                  <h6 className="font-semibold text-lg mb-2">Team Stats</h6>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
                       <p className="mb-1">
                         <strong>Wins-Loss Record:</strong>{" "}
                         {athlete?.winsLossRecord
                           ? `${athlete.winsLossRecord.wins} - ${athlete.winsLossRecord.losses}`
                           : "N/A"}
                       </p>
+                    </div>
+                    <div>
                       <p>
                         <strong>Tournaments Played In:</strong>{" "}
                         {athlete?.tournamentsPlayedIn || "N/A"}
                       </p>
-                    </>
-                  )}
-
-                  {athlete?.registrationType ===
-                    AthleteRegistrationType.Individual && (
-                    <>
-                      {athlete?.sport === sportsEnum.baseball && (
-                        <>
-                          <p className="mb-1">
-                            <strong>ERA:</strong>{" "}
-                            {athlete?.baseballStats?.era || "N/A"}
-                          </p>
-                          <p className="mb-1">
-                            <strong>Wins:</strong>{" "}
-                            {athlete?.baseballStats?.wins || "N/A"}
-                          </p>
-                          <p className="mb-1">
-                            <strong>Batting Average:</strong>{" "}
-                            {athlete?.baseballStats?.battingAverage || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Hits:</strong>{" "}
-                            {athlete?.baseballStats?.hits || "N/A"}
-                          </p>
-                        </>
-                      )}
-
-                      {athlete?.sport === sportsEnum.basketball && (
-                        <>
-                          <p className="mb-1">
-                            <strong>Star Rating:</strong>{" "}
-                            {athlete?.basketballStats?.starRating || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Position:</strong>{" "}
-                            {athlete?.basketballStats?.position || "N/A"}
-                          </p>
-                        </>
-                      )}
-
-                      {athlete?.sport === sportsEnum.football && (
-                        <>
-                          <p className="mb-1">
-                            <strong>Star Rating:</strong>{" "}
-                            {athlete?.footballStats?.starRating || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Position:</strong>{" "}
-                            {athlete?.footballStats?.position || "N/A"}
-                          </p>
-                        </>
-                      )}
-
-                      {athlete?.sport === sportsEnum.soccer && (
-                        <>
-                          <p className="mb-1">
-                            <strong>Clean Sheets:</strong>
-                            {""}
-                            {athlete?.soccerStats?.cleanSheets || "N/A"}
-                          </p>
-                          <p className="mb-1">
-                            <strong>Goals Scored:</strong>{" "}
-                            {athlete?.soccerStats?.goalsScored || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Assists:</strong>{" "}
-                            {athlete?.soccerStats?.assists || "N/A"}
-                          </p>
-                        </>
-                      )}
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
               )}
+
+              {athlete?.registrationType ===
+                AthleteRegistrationType.Individual &&
+                athlete?.sports &&
+                athlete.sports.length > 0 && (
+                  <div className="mb-6">
+                    <h6 className="font-semibold text-lg mb-2">Sport Stats</h6>
+                    {athlete.sports.map((sport) => (
+                      <div key={sport} className="mb-4">
+                        <h6 className="font-semibold text-lg mb-2">{sport}</h6>
+                        {sport === sportsEnum.baseball && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="mb-1">
+                                <strong>ERA:</strong>{" "}
+                                {athlete?.baseballStats?.era || "N/A"}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Wins:</strong>{" "}
+                                {athlete?.baseballStats?.wins || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="mb-1">
+                                <strong>Batting Average:</strong>{" "}
+                                {athlete?.baseballStats?.battingAverage ||
+                                  "N/A"}
+                              </p>
+                              <p>
+                                <strong>Hits:</strong>{" "}
+                                {athlete?.baseballStats?.hits || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {sport === sportsEnum.basketball && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="mb-1">
+                                <strong>Star Rating:</strong>{" "}
+                                {athlete?.basketballStats?.starRating || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p>
+                                <strong>Position:</strong>{" "}
+                                {athlete?.basketballStats?.position || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {sport === sportsEnum.football && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="mb-1">
+                                <strong>Star Rating:</strong>{" "}
+                                {athlete?.footballStats?.starRating || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p>
+                                <strong>Position:</strong>{" "}
+                                {athlete?.footballStats?.position || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {sport === sportsEnum.soccer && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="mb-1">
+                                <strong>Clean Sheets:</strong>{" "}
+                                {athlete?.soccerStats?.cleanSheets || "N/A"}
+                              </p>
+                              <p className="mb-1">
+                                <strong>Goals Scored:</strong>{" "}
+                                {athlete?.soccerStats?.goalsScored || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p>
+                                <strong>Assists:</strong>{" "}
+                                {athlete?.soccerStats?.assists || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
               {athlete?.reel && (
                 <div className="mb-6">

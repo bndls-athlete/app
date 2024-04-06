@@ -94,7 +94,7 @@ const athleteSchema = z.object({
         message: "Invalid date",
       }
     ),
-  sport: sportSchema,
+  sports: z.array(sportSchema),
   baseballStats: z.object({
     era: z.number(),
     wins: z.number(),

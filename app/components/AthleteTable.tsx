@@ -97,7 +97,11 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
             </div>
           </td>
           <td className="p-3 text-sm">
-            <h6 className="font-semibold">{athlete.sport || "N/A"}</h6>
+            <h6 className="font-semibold">
+              {athlete.sports && athlete.sports.length > 0
+                ? athlete.sports.join(", ")
+                : "N/A"}
+            </h6>
           </td>
           <td className="p-3 text-sm">
             <span>

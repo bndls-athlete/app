@@ -151,39 +151,57 @@ function calculateAthleteRating(athlete: Athlete): {
 
   // Calculate rating based on sport-specific stats
   if (athlete.registrationType === AthleteRegistrationType.Individual) {
-    if (athlete.sport === sportsEnum.baseball) {
+    let maxSportRating = 0;
+
+    if (athlete.sports.includes(sportsEnum.baseball)) {
+      let baseballRating = 0;
       if (athlete.baseballStats?.era !== undefined) {
         const eraRating = 10 - athlete.baseballStats.era;
-        rating += Math.max(eraRating, 0) * 0.1;
+        baseballRating += Math.max(eraRating, 0) * 0.1;
       }
       if (athlete.baseballStats?.wins !== undefined) {
-        rating += athlete.baseballStats.wins * 0.05;
+        baseballRating += athlete.baseballStats.wins * 0.05;
       }
       if (athlete.baseballStats?.battingAverage !== undefined) {
-        rating += athlete.baseballStats.battingAverage * 5;
+        baseballRating += athlete.baseballStats.battingAverage * 5;
       }
       if (athlete.baseballStats?.hits !== undefined) {
-        rating += athlete.baseballStats.hits * 0.01;
+        baseballRating += athlete.baseballStats.hits * 0.01;
       }
-    } else if (athlete.sport === sportsEnum.basketball) {
+      maxSportRating = Math.max(maxSportRating, baseballRating);
+    }
+
+    if (athlete.sports.includes(sportsEnum.basketball)) {
+      let basketballRating = 0;
       if (athlete.basketballStats?.starRating !== undefined) {
-        rating += athlete.basketballStats.starRating * 0.2;
+        basketballRating += athlete.basketballStats.starRating * 0.2;
       }
-    } else if (athlete.sport === sportsEnum.football) {
+      maxSportRating = Math.max(maxSportRating, basketballRating);
+    }
+
+    if (athlete.sports.includes(sportsEnum.football)) {
+      let footballRating = 0;
       if (athlete.footballStats?.starRating !== undefined) {
-        rating += athlete.footballStats.starRating * 0.2;
+        footballRating += athlete.footballStats.starRating * 0.2;
       }
-    } else if (athlete.sport === sportsEnum.soccer) {
+      maxSportRating = Math.max(maxSportRating, footballRating);
+    }
+
+    if (athlete.sports.includes(sportsEnum.soccer)) {
+      let soccerRating = 0;
       if (athlete.soccerStats?.cleanSheets !== undefined) {
-        rating += athlete.soccerStats.cleanSheets * 0.1;
+        soccerRating += athlete.soccerStats.cleanSheets * 0.1;
       }
       if (athlete.soccerStats?.goalsScored !== undefined) {
-        rating += athlete.soccerStats.goalsScored * 0.1;
+        soccerRating += athlete.soccerStats.goalsScored * 0.1;
       }
       if (athlete.soccerStats?.assists !== undefined) {
-        rating += athlete.soccerStats.assists * 0.1;
+        soccerRating += athlete.soccerStats.assists * 0.1;
       }
+      maxSportRating = Math.max(maxSportRating, soccerRating);
     }
+
+    rating += maxSportRating;
   } else if (athlete.registrationType === AthleteRegistrationType.Team) {
     if (
       athlete.winsLossRecord?.wins !== undefined &&

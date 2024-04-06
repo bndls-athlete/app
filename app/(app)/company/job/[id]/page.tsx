@@ -239,7 +239,10 @@ function JobWithApplications() {
                       </div>
                     </td>
                     <td className="p-3">
-                      {application.athlete.sport || "N/A"}
+                      {application.athlete.sports &&
+                      application.athlete.sports.length > 0
+                        ? application.athlete.sports.join(", ")
+                        : "N/A"}
                     </td>
                     <td className="p-3">
                       {formatIntlNumber(totalFollowers) || "N/A"}

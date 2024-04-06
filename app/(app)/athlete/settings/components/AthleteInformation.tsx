@@ -41,7 +41,7 @@ const athleteInformationSchema = z.object({
     .string()
     .min(1, "Required")
     .regex(/^(19|20)\d{2}$/, "Invalid year (format: YYYY)"),
-  sport: sportSchema,
+  sports: z.array(sportSchema),
   professionalSkills: z.array(z.string()).optional(),
   gpa: z
     .string()
@@ -116,7 +116,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
     graduationYear: athlete.graduationDate
       ? format(new Date(athlete.graduationDate), "yyyy")
       : "",
-    sport: athlete.sport || "basketball",
+    sports: athlete.sports || [],
     professionalSkills: athlete.professionalSkills || [],
     gpa: athlete.currentAcademicGPA?.toFixed(2) || "",
     professionalReferences: athlete.professionalReferences || [],
@@ -162,7 +162,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
     defaultValues: initialFormValues,
   });
 
-  const selectedSport = watch("sport");
+  const selectedSports = watch("sports");
 
   const handleAddSkill = async () => {
     if (newSkill.trim()) {
@@ -212,7 +212,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
               `${data.graduationYear}-${data.graduationMonth}-${data.graduationDay}`
             )
           : undefined,
-      sport: data.sport,
+      sports: data.sports || [],
       professionalSkills: data.professionalSkills,
       currentAcademicGPA: data.gpa ? parseFloat(data.gpa) : undefined,
       professionalReferences: data.professionalReferences,
@@ -331,231 +331,280 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
 
         <div className="grid grid-cols-8 py-3">
           <div className="md:col-span-2 col-span-8">
-            <h6 className="font-semibold">Sport</h6>
-          </div>
-          <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
-            <Select {...register("sport")} error={errors.sport?.message}>
-              <option value="" disabled>
-                Select your sport
-              </option>
-              {Object.values(sportSchema.options).map((type, index) => (
-                <option key={index} value={type}>
-                  {type}
-                </option>
-              ))}
-            </Select>
-            <span className="text-subtitle">
+            <h6 className="font-semibold">Sports</h6>
+            <p className="col-span-2 text-subtitle mr-3">
               {athlete.registrationType === AthleteRegistrationType.Team
-                ? "Choose the sport your team actively participates in."
-                : "Choose the sport you are actively participating in or have expertise in."}
-            </span>
+                ? "Choose the sports your team actively participates in."
+                : "Choose the sports you are actively participating in or have expertise in."}
+            </p>
+          </div>
+
+          <div className="lg:col-span-3 md:col-span-6 col-span-8 grid grid-cols-2 gap-3">
+            {Object.values(sportsEnum).map(
+              (sport) =>
+                sport && (
+                  <label key={sport} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      value={sport}
+                      {...register("sports")}
+                      className="mr-2 checkbox"
+                    />
+                    {sport}
+                  </label>
+                )
+            )}
           </div>
         </div>
+
         {athlete.registrationType === AthleteRegistrationType.Team && (
           <>
             <div className="grid grid-cols-8 py-3">
               <div className="md:col-span-2 col-span-8">
                 <h6 className="font-semibold">Wins-Loss Record</h6>
-                <span className="text-subtitle">
-                  Enter your team's wins and losses.
-                </span>
               </div>
               <div className="lg:col-span-3 md:col-span-6 col-span-8 flex space-x-4">
-                <Input
-                  type="number"
-                  {...register("winsLossRecord.wins")}
-                  error={errors.winsLossRecord?.wins?.message}
-                  placeholder="Wins"
-                />
-                <Input
-                  type="number"
-                  {...register("winsLossRecord.losses")}
-                  error={errors.winsLossRecord?.losses?.message}
-                  placeholder="Losses"
-                />
+                <div className="flex flex-col gap-3">
+                  <Input
+                    type="number"
+                    {...register("winsLossRecord.wins")}
+                    error={errors.winsLossRecord?.wins?.message}
+                    placeholder="Wins"
+                  />
+                  <span className="text-subtitle">Enter your team's wins.</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Input
+                    type="number"
+                    {...register("winsLossRecord.losses")}
+                    error={errors.winsLossRecord?.losses?.message}
+                    placeholder="Losses"
+                  />
+                  <span className="text-subtitle">
+                    Enter your team's losses.
+                  </span>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-8 py-3">
               <div className="md:col-span-2 col-span-8">
                 <h6 className="font-semibold">Tournaments Played In</h6>
-                <span className="text-subtitle">
-                  Enter the major tournaments your team has participated in.
-                </span>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
+              <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                 <Textarea
                   {...register("tournamentsPlayedIn")}
                   rows={4}
                   error={errors.tournamentsPlayedIn?.message}
                   placeholder="Enter tournaments (one per line)"
                 />
+                <span className="text-subtitle">
+                  Enter the major tournaments your team has participated in.
+                </span>
               </div>
             </div>
           </>
         )}
-        {selectedSport === sportsEnum.football &&
+
+        {selectedSports.includes(sportsEnum.basketball) &&
           athlete.registrationType === AthleteRegistrationType.Individual && (
             <div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Star Rating</h6>
+                  <h6 className="font-semibold">Basketball Star Rating</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                  <Input
-                    type="number"
-                    {...register("footballStats.starRating")}
-                    error={errors.footballStats?.starRating?.message}
-                    placeholder="Enter star rating"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-8 py-3">
-                <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Position</h6>
-                </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                  <Input
-                    {...register("footballStats.position")}
-                    error={errors.footballStats?.position?.message}
-                    placeholder="Enter position"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        {selectedSport === sportsEnum.basketball &&
-          athlete.registrationType === AthleteRegistrationType.Individual && (
-            <div>
-              <div className="grid grid-cols-8 py-3">
-                <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Star Rating</h6>
-                </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("basketballStats.starRating")}
                     error={errors.basketballStats?.starRating?.message}
-                    placeholder="Enter star rating"
+                    placeholder="Enter your basketball star rating"
                   />
+                  <span className="text-subtitle">
+                    Enter your star rating for basketball.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Position</h6>
+                  <h6 className="font-semibold">Basketball Position</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     {...register("basketballStats.position")}
                     error={errors.basketballStats?.position?.message}
-                    placeholder="Enter position"
+                    placeholder="Enter your basketball position"
                   />
+                  <span className="text-subtitle">
+                    Enter your position for basketball.
+                  </span>
                 </div>
               </div>
             </div>
           )}
-        {selectedSport === sportsEnum.soccer &&
+        {selectedSports.includes(sportsEnum.soccer) &&
           athlete.registrationType === AthleteRegistrationType.Individual && (
             <div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Clean Sheets</h6>
+                  <h6 className="font-semibold">Soccer Clean Sheets</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("soccerStats.cleanSheets")}
                     error={errors.soccerStats?.cleanSheets?.message}
-                    placeholder="Enter clean sheets"
+                    placeholder="Enter your soccer clean sheets"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual clean sheets for soccer.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Goals Scored</h6>
+                  <h6 className="font-semibold">Soccer Goals Scored</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("soccerStats.goalsScored")}
                     error={errors.soccerStats?.goalsScored?.message}
-                    placeholder="Enter goals scored"
+                    placeholder="Enter your soccer goals scored"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual goals scored for soccer.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Assists</h6>
+                  <h6 className="font-semibold">Soccer Assists</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("soccerStats.assists")}
                     error={errors.soccerStats?.assists?.message}
-                    placeholder="Enter assists"
+                    placeholder="Enter your soccer assists"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual assists for soccer.
+                  </span>
                 </div>
               </div>
             </div>
           )}
-        {selectedSport === sportsEnum.baseball &&
+        {selectedSports.includes(sportsEnum.baseball) &&
           athlete.registrationType === AthleteRegistrationType.Individual && (
             <div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">ERA (Pitchers)</h6>
+                  <h6 className="font-semibold">Baseball ERA (Pitchers)</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("baseballStats.era")}
                     error={errors.baseballStats?.era?.message}
-                    placeholder="Enter ERA"
+                    placeholder="Enter your baseball ERA"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual ERA for baseball.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Wins (Pitchers)</h6>
+                  <h6 className="font-semibold">Baseball Wins (Pitchers)</h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("baseballStats.wins")}
                     error={errors.baseballStats?.wins?.message}
-                    placeholder="Enter wins"
+                    placeholder="Enter your baseball wins"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual wins for baseball.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
                   <h6 className="font-semibold">
-                    Batting Average (Non-Pitchers)
+                    Baseball Batting Average (Non-Pitchers)
                   </h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("baseballStats.battingAverage")}
                     error={errors.baseballStats?.battingAverage?.message}
-                    placeholder="Enter batting average"
+                    placeholder="Enter your baseball batting average"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual batting average for baseball.
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-8 py-3">
                 <div className="md:col-span-2 col-span-8">
-                  <h6 className="font-semibold">Hits (Non-Pitchers)</h6>
+                  <h6 className="font-semibold">
+                    Baseball Hits (Non-Pitchers)
+                  </h6>
                 </div>
-                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
                   <Input
                     type="number"
                     {...register("baseballStats.hits")}
                     error={errors.baseballStats?.hits?.message}
-                    placeholder="Enter hits"
+                    placeholder="Enter your baseball hits"
                   />
+                  <span className="text-subtitle">
+                    Enter your individual hits for baseball.
+                  </span>
                 </div>
               </div>
             </div>
           )}
+
+        {selectedSports.includes(sportsEnum.football) &&
+          athlete.registrationType === AthleteRegistrationType.Individual && (
+            <div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Football Star Rating</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
+                  <Input
+                    type="number"
+                    {...register("footballStats.starRating")}
+                    error={errors.footballStats?.starRating?.message}
+                    placeholder="Enter your football star rating"
+                  />
+                  <span className="text-subtitle">
+                    Enter your star rating for football.
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Football Position</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
+                  <Input
+                    {...register("footballStats.position")}
+                    error={errors.footballStats?.position?.message}
+                    placeholder="Enter your football position"
+                  />
+                  <span className="text-subtitle">
+                    Enter your position for football.
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
         <div className="grid grid-cols-8 py-3 border-b border-t">
           <div className="md:col-span-2 col-span-8">
             <h6 className="font-semibold">Professional Skills</h6>
