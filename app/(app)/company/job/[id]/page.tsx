@@ -220,14 +220,14 @@ function JobWithApplications() {
                           showAthleteCard(application.athlete.userId);
                         }}
                       >
-                        <img
+                        {/* <img
                           className="w-10 h-10 object-cover rounded-full my-auto"
                           src={
                             application.athlete.profilePicture ||
                             "/images/Avatar.webp"
                           }
                           alt="Athlete Profile"
-                        />
+                        /> */}
                         <div className="flex flex-col my-auto">
                           <h6 className="font-semibold underline leading-2">
                             {application.athlete.fullName || "N/A"}

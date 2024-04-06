@@ -62,11 +62,11 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
               className="flex p-2 gap-2 hover:bg-gray-100 rounded-lg cursor-pointer"
               onClick={() => showAthleteCard(athlete.userId)}
             >
-              <img
+              {/* <img
                 className="w-10 h-10 object-cover rounded-full my-auto"
                 src={athlete.profilePicture || "/images/Avatar.webp"}
                 alt="Rounded avatar"
-              />
+              /> */}
               <div className="flex flex-col my-auto">
                 <h6 className="font-semibold underline leading-2">
                   {athlete.fullName}
