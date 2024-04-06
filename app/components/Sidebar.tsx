@@ -23,6 +23,7 @@ import { useAthleteCard } from "@/context/AthleteCardProvider";
 import { useEffect, useState } from "react";
 import useUserType from "@/hooks/useUserType";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import { useBrandData } from "@/hooks/useBrandData";
 
 const SidebarTab: React.FC<{
   path: string;
@@ -48,7 +49,8 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { invalidateAthlete } = useAthleteData();
+  const { invalidateAthlete, athlete } = useAthleteData();
+  const { brand, invalidateBrand } = useBrandData();
 
   const { type } = useUserType();
 
@@ -166,8 +168,14 @@ const Sidebar = () => {
           <div className="flex items-center p-2 gap-2">
             {/* <div className="transition duration-150 ease-in-out cursor-pointer flex items-center p-2 gap-2 hover:bg-primary hover:text-white rounded-lg"> */}
             <img
-              className="w-10 h-10 rounded-full"
-              src="/images/Avatar.webp"
+              className="w-10 h-10 object-cover rounded-full"
+              src={
+                type === EntityType.Athlete && athlete?.profilePicture
+                  ? athlete.profilePicture
+                  : type === EntityType.Company && brand?.profilePicture
+                  ? brand.profilePicture
+                  : "/images/Avatar.webp"
+              }
               alt="Rounded avatar"
             />
             {user && (
@@ -194,6 +202,7 @@ const Sidebar = () => {
               if (window.confirm("Are you sure you want to logout?")) {
                 if (type === EntityType.Athlete) {
                   invalidateAthlete();
+                  invalidateBrand();
                 }
                 await signOut();
               }

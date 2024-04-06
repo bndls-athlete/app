@@ -68,6 +68,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     athlete.profilePicture || "/images/Avatar.webp"
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const formattedDateOfBirth = athlete.dateOfBirth
     ? new Date(athlete.dateOfBirth)
@@ -105,37 +106,58 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     defaultValues: initialFormValues,
   });
 
-  // Handle form submission
   const onSubmit = async (data: AthleteAccountSettingsFormValues) => {
     setIsLoading(true);
-    const athleteData: Partial<Athlete> = {
-      fullName: data.fullName,
-      gender: data.gender,
-      address: {
-        countryRegion: data.country,
-        streetName: data.streetName,
-        houseApartmentNumber: data.houseApartmentNumber || "",
-        city: data.city,
-        state: data.state,
-        zipCode: data.zipCode,
-      },
-      dateOfBirth:
-        data.dateOfBirthDay && data.dateOfBirthMonth && data.dateOfBirthYear
-          ? new Date(
-              `${data.dateOfBirthYear}-${data.dateOfBirthMonth}-${data.dateOfBirthDay}`
-            )
-          : undefined,
-
-      registrationType: data.registrationType,
-    };
 
     try {
-      const response = await axios.post("/api/athlete", athleteData);
+      const athleteData: Partial<Athlete> = {
+        ...data,
+        address: {
+          countryRegion: data.country,
+          streetName: data.streetName,
+          houseApartmentNumber: data.houseApartmentNumber || "",
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
+        },
+        dateOfBirth:
+          data.dateOfBirthDay && data.dateOfBirthMonth && data.dateOfBirthYear
+            ? new Date(
+                `${data.dateOfBirthYear}-${data.dateOfBirthMonth}-${data.dateOfBirthDay}`
+              )
+            : undefined,
+      };
+
+      if (selectedFile) {
+        const fileName = selectedFile.name;
+        const fileType = selectedFile.type;
+        const response = await axios.post("/api/upload-url", {
+          fileName,
+          fileType,
+        });
+        const { uploadUrl, fileKey } = response.data;
+
+        // Try uploading to S3, and exit early if it fails
+        try {
+          await axios.put(uploadUrl, selectedFile, {
+            headers: {
+              "Content-Type": fileType,
+            },
+          });
+          athleteData.profilePicture = fileKey;
+        } catch (error) {
+          console.error("Error uploading file to S3:", error);
+          throw new Error("Failed to upload file to S3");
+        }
+      }
+
+      // Send the updated athlete data to the backend
+      await axios.post("/api/athlete", athleteData);
       addToast("success", "Updated Successfully!");
+      invalidateAthlete();
     } catch (error) {
       console.error("Error updating athlete:", error);
     } finally {
-      invalidateAthlete();
       setIsLoading(false);
     }
   };
@@ -164,11 +186,15 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
           </div>
           <div className="lg:col-span-6 md:col-span-6 col-span-8 flex gap-4">
             <img
-              className="w-14 h-14 rounded-full mb-auto"
+              className="w-14 h-14 object-cover rounded-full mb-auto"
               src={profileImage}
               alt="Profile avatar"
             />
-            <UploadComponent onUploadComplete={setProfileImage} />
+            <UploadComponent
+              onUploadComplete={setProfileImage}
+              file={selectedFile}
+              setFile={setSelectedFile}
+            />
           </div>
         </div>
 

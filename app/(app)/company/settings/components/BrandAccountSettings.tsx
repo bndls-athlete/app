@@ -56,6 +56,7 @@ const BrandAccountSettings = ({ brand }: BrandAccountSettingsProps) => {
     brand.profilePicture || "/images/Avatar.webp"
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const initialFormValues: BrandAccountSettingsFormValues = {
     companyName: brand.companyName || "",
@@ -79,7 +80,6 @@ const BrandAccountSettings = ({ brand }: BrandAccountSettingsProps) => {
     defaultValues: initialFormValues,
   });
 
-  // Handle form submission
   const onSubmit = async (data: BrandAccountSettingsFormValues) => {
     setIsLoading(true);
     const brandData: Partial<Brand> = {
@@ -98,12 +98,36 @@ const BrandAccountSettings = ({ brand }: BrandAccountSettingsProps) => {
     };
 
     try {
-      const response = await axios.post("/api/brand", brandData);
+      if (selectedFile) {
+        const fileName = selectedFile.name;
+        const fileType = selectedFile.type;
+
+        const response = await axios.post("/api/upload-url", {
+          fileName,
+          fileType,
+        });
+        const { uploadUrl, fileKey } = response.data;
+
+        try {
+          await axios.put(uploadUrl, selectedFile, {
+            headers: {
+              "Content-Type": fileType,
+            },
+          });
+          brandData.profilePicture = fileKey;
+        } catch (error) {
+          console.error("Error uploading file to S3:", error);
+          throw new Error("Failed to upload file to S3");
+        }
+      }
+
+      // Send the updated brand data to the backend
+      await axios.post("/api/brand", brandData);
       addToast("success", "Updated Successfully!");
+      invalidateBrand();
     } catch (error) {
       console.error("Error updating brand:", error);
     } finally {
-      invalidateBrand();
       setIsLoading(false);
     }
   };
@@ -127,11 +151,15 @@ const BrandAccountSettings = ({ brand }: BrandAccountSettingsProps) => {
           </div>
           <div className="lg:col-span-6 md:col-span-6 col-span-8 flex gap-4">
             <img
-              className="w-14 h-14 rounded-full mb-auto"
+              className="w-14 h-14 object-cover rounded-full mb-auto"
               src={profileImage}
               alt="Profile avatar"
             />
-            <UploadComponent onUploadComplete={setProfileImage} />
+            <UploadComponent
+              onUploadComplete={setProfileImage}
+              file={selectedFile}
+              setFile={setSelectedFile}
+            />
           </div>
         </div>
 

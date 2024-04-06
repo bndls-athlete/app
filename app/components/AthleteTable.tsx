@@ -63,7 +63,7 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
               onClick={() => showAthleteCard(athlete.userId)}
             >
               <img
-                className="w-10 h-10 rounded-full my-auto"
+                className="w-10 h-10 object-cover rounded-full my-auto"
                 src={athlete.profilePicture || "/images/Avatar.webp"}
                 alt="Rounded avatar"
               />

@@ -103,7 +103,7 @@ export const AthleteCard = () => {
           <>
             <div className="flex items-center mb-6">
               <img
-                className="w-20 h-20 shadow border-4 border-white rounded-full mr-4"
+                className="w-20 h-20 object-cover shadow border-4 border-white rounded-full mr-4"
                 src={athlete?.profilePicture || "/images/Avatar.webp"}
                 alt={`${
                   athlete?.registrationType === AthleteRegistrationType.Team
