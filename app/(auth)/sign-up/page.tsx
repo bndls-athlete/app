@@ -14,7 +14,6 @@ import Button from "@/app/components/Button";
 import axios from "axios";
 import { EntityType } from "@/types/entityTypes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -23,7 +22,6 @@ export default function SignUpForm() {
   const [verifying, setVerifying] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const { signUp, setActive } = useSignUp();
-  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -172,20 +170,16 @@ export default function SignUpForm() {
               error={errors.password?.message}
               required
             /> */}
-            <div className="relative">
-              <Input
-                // withLabel="Password"
-                placeholder="Enter your password"
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-                error={errors.password?.message}
-              />
-              <FontAwesomeIcon
-                icon={showPassword ? faEye : faEyeSlash}
-                className="absolute inset-y-0 right-3 my-auto h-full flex items-center w-5 h-5 cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
-              />
-            </div>
+
+            <Input
+              // withLabel="Password"
+              placeholder="Enter your password"
+              {...register("password")}
+              type="password"
+              error={errors.password?.message}
+              passwordHide
+            />
+
             <Input
               // withLabel="Confirm Password*"
               placeholder="Confirm your password"

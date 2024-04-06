@@ -8,6 +8,7 @@ import {
   AthleteTier,
   athleteTierEnum,
 } from "@/schemas/athleteSchema";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -125,9 +126,9 @@ function calculateAthleteRating(athlete: Athlete): {
     (athlete.followers?.youtube || 0) +
     (athlete.followers?.twitter || 0);
 
-  if (totalFollowers >= 1000000) {
+  if (totalFollowers >= 750000) {
     rating += 1;
-  } else if (totalFollowers >= 500000) {
+  } else if (totalFollowers >= 400000) {
     rating += 0.75;
   } else if (totalFollowers >= 100000) {
     rating += 0.5;
@@ -149,43 +150,56 @@ function calculateAthleteRating(athlete: Athlete): {
   }
 
   // Calculate rating based on sport-specific stats
-  if (athlete.sport === sportsEnum.baseball) {
-    if (athlete.baseballStats?.winsAboveReplacement) {
-      rating += athlete.baseballStats.winsAboveReplacement * 0.1;
+  if (athlete.registrationType === AthleteRegistrationType.Individual) {
+    if (athlete.sport === sportsEnum.baseball) {
+      if (athlete.baseballStats?.era !== undefined) {
+        const eraRating = 10 - athlete.baseballStats.era;
+        rating += Math.max(eraRating, 0) * 0.1;
+      }
+      if (athlete.baseballStats?.wins !== undefined) {
+        rating += athlete.baseballStats.wins * 0.05;
+      }
+      if (athlete.baseballStats?.battingAverage !== undefined) {
+        rating += athlete.baseballStats.battingAverage * 5;
+      }
+      if (athlete.baseballStats?.hits !== undefined) {
+        rating += athlete.baseballStats.hits * 0.01;
+      }
+    } else if (athlete.sport === sportsEnum.basketball) {
+      if (athlete.basketballStats?.starRating !== undefined) {
+        rating += athlete.basketballStats.starRating * 0.2;
+      }
+    } else if (athlete.sport === sportsEnum.football) {
+      if (athlete.footballStats?.starRating !== undefined) {
+        rating += athlete.footballStats.starRating * 0.2;
+      }
+    } else if (athlete.sport === sportsEnum.soccer) {
+      if (athlete.soccerStats?.cleanSheets !== undefined) {
+        rating += athlete.soccerStats.cleanSheets * 0.1;
+      }
+      if (athlete.soccerStats?.goalsScored !== undefined) {
+        rating += athlete.soccerStats.goalsScored * 0.1;
+      }
+      if (athlete.soccerStats?.assists !== undefined) {
+        rating += athlete.soccerStats.assists * 0.1;
+      }
     }
-    if (athlete.baseballStats?.isolatedPower) {
-      rating += athlete.baseballStats.isolatedPower * 0.1;
-    }
-    if (athlete.baseballStats?.weightedOnBaseAverage) {
-      rating += athlete.baseballStats.weightedOnBaseAverage * 0.1;
-    }
-  } else if (athlete.sport === sportsEnum.basketball) {
-    if (athlete.basketballStats?.points) {
-      rating += athlete.basketballStats.points * 0.02;
-    }
-    if (athlete.basketballStats?.assists) {
-      rating += athlete.basketballStats.assists * 0.02;
-    }
-    if (athlete.basketballStats?.rebounds) {
-      rating += athlete.basketballStats.rebounds * 0.02;
-    }
-    if (athlete.basketballStats?.blocks) {
-      rating += athlete.basketballStats.blocks * 0.02;
-    }
-    if (athlete.basketballStats?.steals) {
-      rating += athlete.basketballStats.steals * 0.02;
-    }
-  } else if (athlete.sport === sportsEnum.soccer) {
-    if (athlete.soccerStats?.cleanSheets) {
-      rating += athlete.soccerStats.cleanSheets * 0.1;
-    }
-    if (athlete.soccerStats?.goalsScored) {
-      rating += athlete.soccerStats.goalsScored * 0.1;
-    }
-    if (athlete.soccerStats?.assists) {
-      rating += athlete.soccerStats.assists * 0.1;
+  } else if (athlete.registrationType === AthleteRegistrationType.Team) {
+    if (
+      athlete.winsLossRecord?.wins !== undefined &&
+      athlete.winsLossRecord?.losses !== undefined
+    ) {
+      const totalGames =
+        athlete.winsLossRecord.wins + athlete.winsLossRecord.losses;
+      if (totalGames > 0) {
+        const winPercentage = athlete.winsLossRecord.wins / totalGames;
+        rating += winPercentage * 2;
+      }
     }
   }
+
+  // Ensure the rating doesn't go below 0
+  rating = Math.max(rating, 0);
 
   let athleteTier: AthleteTier = athleteTierEnum["3"]; // Default to Tier 3
   if (rating >= 4.5) {

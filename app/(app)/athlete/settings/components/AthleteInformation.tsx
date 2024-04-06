@@ -32,7 +32,7 @@ type AthleteInformationProps = {
 
 const athleteInformationSchema = z.object({
   schoolOrUniversity: z.string().min(1, "Required"),
-  graduationMonth: z.string().optional(),
+  graduationMonth: z.string().min(1, "Required"),
   graduationDay: z
     .string()
     .min(1, "Required")
@@ -60,18 +60,22 @@ const athleteInformationSchema = z.object({
     }),
   baseballStats: z
     .object({
-      winsAboveReplacement: validateNumber,
-      isolatedPower: validateNumber,
-      weightedOnBaseAverage: validateNumber,
+      era: validateNumber,
+      wins: validateNumber,
+      battingAverage: validateNumber,
+      hits: validateNumber,
     })
     .optional(),
   basketballStats: z
     .object({
-      points: validateNumber,
-      assists: validateNumber,
-      rebounds: validateNumber,
-      blocks: validateNumber,
-      steals: validateNumber,
+      starRating: validateNumber,
+      position: z.string(),
+    })
+    .optional(),
+  footballStats: z
+    .object({
+      starRating: validateNumber,
+      position: z.string(),
     })
     .optional(),
   soccerStats: z
@@ -81,6 +85,13 @@ const athleteInformationSchema = z.object({
       assists: validateNumber,
     })
     .optional(),
+  winsLossRecord: z
+    .object({
+      wins: validateNumber,
+      losses: validateNumber,
+    })
+    .optional(),
+  tournamentsPlayedIn: z.string().optional(),
 });
 
 type AthleteFormValues = zod.infer<typeof athleteInformationSchema>;
@@ -113,17 +124,24 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
     bio: athlete.bio || "",
     youtubeUrl: athlete.reel?.split("/shorts/")[1] || "",
     baseballStats: {
-      winsAboveReplacement: athlete.baseballStats?.winsAboveReplacement,
-      isolatedPower: athlete.baseballStats?.isolatedPower,
-      weightedOnBaseAverage: athlete.baseballStats?.weightedOnBaseAverage,
+      era: athlete.baseballStats?.era,
+      wins: athlete.baseballStats?.wins,
+      battingAverage: athlete.baseballStats?.battingAverage,
+      hits: athlete.baseballStats?.hits,
     },
     basketballStats: {
-      points: athlete.basketballStats?.points,
-      assists: athlete.basketballStats?.assists,
-      rebounds: athlete.basketballStats?.rebounds,
-      blocks: athlete.basketballStats?.blocks,
-      steals: athlete.basketballStats?.steals,
+      starRating: athlete.basketballStats?.starRating,
+      position: athlete.basketballStats?.position || "",
     },
+    footballStats: {
+      starRating: athlete.footballStats?.starRating,
+      position: athlete.footballStats?.position || "",
+    },
+    winsLossRecord: {
+      wins: athlete.winsLossRecord?.wins,
+      losses: athlete.winsLossRecord?.losses,
+    },
+    tournamentsPlayedIn: athlete.tournamentsPlayedIn || "",
     soccerStats: {
       cleanSheets: athlete.soccerStats?.cleanSheets,
       goalsScored: athlete.soccerStats?.goalsScored,
@@ -204,17 +222,25 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
         ? `https://www.youtube.com/shorts/${data.youtubeUrl}`
         : undefined,
       baseballStats: {
-        winsAboveReplacement: data.baseballStats?.winsAboveReplacement,
-        isolatedPower: data.baseballStats?.isolatedPower,
-        weightedOnBaseAverage: data.baseballStats?.weightedOnBaseAverage,
+        era: data.baseballStats?.era,
+        wins: data.baseballStats?.wins,
+        battingAverage: data.baseballStats?.battingAverage,
+        hits: data.baseballStats?.hits,
       },
       basketballStats: {
-        points: data.basketballStats?.points,
-        assists: data.basketballStats?.assists,
-        rebounds: data.basketballStats?.rebounds,
-        blocks: data.basketballStats?.blocks,
-        steals: data.basketballStats?.steals,
+        starRating: data.basketballStats?.starRating,
+        position: data.basketballStats?.position,
       },
+      footballStats: {
+        starRating: data.footballStats?.starRating,
+        position: data.footballStats?.position,
+      },
+      // ...
+      winsLossRecord: {
+        wins: data.winsLossRecord?.wins,
+        losses: data.winsLossRecord?.losses,
+      },
+      tournamentsPlayedIn: data.tournamentsPlayedIn,
       soccerStats: {
         cleanSheets: data.soccerStats?.cleanSheets,
         goalsScored: data.soccerStats?.goalsScored,
@@ -302,6 +328,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
             </span>
           </div>
         </div>
+
         <div className="grid grid-cols-8 py-3">
           <div className="md:col-span-2 col-span-8">
             <h6 className="font-semibold">Sport</h6>
@@ -324,216 +351,211 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
             </span>
           </div>
         </div>
-        {selectedSport === sportsEnum.baseball && (
-          <div>
+        {athlete.registrationType === AthleteRegistrationType.Team && (
+          <>
             <div className="grid grid-cols-8 py-3">
               <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Wins Above Replacement</h6>
+                <h6 className="font-semibold">Wins-Loss Record</h6>
                 <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average WAR value for your team."
-                    : "Enter your individual WAR value."}
+                  Enter your team's wins and losses.
                 </span>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
+              <div className="lg:col-span-3 md:col-span-6 col-span-8 flex space-x-4">
                 <Input
                   type="number"
-                  {...register("baseballStats.winsAboveReplacement")}
-                  error={errors.baseballStats?.winsAboveReplacement?.message}
-                  placeholder="Enter WAR value"
+                  {...register("winsLossRecord.wins")}
+                  error={errors.winsLossRecord?.wins?.message}
+                  placeholder="Wins"
+                />
+                <Input
+                  type="number"
+                  {...register("winsLossRecord.losses")}
+                  error={errors.winsLossRecord?.losses?.message}
+                  placeholder="Losses"
                 />
               </div>
             </div>
             <div className="grid grid-cols-8 py-3">
               <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Isolated Power</h6>
+                <h6 className="font-semibold">Tournaments Played In</h6>
                 <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average ISO value for your team."
-                    : "Enter your individual ISO value."}
+                  Enter the major tournaments your team has participated in.
                 </span>
               </div>
               <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("baseballStats.isolatedPower")}
-                  error={errors.baseballStats?.isolatedPower?.message}
-                  placeholder="Enter ISO value"
+                <Textarea
+                  {...register("tournamentsPlayedIn")}
+                  rows={4}
+                  error={errors.tournamentsPlayedIn?.message}
+                  placeholder="Enter tournaments (one per line)"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Weighted On-Base Average</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average wOBA value for your team."
-                    : "Enter your individual wOBA value."}
-                </span>
-              </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("baseballStats.weightedOnBaseAverage")}
-                  error={errors.baseballStats?.weightedOnBaseAverage?.message}
-                  placeholder="Enter wOBA value"
-                />
-              </div>
-            </div>
-          </div>
+          </>
         )}
-        {selectedSport === sportsEnum.basketball && (
-          <div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Points</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average points per game for your team."
-                    : "Enter your individual points per game."}
-                </span>
+        {selectedSport === sportsEnum.football &&
+          athlete.registrationType === AthleteRegistrationType.Individual && (
+            <div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Star Rating</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("footballStats.starRating")}
+                    error={errors.footballStats?.starRating?.message}
+                    placeholder="Enter star rating"
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("basketballStats.points")}
-                  error={errors.basketballStats?.points?.message}
-                  placeholder="Enter points per game"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Assists</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average assists per game for your team."
-                    : "Enter your individual assists per game."}
-                </span>
-              </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("basketballStats.assists")}
-                  error={errors.basketballStats?.assists?.message}
-                  placeholder="Enter assists per game"
-                />
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Position</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    {...register("footballStats.position")}
+                    error={errors.footballStats?.position?.message}
+                    placeholder="Enter position"
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Rebounds</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average rebounds per game for your team."
-                    : "Enter your individual rebounds per game."}
-                </span>
+          )}
+        {selectedSport === sportsEnum.basketball &&
+          athlete.registrationType === AthleteRegistrationType.Individual && (
+            <div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Star Rating</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("basketballStats.starRating")}
+                    error={errors.basketballStats?.starRating?.message}
+                    placeholder="Enter star rating"
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("basketballStats.rebounds")}
-                  error={errors.basketballStats?.rebounds?.message}
-                  placeholder="Enter rebounds per game"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Blocks</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average blocks per game for your team."
-                    : "Enter your individual blocks per game."}
-                </span>
-              </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("basketballStats.blocks")}
-                  error={errors.basketballStats?.blocks?.message}
-                  placeholder="Enter blocks per game"
-                />
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Position</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    {...register("basketballStats.position")}
+                    error={errors.basketballStats?.position?.message}
+                    placeholder="Enter position"
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Steals</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the average steals per game for your team."
-                    : "Enter your individual steals per game."}
-                </span>
+          )}
+        {selectedSport === sportsEnum.soccer &&
+          athlete.registrationType === AthleteRegistrationType.Individual && (
+            <div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Clean Sheets</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("soccerStats.cleanSheets")}
+                    error={errors.soccerStats?.cleanSheets?.message}
+                    placeholder="Enter clean sheets"
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("basketballStats.steals")}
-                  error={errors.basketballStats?.steals?.message}
-                  placeholder="Enter steals per game"
-                />
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Goals Scored</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("soccerStats.goalsScored")}
+                    error={errors.soccerStats?.goalsScored?.message}
+                    placeholder="Enter goals scored"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        )}
-        {selectedSport === sportsEnum.soccer && (
-          <div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Clean Sheets</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the total clean sheets for your team."
-                    : "Enter your individual clean sheets."}
-                </span>
-              </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("soccerStats.cleanSheets")}
-                  error={errors.soccerStats?.cleanSheets?.message}
-                  placeholder="Enter clean sheets"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Goals Scored</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the total goals scored by your team."
-                    : "Enter your individual goals scored."}
-                </span>
-              </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("soccerStats.goalsScored")}
-                  error={errors.soccerStats?.goalsScored?.message}
-                  placeholder="Enter goals scored"
-                />
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Assists</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("soccerStats.assists")}
+                    error={errors.soccerStats?.assists?.message}
+                    placeholder="Enter assists"
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-8 py-3">
-              <div className="md:col-span-2 col-span-8">
-                <h6 className="font-semibold">Assists</h6>
-                <span className="text-subtitle">
-                  {athlete.registrationType === AthleteRegistrationType.Team
-                    ? "Enter the total assists by your team."
-                    : "Enter your individual assists."}
-                </span>
+          )}
+        {selectedSport === sportsEnum.baseball &&
+          athlete.registrationType === AthleteRegistrationType.Individual && (
+            <div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">ERA (Pitchers)</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("baseballStats.era")}
+                    error={errors.baseballStats?.era?.message}
+                    placeholder="Enter ERA"
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-3 md:col-span-6 col-span-8">
-                <Input
-                  type="number"
-                  {...register("soccerStats.assists")}
-                  error={errors.soccerStats?.assists?.message}
-                  placeholder="Enter assists"
-                />
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Wins (Pitchers)</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("baseballStats.wins")}
+                    error={errors.baseballStats?.wins?.message}
+                    placeholder="Enter wins"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">
+                    Batting Average (Non-Pitchers)
+                  </h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("baseballStats.battingAverage")}
+                    error={errors.baseballStats?.battingAverage?.message}
+                    placeholder="Enter batting average"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-8 py-3">
+                <div className="md:col-span-2 col-span-8">
+                  <h6 className="font-semibold">Hits (Non-Pitchers)</h6>
+                </div>
+                <div className="lg:col-span-3 md:col-span-6 col-span-8">
+                  <Input
+                    type="number"
+                    {...register("baseballStats.hits")}
+                    error={errors.baseballStats?.hits?.message}
+                    placeholder="Enter hits"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         <div className="grid grid-cols-8 py-3 border-b border-t">
           <div className="md:col-span-2 col-span-8">
             <h6 className="font-semibold">Professional Skills</h6>

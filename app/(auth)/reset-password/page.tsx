@@ -9,8 +9,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/app/components/Input";
 import Button from "@/app/components/Button";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Branding from "@/app/components/Branding";
 
 const emailSchema = z.object({
@@ -110,19 +108,13 @@ const ForgotPasswordPage: NextPage = () => {
           onSubmit={resetPasswordForm.handleSubmit(onSubmitReset)}
           className="space-y-6 max-w-lg w-full"
         >
-          <div className="relative">
-            <Input
-              placeholder="Enter your new password"
-              type={showPassword ? "text" : "password"}
-              {...resetPasswordForm.register("password")}
-              error={resetPasswordForm.formState.errors.password?.message}
-            />
-            <FontAwesomeIcon
-              icon={showPassword ? faEye : faEyeSlash}
-              className="absolute inset-y-0 right-3 my-auto h-full flex items-center w-5 h-5 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            />
-          </div>
+          <Input
+            placeholder="Enter your new password"
+            {...resetPasswordForm.register("password")}
+            type="password"
+            error={resetPasswordForm.formState.errors.password?.message}
+            passwordHide
+          />
           <Input
             placeholder="Enter the password reset code"
             type="text"

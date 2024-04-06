@@ -17,8 +17,9 @@ import { useAthleteData } from "@/hooks/useAthleteData";
 import { sportsEnum } from "@/schemas/athleteSchema";
 import {
   faBasketballBall,
-  faFutbol,
+  faSoccerBall,
   faBaseballBall,
+  faFootball,
 } from "@fortawesome/free-solid-svg-icons";
 import sum from "lodash/sum";
 import { formatIntlNumber } from "@/helpers/formatIntlNumber";
@@ -47,7 +48,9 @@ export const AthleteCard = () => {
           <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
         );
       case sportsEnum.soccer:
-        return <FontAwesomeIcon icon={faFutbol} className="w-5 h-5 mr-2" />;
+        return <FontAwesomeIcon icon={faSoccerBall} className="w-5 h-5 mr-2" />;
+      case sportsEnum.football:
+        return <FontAwesomeIcon icon={faFootball} className="w-5 h-5 mr-2" />;
       default:
         return null;
     }
@@ -254,8 +257,7 @@ export const AthleteCard = () => {
                     </h3>
                   </div>
                 )}
-
-                {athlete?.athleteRating && (
+                {athlete?.athleteRating && athlete.athleteRating > 0 && (
                   <div className="flex flex-col">
                     <span className="text-base font-semibold">
                       {athlete?.registrationType ===
@@ -291,6 +293,100 @@ export const AthleteCard = () => {
                       {athlete.sport}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {athlete?.sport && (
+                <div className="mb-6">
+                  <h6 className="font-semibold text-lg mb-2">
+                    {athlete?.registrationType === AthleteRegistrationType.Team
+                      ? "Team Stats"
+                      : "Sport Stats"}
+                  </h6>
+                  {athlete?.registrationType ===
+                    AthleteRegistrationType.Team && (
+                    <>
+                      <p className="mb-1">
+                        <strong>Wins-Loss Record:</strong>{" "}
+                        {athlete.winsLossRecord
+                          ? `${athlete.winsLossRecord.wins} - ${athlete.winsLossRecord.losses}`
+                          : "N/A"}
+                      </p>
+                      <p>
+                        <strong>Tournaments Played In:</strong>{" "}
+                        {athlete.tournamentsPlayedIn || "N/A"}
+                      </p>
+                    </>
+                  )}
+
+                  {athlete?.registrationType ===
+                    AthleteRegistrationType.Individual && (
+                    <>
+                      {athlete?.sport === sportsEnum.baseball && (
+                        <>
+                          <p className="mb-1">
+                            <strong>ERA:</strong>{" "}
+                            {athlete.baseballStats?.era || "N/A"}
+                          </p>
+                          <p className="mb-1">
+                            <strong>Wins:</strong>{" "}
+                            {athlete.baseballStats?.wins || "N/A"}
+                          </p>
+                          <p className="mb-1">
+                            <strong>Batting Average:</strong>{" "}
+                            {athlete.baseballStats?.battingAverage || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Hits:</strong>{" "}
+                            {athlete.baseballStats?.hits || "N/A"}
+                          </p>
+                        </>
+                      )}
+
+                      {athlete?.sport === sportsEnum.basketball && (
+                        <>
+                          <p className="mb-1">
+                            <strong>Star Rating:</strong>{" "}
+                            {athlete.basketballStats?.starRating || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Position:</strong>{" "}
+                            {athlete.basketballStats?.position || "N/A"}
+                          </p>
+                        </>
+                      )}
+
+                      {athlete?.sport === sportsEnum.football && (
+                        <>
+                          <p className="mb-1">
+                            <strong>Star Rating:</strong>{" "}
+                            {athlete.footballStats?.starRating || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Position:</strong>{" "}
+                            {athlete.footballStats?.position || "N/A"}
+                          </p>
+                        </>
+                      )}
+
+                      {athlete?.sport === sportsEnum.soccer && (
+                        <>
+                          <p className="mb-1">
+                            <strong>Clean Sheets:</strong>{" "}
+                            {athlete.soccerStats?.cleanSheets || "N/A"}
+                          </p>
+                          <p className="mb-1">
+                            <strong>Goals Scored:</strong>{" "}
+                            {athlete.soccerStats?.goalsScored || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Assists:</strong>{" "}
+                            {athlete.soccerStats?.assists || "N/A"}
+                          </p>
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
 
@@ -407,73 +503,6 @@ export const AthleteCard = () => {
                   <Link href={athlete.statsSourceURL} target="_blank">
                     {athlete.statsSourceURL}
                   </Link>
-                </div>
-              )}
-
-              {athlete?.sport && (
-                <div className="mb-6">
-                  <h6 className="font-semibold text-lg mb-2">
-                    {athlete?.registrationType === AthleteRegistrationType.Team
-                      ? "Average Team Stats"
-                      : "Sport Stats"}
-                  </h6>
-                  {athlete?.sport === sportsEnum.baseball && (
-                    <>
-                      <p className="mb-1">
-                        <strong>Wins Above Replacement:</strong>{" "}
-                        {athlete.baseballStats?.winsAboveReplacement || "N/A"}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Isolated Power:</strong>{" "}
-                        {athlete.baseballStats?.isolatedPower || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Weighted On-Base Average:</strong>{" "}
-                        {athlete.baseballStats?.weightedOnBaseAverage || "N/A"}
-                      </p>
-                    </>
-                  )}
-
-                  {athlete?.sport === sportsEnum.basketball && (
-                    <>
-                      <p className="mb-1">
-                        <strong>Points:</strong>{" "}
-                        {athlete.basketballStats?.points || "N/A"}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Assists:</strong>{" "}
-                        {athlete.basketballStats?.assists || "N/A"}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Rebounds:</strong>{" "}
-                        {athlete.basketballStats?.rebounds || "N/A"}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Blocks:</strong>{" "}
-                        {athlete.basketballStats?.blocks || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Steals:</strong>{" "}
-                        {athlete.basketballStats?.steals || "N/A"}
-                      </p>
-                    </>
-                  )}
-                  {athlete?.sport === sportsEnum.soccer && (
-                    <>
-                      <p className="mb-1">
-                        <strong>Clean Sheets:</strong>{" "}
-                        {athlete.soccerStats?.cleanSheets || "N/A"}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Goals Scored:</strong>{" "}
-                        {athlete.soccerStats?.goalsScored || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Assists:</strong>{" "}
-                        {athlete.soccerStats?.assists || "N/A"}
-                      </p>
-                    </>
-                  )}
                 </div>
               )}
             </div>

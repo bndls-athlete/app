@@ -12,7 +12,6 @@ import Button from "@/app/components/Button";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function SignInForm() {
   const { signIn, isLoaded, setActive } = useSignIn();
@@ -77,20 +76,15 @@ export default function SignInForm() {
               {...register("email")}
               error={errors.email?.message}
             />
-            <div className="relative">
-              <Input
-                // withLabel="Password"
-                placeholder="Enter your password"
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-                error={errors.password?.message}
-              />
-              <FontAwesomeIcon
-                icon={showPassword ? faEye : faEyeSlash}
-                className="absolute inset-y-0 right-3 my-auto h-full flex items-center w-5 h-5 cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
-              />
-            </div>
+
+            <Input
+              // withLabel="Password"
+              placeholder="Enter your password"
+              {...register("password")}
+              type="password"
+              passwordHide
+              error={errors.password?.message}
+            />
           </div>
           <div className="flex justify-end">
             <Link

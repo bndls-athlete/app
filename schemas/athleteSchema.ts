@@ -3,7 +3,13 @@ import { subscriptionStatusSchema } from "./subscriptionStatusSchema";
 import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 import mongoose from "mongoose";
 
-export const sportSchema = z.enum(["basketball", "soccer", "baseball", ""]);
+export const sportSchema = z.enum([
+  "basketball",
+  "soccer",
+  "baseball",
+  "football",
+  "",
+]);
 export const genderSchema = z.enum(["Male", "Female", "Other", ""]);
 export type Sport = z.infer<typeof sportSchema>;
 export type Gender = z.infer<typeof genderSchema>;
@@ -20,6 +26,8 @@ export const allowedStatsSourceURLs = [
   "https://www.prepbaseballreport.com/",
   "https://maxpreps.com/",
   "https://247sports.com/",
+  "https://www.hudl.com/",
+  "https://n.rivals.com/",
 ];
 
 // Custom validation for statsSourceURL
@@ -88,22 +96,29 @@ const athleteSchema = z.object({
     ),
   sport: sportSchema,
   baseballStats: z.object({
-    winsAboveReplacement: z.number(),
-    isolatedPower: z.number(),
-    weightedOnBaseAverage: z.number(),
+    era: z.number(),
+    wins: z.number(),
+    battingAverage: z.number(),
+    hits: z.number(),
   }),
   basketballStats: z.object({
-    points: z.number(),
-    assists: z.number(),
-    rebounds: z.number(),
-    blocks: z.number(),
-    steals: z.number(),
+    starRating: z.number(),
+    position: z.string(),
+  }),
+  footballStats: z.object({
+    starRating: z.number(),
+    position: z.string(),
   }),
   soccerStats: z.object({
     cleanSheets: z.number(),
     goalsScored: z.number(),
     assists: z.number(),
   }),
+  winsLossRecord: z.object({
+    wins: z.number(),
+    losses: z.number(),
+  }),
+  tournamentsPlayedIn: z.string(),
   professionalSkills: z.array(z.string()),
   currentAcademicGPA: z.number(),
   professionalReferences: z.array(z.string()),

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Button from "@/app/components/Button";
 import Input from "@/app/components/Input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "@clerk/clerk-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,9 +25,6 @@ const passwordSchema = z
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 const Security = () => {
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { user } = useUser();
   const {
     register,
@@ -75,20 +71,12 @@ const Security = () => {
               <h6 className="font-semibold">Current Password</h6>
             </div>
             <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
-              <div className="relative">
-                <Input
-                  type={showCurrentPassword ? "text" : "password"}
-                  {...register("currentPassword")}
-                />
-                <FontAwesomeIcon
-                  icon={showCurrentPassword ? faEye : faEyeSlash}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                />
-              </div>
-              {errors.currentPassword && (
-                <p className="text-red-500">{errors.currentPassword.message}</p>
-              )}
+              <Input
+                {...register("currentPassword")}
+                type="password"
+                error={errors.currentPassword?.message}
+                passwordHide
+              />
             </div>
           </div>
           <div className="grid grid-cols-8 py-3">
@@ -96,20 +84,12 @@ const Security = () => {
               <h6 className="font-semibold">New Password</h6>
             </div>
             <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
-              <div className="relative">
-                <Input
-                  type={showNewPassword ? "text" : "password"}
-                  {...register("newPassword")}
-                />
-                <FontAwesomeIcon
-                  icon={showNewPassword ? faEye : faEyeSlash}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                />
-              </div>
-              {errors.newPassword && (
-                <p className="text-red-500">{errors.newPassword.message}</p>
-              )}
+              <Input
+                {...register("newPassword")}
+                type="password"
+                error={errors.newPassword?.message}
+                passwordHide
+              />
               <span className="text-subtitle">
                 Your new password must be more than 8 characters.
               </span>
@@ -120,20 +100,12 @@ const Security = () => {
               <h6 className="font-semibold">Confirm New Password</h6>
             </div>
             <div className="lg:col-span-3 md:col-span-6 col-span-8 flex flex-col gap-3">
-              <div className="relative">
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  {...register("confirmPassword")}
-                />
-                <FontAwesomeIcon
-                  icon={showConfirmPassword ? faEye : faEyeSlash}
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer w-5 h-5"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                />
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-red-500">{errors.confirmPassword.message}</p>
-              )}
+              <Input
+                {...register("confirmPassword")}
+                type="password"
+                error={errors.confirmPassword?.message}
+                passwordHide
+              />
             </div>
           </div>
           <div className="flex justify-end">
