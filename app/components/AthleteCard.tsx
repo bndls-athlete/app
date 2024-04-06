@@ -57,10 +57,10 @@ export const AthleteCard = () => {
   };
 
   const totalFollowers = sum([
-    athlete?.followers.instagram || 0,
-    athlete?.followers.tiktok || 0,
-    athlete?.followers.youtube || 0,
-    athlete?.followers.twitter || 0,
+    athlete?.followers?.instagram || 0,
+    athlete?.followers?.tiktok || 0,
+    athlete?.followers?.youtube || 0,
+    athlete?.followers?.twitter || 0,
   ]);
 
   return (
@@ -112,9 +112,7 @@ export const AthleteCard = () => {
                 } Profile`}
               />
               <div>
-                <h6 className="font-bold text-2xl">
-                  {athlete?.fullName || "N/A"}
-                </h6>
+                <h6 className="font-bold text-2xl">{athlete?.fullName}</h6>
                 <div className="mt-2 space-y-2">
                   {athlete?.athleteTier && (
                     <div
@@ -196,9 +194,8 @@ export const AthleteCard = () => {
                   className="w-5 h-5 mr-2"
                 />
                 <span className="text-subtitle font-semibold">
-                  {`${athlete.address.city || ""}, ${
-                    athlete.address.state || ""
-                  }, ${athlete.address.countryRegion || ""}`}
+                  {athlete.address.city}, {athlete.address.state},{" "}
+                  {athlete.address.countryRegion}
                 </span>
               </div>
             )}
@@ -308,13 +305,13 @@ export const AthleteCard = () => {
                     <>
                       <p className="mb-1">
                         <strong>Wins-Loss Record:</strong>{" "}
-                        {athlete.winsLossRecord
+                        {athlete?.winsLossRecord
                           ? `${athlete.winsLossRecord.wins} - ${athlete.winsLossRecord.losses}`
                           : "N/A"}
                       </p>
                       <p>
                         <strong>Tournaments Played In:</strong>{" "}
-                        {athlete.tournamentsPlayedIn || "N/A"}
+                        {athlete?.tournamentsPlayedIn || "N/A"}
                       </p>
                     </>
                   )}
@@ -326,19 +323,19 @@ export const AthleteCard = () => {
                         <>
                           <p className="mb-1">
                             <strong>ERA:</strong>{" "}
-                            {athlete.baseballStats?.era || "N/A"}
+                            {athlete?.baseballStats?.era || "N/A"}
                           </p>
                           <p className="mb-1">
                             <strong>Wins:</strong>{" "}
-                            {athlete.baseballStats?.wins || "N/A"}
+                            {athlete?.baseballStats?.wins || "N/A"}
                           </p>
                           <p className="mb-1">
                             <strong>Batting Average:</strong>{" "}
-                            {athlete.baseballStats?.battingAverage || "N/A"}
+                            {athlete?.baseballStats?.battingAverage || "N/A"}
                           </p>
                           <p>
                             <strong>Hits:</strong>{" "}
-                            {athlete.baseballStats?.hits || "N/A"}
+                            {athlete?.baseballStats?.hits || "N/A"}
                           </p>
                         </>
                       )}
@@ -347,11 +344,11 @@ export const AthleteCard = () => {
                         <>
                           <p className="mb-1">
                             <strong>Star Rating:</strong>{" "}
-                            {athlete.basketballStats?.starRating || "N/A"}
+                            {athlete?.basketballStats?.starRating || "N/A"}
                           </p>
                           <p>
                             <strong>Position:</strong>{" "}
-                            {athlete.basketballStats?.position || "N/A"}
+                            {athlete?.basketballStats?.position || "N/A"}
                           </p>
                         </>
                       )}
@@ -360,11 +357,11 @@ export const AthleteCard = () => {
                         <>
                           <p className="mb-1">
                             <strong>Star Rating:</strong>{" "}
-                            {athlete.footballStats?.starRating || "N/A"}
+                            {athlete?.footballStats?.starRating || "N/A"}
                           </p>
                           <p>
                             <strong>Position:</strong>{" "}
-                            {athlete.footballStats?.position || "N/A"}
+                            {athlete?.footballStats?.position || "N/A"}
                           </p>
                         </>
                       )}
@@ -372,16 +369,17 @@ export const AthleteCard = () => {
                       {athlete?.sport === sportsEnum.soccer && (
                         <>
                           <p className="mb-1">
-                            <strong>Clean Sheets:</strong>{" "}
-                            {athlete.soccerStats?.cleanSheets || "N/A"}
+                            <strong>Clean Sheets:</strong>
+                            {""}
+                            {athlete?.soccerStats?.cleanSheets || "N/A"}
                           </p>
                           <p className="mb-1">
                             <strong>Goals Scored:</strong>{" "}
-                            {athlete.soccerStats?.goalsScored || "N/A"}
+                            {athlete?.soccerStats?.goalsScored || "N/A"}
                           </p>
                           <p>
                             <strong>Assists:</strong>{" "}
-                            {athlete.soccerStats?.assists || "N/A"}
+                            {athlete?.soccerStats?.assists || "N/A"}
                           </p>
                         </>
                       )}
