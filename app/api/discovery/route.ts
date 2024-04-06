@@ -90,7 +90,7 @@ export async function GET(request: Request) {
       }
 
       if (sport) {
-        query.sport = sport;
+        query.sports = { $in: [sport] };
       }
 
       if (Object.keys(query).length > 0) {
