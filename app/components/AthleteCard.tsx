@@ -53,6 +53,13 @@ export const AthleteCard = () => {
     }
   };
 
+  const totalFollowers = sum([
+    athlete?.followers.instagram || 0,
+    athlete?.followers.tiktok || 0,
+    athlete?.followers.youtube || 0,
+    athlete?.followers.twitter || 0,
+  ]);
+
   return (
     <div
       className={`transition-all duration-150 ease-in py-3 fixed top-0 shadow border-l-2 h-full lg:mt-0 mt-16 w-[360px] bg-white overflow-y-auto hide-scroll ${
@@ -237,20 +244,13 @@ export const AthleteCard = () => {
 
             <div className="bg-primary text-white rounded-lg p-4 mb-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {athlete?.followers && (
+                {totalFollowers > 0 && (
                   <div className="flex flex-col">
                     <span className="flex items-center text-base font-semibold">
-                      Total Followers{" "}
+                      Total Followers
                     </span>
                     <h3 className="text-lg font-bold">
-                      {formatIntlNumber(
-                        sum([
-                          athlete.followers.instagram || 0,
-                          athlete.followers.tiktok || 0,
-                          athlete.followers.youtube || 0,
-                          athlete.followers.twitter || 0,
-                        ])
-                      )}
+                      {formatIntlNumber(totalFollowers)}
                     </h3>
                   </div>
                 )}
