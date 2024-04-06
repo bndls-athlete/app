@@ -201,10 +201,6 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
               </option>
               <option value={AthleteRegistrationType.Team}>Team</option>
             </Select>
-            <span className="text-subtitle ">
-              Important Note: You can only be subscribed to either an individual
-              or a team plan at a time, but not both simultaneously.
-            </span>
           </div>
         </div>
 
