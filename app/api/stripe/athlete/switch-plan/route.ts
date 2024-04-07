@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import AthleteModel from "@/models/Athlete";
-import { getTierManager } from "@/helpers/getTierManager";
+import { getTierManager } from "@/helpers/tierManagerUtils";
 
 export async function POST(request: Request) {
   await dbConnect();
