@@ -125,8 +125,15 @@ const Opportunities = () => {
   };
 
   const resetForm = () => {
-    reset();
-    // router.push(pathname);
+    reset({
+      title: "",
+      keywords: "",
+      city: "",
+      state: "",
+      jobType: "",
+      priceMin: undefined,
+      priceMax: undefined,
+    });
   };
 
   const handleJobSelect = (job: JobPostingWithCompanyInfo) => {
