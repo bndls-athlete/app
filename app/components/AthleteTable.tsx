@@ -1,4 +1,5 @@
-// AthleteTable.tsx
+"use client";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -62,22 +63,17 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
               className="flex p-2 gap-2 hover:bg-gray-100 rounded-lg cursor-pointer"
               onClick={() => showAthleteCard(athlete.userId)}
             >
-              {/* <img
-                className="w-10 h-10 object-cover rounded-full my-auto"
-                src={athlete.profilePicture || "/images/Avatar.webp"}
-                alt="Rounded avatar"
-              /> */}
               <div className="flex flex-col my-auto">
                 <h6 className="font-semibold underline leading-2">
-                  {athlete.fullName}
+                  {athlete.fullName || "Unknown"}
                 </h6>
-                <span className="leading-none">{athlete.email}</span>
+                <span className="leading-none">{athlete.email || "N/A"}</span>
               </div>
             </div>
           </td>
           <td className="p-3 text-sm">
             <h6 className="text-lg font-semibold">
-              {formatIntlNumber(athlete.followers[platform]) || "N/A"}
+              {formatIntlNumber(athlete.followers?.[platform]) || "N/A"}
             </h6>
             <span>
               {platform === socialMediaPlatformEnum.youtube
@@ -92,7 +88,7 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
                 className="text-2xl text-[#FFE661]"
               />
               <h6 className="text-xl font-semibold">
-                {athlete.athleteRating || "N/A"}
+                {athlete.athleteRating?.toFixed(1) || "N/A"}
               </h6>
             </div>
           </td>
@@ -105,7 +101,8 @@ const AthleteTable: React.FC<AthleteTableProps> = ({
           </td>
           <td className="p-3 text-sm">
             <span>
-              {athlete.address.city || "N/A"}, {athlete.address.state || "N/A"}
+              {athlete.address?.city || "N/A"},{" "}
+              {athlete.address?.state || "N/A"}
             </span>
           </td>
         </tr>

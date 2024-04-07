@@ -97,10 +97,6 @@ function JobWithApplications() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // if (isJobLoading || isApplicationsLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
   if (isJobError || isApplicationsError) {
     return <div>Error: {jobError?.message || applicationsError?.message}</div>;
   }
@@ -208,7 +204,7 @@ function JobWithApplications() {
             >
               {applicationsData?.applications.map((application) => {
                 const totalFollowers = Object.values(
-                  application.athlete.followers
+                  application.athlete.followers || {}
                 ).reduce((sum, count) => sum + count, 0);
 
                 return (
@@ -220,14 +216,6 @@ function JobWithApplications() {
                           showAthleteCard(application.athlete.userId);
                         }}
                       >
-                        {/* <img
-                          className="w-10 h-10 object-cover rounded-full my-auto"
-                          src={
-                            application.athlete.profilePicture ||
-                            "/images/Avatar.webp"
-                          }
-                          alt="Athlete Profile"
-                        /> */}
                         <div className="flex flex-col my-auto">
                           <h6 className="font-semibold underline leading-2">
                             {application.athlete.fullName || "N/A"}
@@ -254,7 +242,8 @@ function JobWithApplications() {
                           className="text-2xl text-[#FFE661]"
                         />
                         <h6 className="">
-                          {application.athlete.athleteRating || "N/A"}
+                          {application.athlete.athleteRating?.toFixed(1) ||
+                            "N/A"}
                         </h6>
                       </div>
                     </td>

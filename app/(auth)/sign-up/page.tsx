@@ -228,7 +228,7 @@ export default function SignUpForm() {
                   className="radio radio-primary"
                   required
                 />
-                <span className="label-text">Team</span>
+                <span className="label-text">Athlete Team</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -238,7 +238,7 @@ export default function SignUpForm() {
                   className="radio radio-primary"
                   required
                 />
-                <span className="label-text">Company</span>
+                <span className="label-text">Brand</span>
               </label>
             </div>
           </div>

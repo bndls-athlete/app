@@ -11,15 +11,20 @@ function Navbar() {
   const { signOut } = useClerk();
 
   return (
-    <div className="navbar bg-base-200 shadow-lg fixed top-0 left-0 right-0 z-50">
-      <div className="container mx-auto flex items-center justify-between px-4">
-        <Link href="/" className="font-bold text-xl text-primary">
-          BNDLS
-        </Link>
-        <div className="flex items-center">
+    <div className="navbar bg-base-100 fixed top-0 left-0 right-0 z-50">
+      <div className="container mx-auto">
+        <div className="flex-1">
+          <Link
+            href="/"
+            className="btn btn-ghost normal-case text-xl text-primary"
+          >
+            BNDLS
+          </Link>
+        </div>
+        <div className="flex-none">
           {isSignedIn ? (
             <>
-              <span className="mr-4 text-base-content">
+              <span className="text-sm text-gray-600 mr-4">
                 Welcome,{" "}
                 {truncate(
                   user.firstName ||
@@ -29,9 +34,7 @@ function Navbar() {
               </span>
               <button
                 className="btn btn-sm btn-outline btn-accent"
-                onClick={() => {
-                  signOut();
-                }}
+                onClick={() => signOut()}
               >
                 Logout
               </button>
