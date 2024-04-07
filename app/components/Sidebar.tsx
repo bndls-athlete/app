@@ -50,7 +50,7 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { removeAthlete, athlete } = useAthleteData();
+  const { removeAthlete, athlete, isLoading } = useAthleteData();
   const { brand, removeBrand } = useBrandData();
 
   const { type } = useUserType();
@@ -95,6 +95,7 @@ const Sidebar = () => {
   ];
 
   const title = () => {
+    if (isLoading) return "Loading...";
     if (
       type === EntityType.Athlete &&
       athlete?.registrationType === AthleteRegistrationType.Individual
