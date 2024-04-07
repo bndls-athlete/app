@@ -102,7 +102,7 @@ export default function Home() {
         }}
       >
         <div className="hero-overlay bg-opacity-60"></div>
-        <div className="hero-content text-center text-neutral-content px-4">
+        <div className="hero-content text-center text-neutral-content px-4 pt-32">
           <div className="max-w-md">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Unleash Your Potential with BNDLS
