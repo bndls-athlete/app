@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { JobPostingWithCompanyInfo } from "@/schemas/jobPostingSchema";
 import Card from "@/app/components/Card";
-import { AthleteTierManager, formatTier } from "@/helpers/stripeAthleteManager";
+import { formatTier } from "@/helpers/stripeAthleteManager";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { getTierManager } from "@/helpers/tierManagerUtils";
 dayjs.extend(relativeTime);
 
 interface JobModalProps {
@@ -76,17 +77,15 @@ const JobModal: React.FC<JobModalProps> = ({
     }, 1000);
   };
 
-  const athleteTierManager = AthleteTierManager.getInstance();
+  const manager = getTierManager(athlete?.registrationType);
   const hasAccess = jobData?.athleteTierTarget.some((tier) =>
-    athleteTierManager.checkAthleteAccess(athlete!, tier)
+    manager.checkAthleteAccess(athlete!, tier)
   );
 
   const getUpgradeTier = () => {
-    const athleteTierManager = AthleteTierManager.getInstance();
-
     // Find the lowest tier required for the job posting that the athlete doesn't have access to
     const requiredTier = jobData?.athleteTierTarget
-      .filter((tier) => !athleteTierManager.checkAthleteAccess(athlete!, tier))
+      .filter((tier) => !manager.checkAthleteAccess(athlete!, tier))
       .sort((a, b) => parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]))[0];
 
     // If a required tier is found, format it for display

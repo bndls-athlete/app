@@ -53,7 +53,7 @@ export const useAthleteData = () => {
   } = useQuery<Athlete, Error>({
     queryKey: ["athlete", type, athleteUserId],
     queryFn: () => {
-      if (type === EntityType.Athlete) {
+      if (type === EntityType.Athlete || type == EntityType.Team) {
         return fetchAthlete();
       } else if (type === EntityType.Company && athleteUserId) {
         return fetchAthleteForBrand(athleteUserId);
@@ -64,6 +64,7 @@ export const useAthleteData = () => {
     staleTime: type === EntityType.Company ? 4 * 60 * 1000 : Infinity, //4 mins for companies, Infinity for athletes
     enabled:
       type === EntityType.Athlete ||
+      type === EntityType.Team ||
       (type === EntityType.Company && !!athleteUserId),
   });
 
@@ -71,5 +72,16 @@ export const useAthleteData = () => {
     queryClient.invalidateQueries({ queryKey: ["athlete"] });
   };
 
-  return { athlete, isLoading, error, refetchAthlete, invalidateAthlete };
+  const removeAthlete = () => {
+    queryClient.removeQueries({ queryKey: ["athlete"] });
+  };
+
+  return {
+    athlete,
+    isLoading,
+    error,
+    refetchAthlete,
+    invalidateAthlete,
+    removeAthlete,
+  };
 };

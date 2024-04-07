@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import AthleteModel from "@/models/Athlete";
-import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
+import { getTierManager } from "@/helpers/getTierManager";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const manager = AthleteTierManager.getInstance();
+    const manager = getTierManager(athlete.registrationType);
     const hasAccess = manager.checkAthleteAccessToPurchase(
       athlete.athleteTier,
       body.newPriceId

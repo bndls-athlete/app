@@ -8,16 +8,16 @@ import { useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
 import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
 import { useAthleteData } from "@/hooks/useAthleteData";
+import { getTierManager } from "@/helpers/tierManagerUtils";
+import { Link } from "lucide-react";
 
 const UpgradeOptions = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
   const pricing = searchParams.get("pricing") || "monthly";
-
-  // Getting the singleton instance of AthleteTierManager
-  const manager = AthleteTierManager.getInstance();
+  const { athlete, isLoading, error } = useAthleteData();
+  const manager = getTierManager(athlete?.registrationType);
 
   // Accessing pricing plans from the AthleteTierManager instance
   const athletePricingPlans = manager.athletePricingPlans;
@@ -31,8 +31,6 @@ const UpgradeOptions = () => {
     },
     [searchParams]
   );
-
-  const { athlete, isLoading, error } = useAthleteData();
 
   return (
     <>
@@ -78,22 +76,28 @@ const UpgradeOptions = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 my-6">
-          {athletePricingPlans.map((plan) => (
-            <UpgradeOptionsCard
-              priceId={
-                pricing === "monthly" ? plan.monthlyPriceId : plan.yearlyPriceId
-              }
-              key={plan.tier}
-              tier={plan.tier}
-              price={
-                pricing === "monthly" ? plan.monthlyPrice : plan.annualPrice
-              }
-              features={plan.features}
-              athlete={athlete}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center my-6">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 my-6">
+            {athletePricingPlans.map((plan) => (
+              <UpgradeOptionsCard
+                priceId={
+                  pricing === "monthly"
+                    ? plan.monthlyPriceId
+                    : plan.yearlyPriceId
+                }
+                key={plan.tier}
+                tier={plan.tier}
+                price={
+                  pricing === "monthly" ? plan.monthlyPrice : plan.annualPrice
+                }
+                features={plan.features}
+                athlete={athlete}
+              />
+            ))}
+          </div>
+        )}
         <div className="bg-sidebar pt-24 pb-12 rounded">
           {/* <div className="text-center my-6">
             <h1 className="text-3xl font-semibold mb-2">
@@ -122,7 +126,9 @@ const UpgradeOptions = () => {
                   friendly team.
                 </span>
                 <div className="py-6 mx-auto">
-                  <Button className="text-sm py-2">Get in Touch</Button>
+                  <Link href="/help-center">
+                    <Button className="text-sm py-2">Get in Touch</Button>
+                  </Link>
                 </div>
               </div>
             </div>

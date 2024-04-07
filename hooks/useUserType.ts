@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
+import { EntityType } from "@/types/entityTypes";
 
 interface UserPublicMetadata {
   userType?: string;
@@ -15,7 +16,11 @@ const useUserType = () => {
     if (isSignedIn) {
       const metadata = user?.publicMetadata as UserPublicMetadata | undefined;
       if (metadata?.userType) {
-        setType(metadata.userType);
+        if (metadata.userType === EntityType.Team) {
+          setType(EntityType.Athlete);
+        } else {
+          setType(metadata.userType);
+        }
       } else {
         setType(null);
       }

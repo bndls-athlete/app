@@ -3,7 +3,7 @@ import AthleteModel from "@/models/Athlete";
 import { auth } from "@clerk/nextjs";
 import JobPostingModel, { JobPosting } from "@/models/JobPosting";
 import ApplicationModel from "@/models/Application";
-import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
+import { getTierManager } from "@/helpers/tierManagerUtils";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -55,9 +55,9 @@ export async function POST(request: Request) {
     }
 
     // Check if the athlete has access to the tier required for the job posting
-    const athleteTierManager = AthleteTierManager.getInstance();
+    const manager = getTierManager(athlete.registrationType);
     const hasAccess = jobPosting.athleteTierTarget.some((tier) =>
-      athleteTierManager.checkAthleteAccess(athlete, tier)
+      manager.checkAthleteAccess(athlete, tier)
     );
 
     if (!hasAccess) {

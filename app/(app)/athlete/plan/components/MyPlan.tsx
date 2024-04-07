@@ -4,6 +4,8 @@ import { getMyPlanInfo } from "@/helpers/stripeAthleteManager";
 import { useRouter } from "next/navigation";
 import { useAthleteData } from "@/hooks/useAthleteData"; // Assuming you have a custom hook to fetch athlete data
 import useUserType from "@/hooks/useUserType";
+import { getTeamPlanInfo } from "@/helpers/stripeTeamManager";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 const MyPlan = () => {
   const { type } = useUserType();
@@ -31,13 +33,31 @@ const MyPlan = () => {
     router.push(`/${type}/plan/?menu=upgrade-options`);
   };
 
-  const { planInfo, buttonText, action } = getMyPlanInfo({
-    athlete,
-    handleManageBilling,
-    handleRenew: handleManageBilling, // Use the same function for renewing and managing billing
-    handleReactivate: handleManageBilling, // Adjust this if you have a specific reactivation process
-    handleGetStarted,
-  });
+  const getPlanInfo = (
+    registrationType: AthleteRegistrationType | undefined
+  ) => {
+    if (registrationType === AthleteRegistrationType.Team) {
+      return getTeamPlanInfo({
+        athlete,
+        handleManageBilling,
+        handleRenew: handleManageBilling,
+        handleReactivate: handleManageBilling,
+        handleGetStarted,
+      });
+    } else {
+      return getMyPlanInfo({
+        athlete,
+        handleManageBilling,
+        handleRenew: handleManageBilling,
+        handleReactivate: handleManageBilling,
+        handleGetStarted,
+      });
+    }
+  };
+
+  const { planInfo, buttonText, action } = getPlanInfo(
+    athlete?.registrationType
+  );
 
   return (
     <>

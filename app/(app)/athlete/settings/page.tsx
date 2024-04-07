@@ -69,7 +69,9 @@ const Settings = () => {
 
   return (
     <div className="my-4 text-dark">
-      <h1 className="text-3xl font-semibold">Settings Athlete</h1>
+      <h1 className="text-3xl font-semibold capitalize">
+        Settings {athlete?.registrationType}
+      </h1>
       <div className="mt-4">
         <div className="hidden sm:block">
           <div className="join join-horizontal">

@@ -22,6 +22,18 @@ export async function POST(request: Request) {
 
   try {
     const updates: Partial<Athlete> = await request.json();
+
+    // Reject requests that try to update the registrationType
+    if ("registrationType" in updates) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Updating registrationType is not allowed",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const deepPartialAthleteSchema = athleteSchema.deepPartial();
     const parsedResult = deepPartialAthleteSchema.safeParse(updates);
     if (!parsedResult.success) {

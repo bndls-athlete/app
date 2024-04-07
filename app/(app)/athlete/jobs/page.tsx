@@ -244,14 +244,14 @@ const Opportunities = () => {
               <div className="flex justify-end md:col-span-2 lg:col-span-1">
                 <Button
                   type="button"
-                  className="mr-2 bg-white text-primary border border-primary font-semibold"
+                  className="mr-2 bg-white hover:bg-white text-primary border border-primary font-semibold"
                   onClick={resetForm}
                 >
                   Clear Filters
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-white text-primary border border-primary font-semibold"
+                  className="bg-white hover:bg-white text-primary border border-primary font-semibold"
                 >
                   Search
                 </Button>

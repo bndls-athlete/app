@@ -20,10 +20,11 @@ import { usePathname } from "next/navigation";
 import Button from "./Button";
 import { EntityType } from "@/types/entityTypes";
 import { useAthleteCard } from "@/context/AthleteCardProvider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useUserType from "@/hooks/useUserType";
 import { useAthleteData } from "@/hooks/useAthleteData";
 import { useBrandData } from "@/hooks/useBrandData";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 const SidebarTab: React.FC<{
   path: string;
@@ -49,8 +50,8 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { invalidateAthlete, athlete } = useAthleteData();
-  const { brand, invalidateBrand } = useBrandData();
+  const { removeAthlete, athlete } = useAthleteData();
+  const { brand, removeBrand } = useBrandData();
 
   const { type } = useUserType();
 
@@ -94,7 +95,12 @@ const Sidebar = () => {
   ];
 
   const title = () => {
-    if (type === EntityType.Athlete) return "BNDLS Athlete";
+    if (
+      type === EntityType.Athlete &&
+      athlete?.registrationType === AthleteRegistrationType.Individual
+    )
+      return "BNDLS Athlete";
+    if (type === EntityType.Athlete) return "BNDLS Team";
     if (type === EntityType.Company) return "BNDLS Brand";
   };
 
@@ -170,7 +176,8 @@ const Sidebar = () => {
             <img
               className="w-10 h-10 object-cover rounded-full"
               src={
-                type === EntityType.Athlete && athlete?.profilePicture
+                (type === EntityType.Athlete || type === EntityType.Team) &&
+                athlete?.profilePicture
                   ? athlete.profilePicture
                   : type === EntityType.Company && brand?.profilePicture
                   ? brand.profilePicture
@@ -200,9 +207,9 @@ const Sidebar = () => {
             className="my-2 w-full"
             onClick={async () => {
               if (window.confirm("Are you sure you want to logout?")) {
-                if (type === EntityType.Athlete) {
-                  invalidateAthlete();
-                  invalidateBrand();
+                if (type === EntityType.Athlete || type === EntityType.Team) {
+                  removeAthlete();
+                  removeBrand();
                 }
                 await signOut();
               }

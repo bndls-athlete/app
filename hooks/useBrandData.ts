@@ -42,5 +42,16 @@ export const useBrandData = () => {
     queryClient.invalidateQueries({ queryKey: ["brand"] });
   };
 
-  return { brand, isLoading, error, refetchBrand, invalidateBrand };
+  const removeBrand = () => {
+    queryClient.removeQueries({ queryKey: ["brand"] });
+  };
+
+  return {
+    brand,
+    isLoading,
+    error,
+    refetchBrand,
+    invalidateBrand,
+    removeBrand,
+  };
 };

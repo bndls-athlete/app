@@ -37,24 +37,24 @@ export const AthleteCard = () => {
     type === EntityType.Company ? athlete?._id : undefined
   );
 
-  const getSportIcon = (sport: string) => {
-    switch (sport) {
-      case sportsEnum.baseball:
-        return (
-          <FontAwesomeIcon icon={faBaseballBall} className="w-5 h-5 mr-2" />
-        );
-      case sportsEnum.basketball:
-        return (
-          <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
-        );
-      case sportsEnum.soccer:
-        return <FontAwesomeIcon icon={faSoccerBall} className="w-5 h-5 mr-2" />;
-      case sportsEnum.football:
-        return <FontAwesomeIcon icon={faFootball} className="w-5 h-5 mr-2" />;
-      default:
-        return null;
-    }
-  };
+  // const getSportIcon = (sport: string) => {
+  //   switch (sport) {
+  //     case sportsEnum.baseball:
+  //       return (
+  //         <FontAwesomeIcon icon={faBaseballBall} className="w-5 h-5 mr-2" />
+  //       );
+  //     case sportsEnum.basketball:
+  //       return (
+  //         <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
+  //       );
+  //     case sportsEnum.soccer:
+  //       return <FontAwesomeIcon icon={faSoccerBall} className="w-5 h-5 mr-2" />;
+  //     case sportsEnum.football:
+  //       return <FontAwesomeIcon icon={faFootball} className="w-5 h-5 mr-2" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   const totalFollowers = sum([
     athlete?.followers?.instagram || 0,

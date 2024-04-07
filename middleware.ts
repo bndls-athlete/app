@@ -39,6 +39,7 @@ export default authMiddleware({
       // Redirect based on userType
       switch (userType) {
         case EntityType.Athlete:
+        case EntityType.Team:
           if (!currentPath.startsWith("/athlete")) {
             return NextResponse.redirect(new URL("/athlete/jobs", req.url));
           }

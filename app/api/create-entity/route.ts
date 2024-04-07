@@ -8,6 +8,7 @@ import { clerkClient } from "@clerk/nextjs";
 import { EntityType } from "@/types/entityTypes";
 
 import Stripe from "stripe";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(request: Request) {
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
 
     switch (userType) {
       case EntityType.Athlete:
+      case EntityType.Team:
         return await handleAthlete(
           userType,
           authUser.userId!,
@@ -84,6 +86,10 @@ async function handleAthlete(
     fullName: fullName,
     email: email,
     receiveUpdates: updates,
+    registrationType:
+      userType === EntityType.Team
+        ? AthleteRegistrationType.Team
+        : AthleteRegistrationType.Individual,
   };
 
   const deepPartialAthleteSchema = athleteSchema.deepPartial();

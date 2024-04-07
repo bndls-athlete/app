@@ -218,18 +218,18 @@ export default function SignUpForm() {
                   className="radio radio-primary"
                   required
                 />
-                <span className="label-text">Athlete/Team</span>
+                <span className="label-text">Athlete</span>
               </label>
-              {/* <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                {...register("userType")}
-                value="team"
-                className="radio radio-primary"
-                required
-              />
-              <span className="label-text">Team</span>
-            </label> */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  {...register("userType")}
+                  value="team"
+                  className="radio radio-primary"
+                  required
+                />
+                <span className="label-text">Team</span>
+              </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"

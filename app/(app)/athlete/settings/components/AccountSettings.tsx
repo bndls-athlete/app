@@ -51,10 +51,10 @@ const athleteAccountSettingsSchema = z.object({
         message: "Invalid year",
       }
     ),
-  registrationType: z.enum([
-    AthleteRegistrationType.Individual,
-    AthleteRegistrationType.Team,
-  ]),
+  // registrationType: z.enum([
+  //   AthleteRegistrationType.Individual,
+  //   AthleteRegistrationType.Team,
+  // ]),
 });
 
 type AthleteAccountSettingsFormValues = z.infer<
@@ -75,8 +75,8 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     : new Date();
 
   const initialFormValues: AthleteAccountSettingsFormValues = {
-    registrationType:
-      athlete.registrationType || AthleteRegistrationType.Individual,
+    // registrationType:
+    //   athlete.registrationType || AthleteRegistrationType.Individual,
     fullName: athlete.fullName || "",
     gender: athlete.gender || "",
     country: athlete.address?.countryRegion || "",
@@ -162,8 +162,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
     }
   };
 
-  const isIndividual =
-    watch("registrationType") === AthleteRegistrationType.Individual;
+  const isIndividual = athlete.registrationType;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -213,7 +212,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-8 py-3 border-b">
+        {/* <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">
             <h6 className="font-semibold">Registration Type</h6>
           </div>
@@ -228,7 +227,7 @@ const AthleteAccountSettings = ({ athlete }: AthleteAccountSettingsProps) => {
               <option value={AthleteRegistrationType.Team}>Team</option>
             </Select>
           </div>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-8 py-3 border-b">
           <div className="md:col-span-2 col-span-8">

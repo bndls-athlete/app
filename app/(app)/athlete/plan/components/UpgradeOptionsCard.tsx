@@ -15,6 +15,8 @@ import {
   faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/app/components/Modal";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
+import { getTeamSubscriptionButtonData } from "@/helpers/stripeTeamManager";
 
 interface UpgradeOptionsCardProps {
   priceId: string;
@@ -131,14 +133,31 @@ const UpgradeOptionsCard = ({
     }
   };
 
-  const { text: buttonText, action: buttonAction } =
-    getAthleteSubscriptionButtonData({
-      athlete: athlete,
-      planPriceId: priceId,
-      handleSwitch,
-      handleManageBilling,
-      proceedWithCheckout,
-    });
+  const getSubscriptionButtonData = (
+    registrationType: AthleteRegistrationType | undefined
+  ) => {
+    if (registrationType === AthleteRegistrationType.Team) {
+      return getTeamSubscriptionButtonData({
+        athlete: athlete,
+        planPriceId: priceId,
+        handleSwitch,
+        handleManageBilling,
+        proceedWithCheckout,
+      });
+    } else {
+      return getAthleteSubscriptionButtonData({
+        athlete: athlete,
+        planPriceId: priceId,
+        handleSwitch,
+        handleManageBilling,
+        proceedWithCheckout,
+      });
+    }
+  };
+
+  const { text: buttonText, action: buttonAction } = getSubscriptionButtonData(
+    athlete?.registrationType
+  );
 
   const isLocked = buttonText === "Locked";
   const isCurrentPlan = buttonText === "Current Plan";
