@@ -14,7 +14,7 @@ const s3Client = new S3Client({
   },
 });
 
-export async function getFileUrl(fileKey: string): Promise<string> {
+async function getFileUrl(fileKey: string): Promise<string> {
   try {
     const getObjectParams = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
