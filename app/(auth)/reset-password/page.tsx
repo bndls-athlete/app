@@ -26,7 +26,6 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 const ForgotPasswordPage: NextPage = () => {
   const [successfulCreation, setSuccessfulCreation] = useState(false);
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const { isLoaded, signIn, setActive } = useSignIn();
   const [resetCodeSent, setResetCodeSent] = useState(false);
 

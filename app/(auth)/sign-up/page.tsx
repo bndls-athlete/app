@@ -180,7 +180,7 @@ export default function SignUpForm() {
             <Input
               // withLabel="Confirm Password*"
               placeholder="Confirm your password"
-              type="text"
+              type="password"
               {...register("passwordConfirmation")}
               error={errors.passwordConfirmation?.message}
               passwordHide
