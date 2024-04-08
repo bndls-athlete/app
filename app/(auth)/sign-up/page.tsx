@@ -121,7 +121,6 @@ export default function SignUpForm() {
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   className="border-2 border-gray-200 w-full p-2 rounded-md  focus:border-primary focus:ring-primary/[0.2] focus:outline-none"
-                  required
                 />
               </div>
               <button
@@ -152,7 +151,6 @@ export default function SignUpForm() {
               placeholder="Enter your name"
               {...register("fullName")}
               error={errors.fullName?.message}
-              required
             />
             <Input
               // withLabel="Email Address*"
@@ -160,7 +158,6 @@ export default function SignUpForm() {
               type="email"
               {...register("email")}
               error={errors.email?.message}
-              required
             />
             {/* <Input
               // withLabel="Password*"
@@ -168,7 +165,7 @@ export default function SignUpForm() {
               type="password"
               {...register("password")}
               error={errors.password?.message}
-              required
+              
             /> */}
 
             <Input
@@ -186,7 +183,7 @@ export default function SignUpForm() {
               type="text"
               {...register("passwordConfirmation")}
               error={errors.passwordConfirmation?.message}
-              required
+              passwordHide
             />
           </div>
           <div className="mb-6">
@@ -216,7 +213,6 @@ export default function SignUpForm() {
                   {...register("userType")}
                   value="athlete"
                   className="radio radio-primary"
-                  required
                 />
                 <span className="label-text">Athlete</span>
               </label>
@@ -226,7 +222,6 @@ export default function SignUpForm() {
                   {...register("userType")}
                   value="team"
                   className="radio radio-primary"
-                  required
                 />
                 <span className="label-text">Athlete Team</span>
               </label>
@@ -236,7 +231,6 @@ export default function SignUpForm() {
                   {...register("userType")}
                   value="company"
                   className="radio radio-primary"
-                  required
                 />
                 <span className="label-text">Brand</span>
               </label>
