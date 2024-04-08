@@ -45,7 +45,7 @@ export type JobPosting = z.infer<typeof jobPostingSchema> & {
 };
 
 export type JobPostingWithCompanyInfo = Omit<JobPosting, "brandId"> & {
-  brand: Pick<Brand, "bio" | "companyName">;
+  brand: Pick<Brand, "bio" | "companyName" | "profilePicture">;
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
   isApplied: boolean;

@@ -112,7 +112,7 @@ const JobModal: React.FC<JobModalProps> = ({
             <div className="space-y-6 pt-6">
               <div className="flex flex-col lg:flex-row justify-between items-start">
                 <img
-                  src="/images/thumbnail_job.png"
+                  src={jobData.brand.profilePicture || "/images/Avatar.webp"}
                   alt=""
                   className="w-24 h-24 rounded-full mr-4 mb-4 lg:mb-0"
                 />

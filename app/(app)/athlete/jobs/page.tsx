@@ -301,7 +301,7 @@ const Opportunities = () => {
                 (job: JobPostingWithCompanyInfo, index: number) => (
                   <JobCard
                     key={index}
-                    job={job}
+                    jobData={job}
                     onSelectJob={() => handleJobSelect(job)}
                   />
                 )

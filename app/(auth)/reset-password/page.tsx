@@ -113,12 +113,14 @@ const ForgotPasswordPage: NextPage = () => {
             type="password"
             error={resetPasswordForm.formState.errors.password?.message}
             passwordHide
+            autoComplete="off"
           />
           <Input
             placeholder="Enter the password reset code"
             type="text"
             {...resetPasswordForm.register("code")}
             error={resetPasswordForm.formState.errors.code?.message}
+            autoComplete="off"
           />
           {resetCodeSent && (
             <div className="mb-4 text-sm text-green-600">

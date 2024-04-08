@@ -3,6 +3,34 @@ import JobPostingModel from "@/models/JobPosting";
 import { auth } from "@clerk/nextjs";
 import mongoose from "mongoose";
 import AthleteModel from "@/models/Athlete";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+export async function getFileUrl(fileKey: string): Promise<string> {
+  try {
+    const getObjectParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: fileKey,
+    };
+    const getObjectCommand = new GetObjectCommand(getObjectParams);
+    const signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
+      expiresIn: 3600, // URL expires in 1 hour
+    });
+
+    return signedUrl;
+  } catch (error) {
+    console.error("Error getting file URL:", error);
+    throw new Error("Error getting file URL");
+  }
+}
 
 export async function GET(request: Request) {
   await dbConnect();
@@ -162,6 +190,7 @@ export async function GET(request: Request) {
                 _id: 0,
                 companyName: 1,
                 bio: 1,
+                profilePicture: 1,
               },
             },
           ],
@@ -176,6 +205,15 @@ export async function GET(request: Request) {
     );
 
     const jobPostings = await JobPostingModel.aggregate(pipeline);
+
+    for (const jobPosting of jobPostings) {
+      if (jobPosting.brand && jobPosting.brand.profilePicture) {
+        const profilePictureUrl = await getFileUrl(
+          jobPosting.brand.profilePicture
+        );
+        jobPosting.brand.profilePicture = profilePictureUrl;
+      }
+    }
 
     return new Response(
       JSON.stringify({
