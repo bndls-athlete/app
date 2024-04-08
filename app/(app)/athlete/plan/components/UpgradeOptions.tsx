@@ -10,6 +10,8 @@ import { AthleteTierManager } from "@/helpers/stripeAthleteManager";
 import { useAthleteData } from "@/hooks/useAthleteData";
 import { getTierManager } from "@/helpers/tierManagerUtils";
 import { Link } from "lucide-react";
+import GetInTouch from "@/app/components/GetInTouch";
+import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
 
 const UpgradeOptions = () => {
   const router = useRouter();
@@ -37,7 +39,11 @@ const UpgradeOptions = () => {
       <div className="my-3">
         <div className="text-center my-6">
           <h1 className="text-3xl font-semibold mb-2">
-            Pricing Plans for Athletes
+            {`Pricing Plans for ${
+              athlete?.registrationType === AthleteRegistrationType.Individual
+                ? "Athletes"
+                : "Athlete Teams"
+            }`}
           </h1>
           <span className="text-subtitle">
             Choose the plan that best fits your needs and start optimizing your
@@ -115,24 +121,7 @@ const UpgradeOptions = () => {
               />
             </Accordion>
           </div> */}
-          <div className="bg-white my-6 mt-16">
-            <div className="flex justify-center py-12">
-              <div className="text-center">
-                <h3 className="font-semibold text-2xl mb-2">
-                  Still have questions?
-                </h3>
-                <span className="text-subtitle">
-                  Can’t find the answer you’re looking for? Please chat to our
-                  friendly team.
-                </span>
-                <div className="py-6 mx-auto">
-                  <Link href="/help-center">
-                    <Button className="text-sm py-2">Get in Touch</Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GetInTouch />
         </div>
       </div>
     </>
