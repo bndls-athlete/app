@@ -30,7 +30,7 @@ const BrandSchema: Schema<Brand> = new Schema({
     countryRegion: String,
     streetAddress: String,
     city: String,
-    state: String,
+    state: { type: String, enum: statesArray },
     zipCode: String,
   },
   socialProfiles: {
@@ -53,7 +53,7 @@ const BrandSchema: Schema<Brand> = new Schema({
   cancelAtPeriodEnd: Boolean,
   subscriptionStatus: {
     type: String,
-    enum: subscriptionStatusValues,
+    enum: Object.values(subscriptionStatusValues),
   },
 });
 
