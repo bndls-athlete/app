@@ -22,6 +22,7 @@ import {
   faFootball,
 } from "@fortawesome/free-solid-svg-icons";
 import sum from "lodash/sum";
+import _ from "lodash";
 import { formatIntlNumber } from "@/helpers/formatIntlNumber";
 import useUserType from "@/hooks/useUserType";
 import { useToggleBookmark } from "@/hooks/useToggleBookmark";
@@ -37,24 +38,24 @@ export const AthleteCard = () => {
     type === EntityType.Company ? athlete?._id : undefined
   );
 
-  // const getSportIcon = (sport: string) => {
-  //   switch (sport) {
-  //     case sportsEnum.baseball:
-  //       return (
-  //         <FontAwesomeIcon icon={faBaseballBall} className="w-5 h-5 mr-2" />
-  //       );
-  //     case sportsEnum.basketball:
-  //       return (
-  //         <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
-  //       );
-  //     case sportsEnum.soccer:
-  //       return <FontAwesomeIcon icon={faSoccerBall} className="w-5 h-5 mr-2" />;
-  //     case sportsEnum.football:
-  //       return <FontAwesomeIcon icon={faFootball} className="w-5 h-5 mr-2" />;
-  //     default:
-  //       return null;
-  //   }
-  // };
+  const getSportIcon = (sport: string) => {
+    switch (sport) {
+      case sportsEnum.baseball:
+        return (
+          <FontAwesomeIcon icon={faBaseballBall} className="w-5 h-5 mr-2" />
+        );
+      case sportsEnum.basketball:
+        return (
+          <FontAwesomeIcon icon={faBasketballBall} className="w-5 h-5 mr-2" />
+        );
+      case sportsEnum.soccer:
+        return <FontAwesomeIcon icon={faSoccerBall} className="w-5 h-5 mr-2" />;
+      case sportsEnum.football:
+        return <FontAwesomeIcon icon={faFootball} className="w-5 h-5 mr-2" />;
+      default:
+        return null;
+    }
+  };
 
   const totalFollowers = sum([
     athlete?.followers?.instagram || 0,
@@ -241,11 +242,11 @@ export const AthleteCard = () => {
                 </Link>
               )}
             </div>
-            {(totalFollowers > 0 ||
-              (athlete?.athleteRating && athlete.athleteRating > 0)) && (
+            {(_.isNumber(totalFollowers) ||
+              _.isNumber(athlete?.athleteRating)) && (
               <div className="bg-primary text-white rounded-lg p-4 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {totalFollowers > 0 && (
+                  {_.isNumber(totalFollowers) && (
                     <div className="flex flex-col">
                       <span className="flex items-center text-base font-semibold">
                         Total Followers
@@ -256,7 +257,7 @@ export const AthleteCard = () => {
                     </div>
                   )}
 
-                  {athlete?.athleteRating && athlete.athleteRating > 0 && (
+                  {_.isNumber(athlete?.athleteRating) && (
                     <div className="flex flex-col">
                       <span className="text-base font-semibold">
                         {athlete?.registrationType ===
@@ -289,9 +290,13 @@ export const AthleteCard = () => {
                   <h6 className="font-semibold text-lg mb-2">Sports</h6>
                   <div className="flex flex-wrap gap-2">
                     {athlete.sports.map((sport) => (
-                      <span key={sport} className="badge badge-primary">
-                        {sport}
-                      </span>
+                      <div
+                        key={sport}
+                        className="badge badge-primary flex items-center p-4"
+                      >
+                        {getSportIcon(sport)}
+                        <span>{sport}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
