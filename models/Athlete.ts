@@ -8,6 +8,7 @@ import {
 } from "@/schemas/athleteSchema";
 import { subscriptionStatusValues } from "@/schemas/subscriptionStatusSchema";
 import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
+import { statesArray } from "@/helpers/stateOptions";
 
 export type Athlete = AthleteBase & mongoose.Document;
 
@@ -24,7 +25,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
     streetName: String,
     houseApartmentNumber: String,
     city: String,
-    state: String,
+    state: { type: String, enum: statesArray },
     zipCode: String,
   },
   dateOfBirth: Date,
@@ -86,7 +87,7 @@ const AthleteSchema: Schema<Athlete> = new mongoose.Schema({
   athleteTier: {
     type: String,
     enum: athleteTierSchema.options,
-    default: athleteTierEnum["3"], // Default to Tier 3
+    default: athleteTierEnum["3"],
   },
   // Stripe
   stripeCustomerId: { type: String, required: true },

@@ -241,39 +241,41 @@ export const AthleteCard = () => {
                 </Link>
               )}
             </div>
+            {(totalFollowers > 0 ||
+              (athlete?.athleteRating && athlete.athleteRating > 0)) && (
+              <div className="bg-primary text-white rounded-lg p-4 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {totalFollowers > 0 && (
+                    <div className="flex flex-col">
+                      <span className="flex items-center text-base font-semibold">
+                        Total Followers
+                      </span>
+                      <h3 className="text-lg font-bold">
+                        {formatIntlNumber(totalFollowers)}
+                      </h3>
+                    </div>
+                  )}
 
-            <div className="bg-primary text-white rounded-lg p-4 mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {totalFollowers > 0 && (
-                  <div className="flex flex-col">
-                    <span className="flex items-center text-base font-semibold">
-                      Total Followers
-                    </span>
-                    <h3 className="text-lg font-bold">
-                      {formatIntlNumber(totalFollowers)}
-                    </h3>
-                  </div>
-                )}
-
-                {athlete?.athleteRating && athlete.athleteRating > 0 && (
-                  <div className="flex flex-col">
-                    <span className="text-base font-semibold">
-                      {athlete?.registrationType ===
-                      AthleteRegistrationType.Team
-                        ? "Team Rating"
-                        : "Athlete Rating"}
-                    </span>
-                    <h3 className="text-lg font-bold flex items-center">
-                      <FontAwesomeIcon
-                        icon={faStar}
-                        className="text-yellow-200 mr-1"
-                      />
-                      {athlete.athleteRating}
-                    </h3>
-                  </div>
-                )}
+                  {athlete?.athleteRating && athlete.athleteRating > 0 && (
+                    <div className="flex flex-col">
+                      <span className="text-base font-semibold">
+                        {athlete?.registrationType ===
+                        AthleteRegistrationType.Team
+                          ? "Team Rating"
+                          : "Athlete Rating"}
+                      </span>
+                      <h3 className="text-lg font-bold flex items-center">
+                        <FontAwesomeIcon
+                          icon={faStar}
+                          className="text-yellow-200 mr-1"
+                        />
+                        {athlete.athleteRating}
+                      </h3>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="mb-8">
               <h6 className="font-bold text-xl mb-4">

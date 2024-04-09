@@ -4,6 +4,7 @@ import {
   jobTypeSchema,
 } from "@/schemas/jobPostingSchema";
 import { AthleteTierNames } from "@/helpers/stripeAthleteManager";
+import { statesArray } from "@/helpers/stateOptions";
 
 export type JobPosting = JobPostingBase & Document;
 
@@ -22,10 +23,7 @@ const JobPostingSchema: Schema<JobPosting> = new Schema(
       type: String,
       required: true,
     },
-    state: {
-      type: String,
-      required: true,
-    },
+    state: { type: String, enum: statesArray, required: true },
     feeCompensation: Number,
     opportunityDescription: String,
     deliverables: [

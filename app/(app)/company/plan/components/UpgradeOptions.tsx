@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
 import { BrandTierManager } from "@/helpers/stripeBrandManager";
 import { useBrandData } from "@/hooks/useBrandData";
+import GetInTouch from "@/app/components/GetInTouch";
 
 const UpgradeOptions = () => {
   const router = useRouter();
@@ -111,22 +112,7 @@ const UpgradeOptions = () => {
               />
             </Accordion>
           </div> */}
-          <div className="bg-white my-6 mt-16">
-            <div className="flex justify-center py-12">
-              <div className="text-center">
-                <h3 className="font-semibold text-2xl mb-2">
-                  Still have questions?
-                </h3>
-                <span className="text-subtitle">
-                  Can’t find the answer you’re looking for? Please chat to our
-                  friendly team.
-                </span>
-                <div className="py-6 mx-auto">
-                  <Button className="text-sm py-2">Get in Touch</Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GetInTouch/>
         </div>
       </div>
     </>
