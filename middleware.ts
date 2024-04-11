@@ -13,7 +13,6 @@ export default authMiddleware({
     "/terms-of-service",
   ],
   ignoredRoutes: ["/api/stripe/webhook"],
-  debug: true,
   afterAuth(auth, req) {
     if (!auth.userId && !auth.isPublicRoute) {
       // Redirect unauthenticated users to the sign-in page
