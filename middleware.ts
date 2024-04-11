@@ -3,6 +3,7 @@ import { authMiddleware } from "@clerk/nextjs";
 import { EntityType } from "./types/entityTypes";
 
 export default authMiddleware({
+  secretKey: process.env.CLERK_SECRET_KEY,
   publicRoutes: [
     "/sign-in",
     "/sign-up",
