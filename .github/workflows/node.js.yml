@@ -10,16 +10,11 @@ jobs:
     strategy:
       matrix:
         node-version: [20.12.1]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    env:
+    env: # Env variables needed during build
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
       NEXT_PUBLIC_WEBSITE_URL: ${{ secrets.NEXT_PUBLIC_WEBSITE_URL }}
       NEXT_PUBLIC_SUPPORT_EMAIL: ${{ secrets.NEXT_PUBLIC_SUPPORT_EMAIL }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
       NEXT_PUBLIC_ATHLETE_TIER_1_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_ATHLETE_TIER_1_MONTHLY_PRICE_ID }}
       NEXT_PUBLIC_ATHLETE_TIER_2_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_ATHLETE_TIER_2_MONTHLY_PRICE_ID }}
       NEXT_PUBLIC_ATHLETE_TIER_3_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_ATHLETE_TIER_3_MONTHLY_PRICE_ID }}
@@ -38,10 +33,6 @@ jobs:
       NEXT_PUBLIC_BRAND_BASIC_YEARLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_BRAND_BASIC_YEARLY_PRICE_ID }}
       NEXT_PUBLIC_BRAND_PERFORMANCE_YEARLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_BRAND_PERFORMANCE_YEARLY_PRICE_ID }}
       NEXT_PUBLIC_BRAND_ADVANCED_YEARLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_BRAND_ADVANCED_YEARLY_PRICE_ID }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -51,6 +42,15 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build --if-present
-      - name: Change Directory
-        run: cd /home/aryan/actions-runner/_work/app/app
+      - name: Set Secrets and Change Dir
+        run: |
+          echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env.production
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env.production
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env.production
+          echo "STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env.production
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env.production
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.production
+          echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env.production
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.production
+          cd /home/aryan/actions-runner/_work/app/app
       - run: pm2 restart 0
