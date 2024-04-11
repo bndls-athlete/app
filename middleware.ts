@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authMiddleware, redirectToSignIn } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs/server";
 import { EntityType } from "./types/entityTypes";
 
 export default authMiddleware({
@@ -14,23 +14,26 @@ export default authMiddleware({
   ],
   ignoredRoutes: ["/api/stripe/webhook"],
   afterAuth(auth, req) {
+    if (!auth.userId && !auth.isPublicRoute) {
+      // Redirect unauthenticated users to the sign-in page
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
     const currentPath = new URL(req.url).pathname;
+
+    // Define an array of paths that are exceptions to the usual redirect logic
     const pathExceptions = ["/help-center", "/checkout", "/api"];
+
+    // Check if the current path starts with any of the exceptions
     const isException = pathExceptions.some((path) =>
       currentPath.startsWith(path)
     );
-
-    // Handle users who aren't authenticated
-    if (!auth.userId && !auth.isPublicRoute) {
-      return redirectToSignIn({ returnBackUrl: req.url });
-    }
 
     // Skip redirects for exceptions
     if (isException) {
       return NextResponse.next();
     }
 
-    // Handle authenticated users
     if (auth.userId) {
       const userType = auth.sessionClaims?.userType;
 
@@ -50,7 +53,6 @@ export default authMiddleware({
       }
     }
 
-    // Allow users visiting public routes to access them
     return NextResponse.next();
   },
 });
