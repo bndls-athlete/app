@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node -r dotenv/config ./node_modules/.bin/next",
-    "build": "node -r dotenv/config ./node_modules/.bin/next build",
-    "start": "node -r dotenv/config ./node_modules/.bin/next start",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -22,7 +22,6 @@
     "axios": "^1.6.8",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.10",
-    "dotenv": "^16.4.5",
     "lodash": "^4.17.21",
     "lucide-react": "^0.359.0",
     "mongoose": "^8.2.3",
