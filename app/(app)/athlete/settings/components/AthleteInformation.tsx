@@ -371,7 +371,9 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
                     error={errors.winsLossRecord?.wins?.message}
                     placeholder="Wins"
                   />
-                  <span className="text-subtitle">Enter your team's wins.</span>
+                  <span className="text-subtitle">
+                    Enter your team&aspo;s wins.
+                  </span>
                 </div>
                 <div className="flex flex-col gap-3">
                   <Input
@@ -381,7 +383,7 @@ const AthleteInformation = ({ athlete }: AthleteInformationProps) => {
                     placeholder="Losses"
                   />
                   <span className="text-subtitle">
-                    Enter your team's losses.
+                    Enter your team&aspos;s losses.
                   </span>
                 </div>
               </div>
