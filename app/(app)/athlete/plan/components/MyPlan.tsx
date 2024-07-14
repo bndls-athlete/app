@@ -2,7 +2,7 @@ import Card from "../../../../components/Card";
 import axios from "axios";
 import { getMyPlanInfo } from "@/helpers/stripeAthleteManager";
 import { useRouter } from "next/navigation";
-import { useAthleteData } from "@/hooks/useAthleteData"; // Assuming you have a custom hook to fetch athlete data
+import { useAthleteData } from "@/hooks/useAthleteData";
 import useUserType from "@/hooks/useUserType";
 import { getTeamPlanInfo } from "@/helpers/stripeTeamManager";
 import { AthleteRegistrationType } from "@/types/athleteRegisterationTypes";
@@ -59,6 +59,16 @@ const MyPlan = () => {
     athlete?.registrationType
   );
 
+  const getPlanStatus = () => {
+    if (athlete?.subscriptionStatus === "trialing") {
+      return "Trial";
+    } else if (buttonText === "Get Started") {
+      return "Free";
+    } else {
+      return "Paid";
+    }
+  };
+
   return (
     <>
       <div className="my-3">
@@ -72,9 +82,8 @@ const MyPlan = () => {
                 <span className="text-sm">{planInfo}</span>
               </div>
               <h1 className="my-auto text-4xl font-semibold">
-                {buttonText === "Get Started" ? "Free" : "Paid"}
-              </h1>{" "}
-              {/* Adjust this to display the correct price */}
+                {getPlanStatus()}
+              </h1>
             </div>
           </Card.Body>
           <Card.Footer className="px-6 py-3">

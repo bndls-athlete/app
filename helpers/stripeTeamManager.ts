@@ -103,13 +103,22 @@ class TeamTierManager {
     if (
       !athlete ||
       !athlete.subscriptionStatus ||
-      !allowedStatuses.includes(athlete.subscriptionStatus) ||
-      !athlete.priceId
+      !allowedStatuses.includes(athlete.subscriptionStatus)
     ) {
       return false;
     }
 
-    // Utilizes hasAccess for the actual check
+    // For trialing status, always return true
+    if (athlete.subscriptionStatus === "trialing") {
+      return true;
+    }
+
+    // For active subscriptions, check if the athlete has a priceId
+    if (!athlete.priceId) {
+      return false;
+    }
+
+    // Utilizes hasAccess for the actual check for active subscriptions
     return this.hasAccess(athlete.priceId, tierName);
   }
 
@@ -153,6 +162,13 @@ function getTeamPlanInfo({
     return { planInfo, buttonText, action };
   }
 
+  if (athlete.subscriptionStatus === "trialing") {
+    planInfo = "Your team is currently on a trial subscription.";
+    buttonText = "Manage Plan";
+    action = handleManageBilling;
+    return { planInfo, buttonText, action };
+  }
+
   if (!athlete.stripeSubscriptionId) {
     buttonText = "Get Started";
     action = handleGetStarted;
@@ -168,7 +184,7 @@ function getTeamPlanInfo({
         if (athlete.cancelAtPeriodEnd && athlete.subscriptionEndDate) {
           const endDate = dayjs(athlete.subscriptionEndDate);
           const formattedDate = endDate.format("MM/DD/YYYY");
-          planInfo = `Your plan will be canceled on ${formattedDate}.`;
+          planInfo = `Your team's plan will be canceled on ${formattedDate}.`;
           buttonText = "Manage Plan";
           action = handleManageBilling;
         } else if (currentTier) {
@@ -183,25 +199,25 @@ function getTeamPlanInfo({
       case "past_due":
       case "unpaid":
         planInfo =
-          "Your subscription payment is overdue. Please update your billing details to continue your subscription.";
+          "Your team's subscription payment is overdue. Please update your billing details to continue your subscription.";
         buttonText = "Renew";
         action = handleRenew;
         break;
       case "canceled":
         planInfo =
-          "Your subscription has been canceled. You can start a new subscription at any time.";
+          "Your team's subscription has been canceled. You can start a new subscription at any time.";
         buttonText = "Get Started";
         action = handleGetStarted;
         break;
       case "incomplete":
       case "incomplete_expired":
         planInfo =
-          "You currently do not have an active subscription. Please add your billing details to initiate your subscription.";
+          "Your team currently does not have an active subscription. Please add your billing details to initiate your subscription.";
         buttonText = "Get Started";
         action = handleGetStarted;
         break;
       default:
-        // For other statuses like 'trialing' or 'paused', you can add custom messages, button texts, and actions as needed
+        // For other statuses, you can add custom messages, button texts, and actions as needed
         break;
     }
   }

@@ -163,13 +163,22 @@ class AthleteTierManager {
     if (
       !athlete ||
       !athlete.subscriptionStatus ||
-      !allowedStatuses.includes(athlete.subscriptionStatus) ||
-      !athlete.priceId
+      !allowedStatuses.includes(athlete.subscriptionStatus)
     ) {
       return false;
     }
 
-    // Utilizes hasAccess for the actual check
+    // For trialing status, always return true
+    if (athlete.subscriptionStatus === "trialing") {
+      return true;
+    }
+
+    // For active subscriptions, check if the athlete has a priceId
+    if (!athlete.priceId) {
+      return false;
+    }
+
+    // Utilizes hasAccess for the actual check for active subscriptions
     return this.hasAccess(athlete.priceId, tierName);
   }
 
@@ -210,6 +219,13 @@ function getMyPlanInfo({
   let action: (() => void) | null = handleGetStarted;
 
   if (!athlete) {
+    return { planInfo, buttonText, action };
+  }
+
+  if (athlete.subscriptionStatus === "trialing") {
+    planInfo = "You are currently on a trial subscription.";
+    buttonText = "Manage Plan";
+    action = handleManageBilling;
     return { planInfo, buttonText, action };
   }
 
@@ -261,7 +277,7 @@ function getMyPlanInfo({
         action = handleGetStarted;
         break;
       default:
-        // For other statuses like 'trialing' or 'paused', you can add custom messages, button texts, and actions as needed
+        // For other statuses, you can add custom messages, button texts, and actions as needed
         break;
     }
   }
